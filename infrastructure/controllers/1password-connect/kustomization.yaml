@@ -5,5 +5,6 @@ namespace: 1password
 resources:
   - namespace.yaml
   - secret-op-credentials.yaml
+  - secret-onepassword-token.yaml
   - helmrepo.yaml
   - helmrelease.yaml
