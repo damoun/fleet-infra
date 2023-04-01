@@ -4,7 +4,5 @@ kind: Kustomization
 namespace: 1password
 resources:
   - namespace.yaml
-  - secret-op-credentials.sops.yaml
-  - secret-onepassword-token.sops.yaml
   - helmrepo.yaml
   - helmrelease.yaml
