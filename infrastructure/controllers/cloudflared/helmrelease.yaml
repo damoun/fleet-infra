@@ -12,6 +12,6 @@ spec:
       sourceRef:
         kind: HelmRepository
         name: damoun
-      version: 1.0.0
+      version: 1.0.1
   values: 
   interval: 1m0s
