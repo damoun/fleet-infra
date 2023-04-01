@@ -13,7 +13,7 @@ spec:
         kind: HelmRepository
         name: 1password
       version: 1.10.0
-      values:
-        operator:
-          create: true
+  values:
+    operator:
+      create: true
   interval: 1m0s
