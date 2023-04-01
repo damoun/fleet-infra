@@ -5,6 +5,10 @@ metadata:
   name: traefik
   namespace: traefik
 spec:
+  install:
+   disableWait: true
+  upgrade:
+   disableWait: true
   chart:
     spec:
       chart: traefik
@@ -14,4 +18,3 @@ spec:
         name: traefik
       version: 22.0.0
   interval: 1m0s
-
