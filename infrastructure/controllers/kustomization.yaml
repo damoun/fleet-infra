@@ -4,3 +4,4 @@ kind: Kustomization
 resources:
   - ./traefik/
   - ./1password-connect/
+  - ./cloudflared/
