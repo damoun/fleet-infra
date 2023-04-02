@@ -1,0 +1,13 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: cloudflared
+  namespace: cloudflare
+spec:
+  chart:
+    spec:
+      version: ">=1.0.0"
+  values:
+    config:
+      tunnel: cluster-0-tunnel
+      credentials-file: /etc/cloudflared/creds/6268786c-0c8f-424c-a86b-dc088293a5b4.json

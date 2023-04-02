@@ -4,3 +4,5 @@ kind: Kustomization
 resources:
   - secret-tunnel-credentials.sops.yaml
   - ../../base/cloudflared
+patchesStrategicMerge:
+  - values.yaml
