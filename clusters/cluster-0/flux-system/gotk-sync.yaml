@@ -22,6 +22,10 @@ spec:
   interval: 10m0s
   path: ./clusters/cluster-0
   prune: true
+  decryption:
+    provider: sops
+    secretRef:
+      name: sops-gpg
   sourceRef:
     kind: GitRepository
     name: flux-system
