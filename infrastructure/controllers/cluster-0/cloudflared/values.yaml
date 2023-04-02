@@ -8,6 +8,9 @@ spec:
     spec:
       version: ">=1.0.0"
   values:
+    annotations:
+      operator.1password.io/item-path: "vaults/Kubernetes/items/cloudflared-credentials"
+      operator.1password.io/item-name: "cloudflared-credentials"
     config:
       tunnel: 6268786c-0c8f-424c-a86b-dc088293a5b4
       credentials-file: /etc/cloudflared/creds/6268786c-0c8f-424c-a86b-dc088293a5b4.json
