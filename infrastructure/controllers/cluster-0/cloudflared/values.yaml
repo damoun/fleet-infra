@@ -8,6 +8,9 @@ spec:
     spec:
       version: ">=1.0.0"
   values:
+    secret:
+      certificates:
+        name: tunnel-credentials
     annotations:
       operator.1password.io/item-path: "vaults/Kubernetes/items/cloudflared-credentials"
       operator.1password.io/item-name: "cloudflared-credentials"
