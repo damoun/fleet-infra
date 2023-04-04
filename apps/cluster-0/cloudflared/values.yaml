@@ -4,8 +4,6 @@ metadata:
   name: cloudflared
   namespace: cloudflare
 spec:
-  chart:
-    spec:
   values:
     secret:
       certificates:
