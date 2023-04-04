@@ -4,6 +4,9 @@ metadata:
   name: cloudflared
   namespace: cloudflare
 spec:
+  dependsOn:
+    - name: prometheus-operator-crds
+      namespace: monitoring
   values:
     serviceMonitor:
       enabled: true
