@@ -5,6 +5,8 @@ metadata:
   namespace: cloudflare
 spec:
   values:
+    serviceMonitor:
+      enabled: true
     secret:
       certificates:
         name: tunnel-credentials
