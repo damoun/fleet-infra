@@ -1,0 +1,27 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: kube-prometheus-stack
+  namespace: monitoring
+spec:
+  chart:
+    spec:
+  values:
+    grafana:
+      annotations:
+        operator.1password.io/item-path: "vaults/Kubernetes/items/grafana-admin-user"
+        operator.1password.io/item-name: "grafana-admin-user"
+      admin:
+        existingSecret: "grafana-admin-user"
+        userKey: username
+        passwordKey: password
+    prometheus:
+      prometheusSpec:
+        additionalScrapeConfigs:
+          - job_name: node-exporter
+            scheme: http
+            static_configs:
+              - targets:
+                - pve.home.damoun.cloud:9100
+                - vpn1.home.damoun.cloud:9100
+                - nas.home.damoun.cloud:9100
