@@ -5,7 +5,7 @@ metadata:
   namespace: cloudflare
 spec:
   dependsOn:
-    - name: prometheus-operator-crds
+    - name: kube-prometheus-stack
       namespace: monitoring
   values:
     serviceMonitor:
