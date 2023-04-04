@@ -4,8 +4,6 @@ metadata:
   name: kube-prometheus-stack
   namespace: monitoring
 spec:
-  chart:
-    spec:
   values:
     grafana:
       annotations:

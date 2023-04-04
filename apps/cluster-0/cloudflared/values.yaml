@@ -6,7 +6,6 @@ metadata:
 spec:
   chart:
     spec:
-      version: ">=1.0.0"
   values:
     secret:
       certificates:
