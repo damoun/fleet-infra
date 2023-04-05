@@ -18,4 +18,6 @@ spec:
       rbac:
         createAggregateClusterRoles: true
         pspEnabled: true
+        pspAnnotations:
+          seccomp.security.alpha.kubernetes.io/allowedProfileNames: '*'
   interval: 1m0s
