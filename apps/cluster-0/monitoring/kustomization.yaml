@@ -4,6 +4,7 @@ kind: Kustomization
 resources:
   - ../../base/monitoring
   - ../../base/monitoring/kube-promnetheus-stack
+  - ../../base/monitoring/speedtest-exporter
 patchesStrategicMerge:
   - namespace.yaml
   - values.yaml
