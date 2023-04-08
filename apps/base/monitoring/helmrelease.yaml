@@ -17,10 +17,4 @@ spec:
     global:
       rbac:
         createAggregateClusterRoles: true
-        pspEnabled: true
-        pspAnnotations:
-          seccomp.security.alpha.kubernetes.io/allowedProfileNames: '*'
-    prometheus-node-exporter:
-      rbac:
-        pspEnabled: true
   interval: 1m0s
