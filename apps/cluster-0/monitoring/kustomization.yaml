@@ -8,5 +8,5 @@ resources:
   - ../../base/monitoring/proxmox-exporter
 patchesStrategicMerge:
   - namespace.yaml
-  - values.yaml
+  - kube-prometheus-stack.yaml
   - proxmox-exporter.yaml
