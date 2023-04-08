@@ -10,6 +10,8 @@ spec:
       operator.1password.io/item-name: "proxmox-exporter-login"
     serviceMonitor:
       enabled: true
+      extraLabels:
+        release: kube-prometheus-stack
       targets:
         - name: pve.home.damoun.cloud
           url: pve.home.damoun.cloud:8006
