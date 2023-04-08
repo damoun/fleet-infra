@@ -1,0 +1,24 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: proxmox-exporter
+  namespace: monitoring
+spec:
+  dependsOn:
+    - name: kube-prometheus-stack
+      namespace: monitoring
+  chart:
+    spec:
+      chart: proxmox-exporter
+      reconcileStrategy: ChartVersion
+      sourceRef:
+        kind: HelmRepository
+        name: damoun
+      version: 1.3.3
+  values:
+    serviceMonitor:
+      enabled: true
+      extraLabels:
+        release: kube-prometheus-stack
+  interval: 1m0s

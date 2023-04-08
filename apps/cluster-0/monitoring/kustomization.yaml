@@ -5,6 +5,8 @@ resources:
   - ../../base/monitoring
   - ../../base/monitoring/kube-prometheus-stack
   - ../../base/monitoring/speedtest-exporter
+  - ../../base/monitoring/proxmox-exporter
 patchesStrategicMerge:
   - namespace.yaml
   - values.yaml
+  - proxmox-exporter.yaml
