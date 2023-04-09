@@ -5,7 +5,10 @@ metadata:
   namespace: monitoring
 spec:
   values:
+    defaultRules:
+      create: false
     grafana:
+      defaultDashboardsEnabled: false
       annotations:
         operator.1password.io/item-path: "vaults/Kubernetes/items/grafana-secrets"
         operator.1password.io/item-name: "grafana-secrets"
