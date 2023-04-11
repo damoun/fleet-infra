@@ -5,6 +5,7 @@ metadata:
   namespace: monitoring
 spec:
   values:
+    serviceMonitor:
       targets:
         - name: grafana
           url: "http://grafana.damoun.cloud"
