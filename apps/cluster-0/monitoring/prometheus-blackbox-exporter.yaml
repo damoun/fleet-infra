@@ -1,0 +1,14 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: prometheus-blackbox-exporter
+  namespace: monitoring
+spec:
+  values:
+      targets:
+        - name: grafana
+          url: "http://grafana.damoun.cloud"
+        - name: prometheus
+          url: "http://prom.damoun.cloud"
+        - name: truenas
+          url: "https://nas.home.damoun.cloud"
