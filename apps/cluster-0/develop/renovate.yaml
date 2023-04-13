@@ -5,10 +5,6 @@ metadata:
   namespace: develop
 spec:
   values:
-    pod:
-      annotations:
-        operator.1password.io/item-path: "vaults/Kubernetes/items/renovate"
-        operator.1password.io/item-name: "renovate-secrets"
     env:
       RENOVATE_AUTODISCOVER: "true"
       LOG_LEVEL: "debug"
