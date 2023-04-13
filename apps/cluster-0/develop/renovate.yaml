@@ -10,9 +10,7 @@ spec:
         operator.1password.io/item-path: "vaults/Kubernetes/items/renovate"
         operator.1password.io/item-name: "renovate-secrets"
     env:
-      - name: RENOVATE_AUTODISCOVER
-        value: "true"
-      - name: LOG_LEVEL
-        value: debug
+      RENOVATE_AUTODISCOVER: "true"
+      LOG_LEVEL: "debug"
     renovate:
       secretName: renovate-secrets
