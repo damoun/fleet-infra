@@ -10,7 +10,7 @@
   },
   "helm-values": {
     "fileMatch": [
-      ".+\\.ya?ml$",
+      ".+\\.ya?ml$"
     ]
   },
   "kubernetes": {
