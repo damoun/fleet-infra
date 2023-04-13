@@ -16,6 +16,8 @@ spec:
   values:
     cronjob:
        schedule: "@hourly"
+    renovate:
+      config: '{}'
     dind:
       enabled: true
     redis:
