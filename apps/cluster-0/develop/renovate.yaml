@@ -8,5 +8,4 @@ spec:
     env:
       RENOVATE_AUTODISCOVER: "true"
       LOG_LEVEL: "debug"
-    renovate:
-      secretName: renovate-secrets
+    existingSecret: renovate-secrets
