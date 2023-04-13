@@ -12,7 +12,7 @@ spec:
       sourceRef:
         kind: HelmRepository
         name: prometheus-community
-      version: 45.9.1
+      version: 45.10.0
   values:
     global:
       rbac:
