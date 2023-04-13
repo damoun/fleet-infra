@@ -1,0 +1,19 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: renovate
+  namespace: develop
+spec:
+  values:
+    pod:
+      annotations:
+        operator.1password.io/item-path: "vaults/Kubernetes/items/renovate"
+        operator.1password.io/item-name: "renovate-secrets"
+    env:
+      - name: RENOVATE_AUTODISCOVER
+        value: true
+      - name: LOG_LEVEL
+        value: debug
+    envFrom:
+      - secretRef:
+          name: renovate-secrets
