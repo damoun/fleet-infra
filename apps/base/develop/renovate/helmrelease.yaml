@@ -20,6 +20,4 @@ spec:
       config: '{}'
     dind:
       enabled: true
-    redis:
-      enabled: true
   interval: 1m0s
