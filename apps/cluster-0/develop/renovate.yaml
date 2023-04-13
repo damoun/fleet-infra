@@ -7,5 +7,6 @@ spec:
   values:
     env:
       RENOVATE_AUTODISCOVER: "true"
-      LOG_LEVEL: "debug"
+      RENOVATE_ALLOW_POST_UPGRADE_COMMAND_TEMPLATING: "true"
+      RENOVATE_ALLOWED_POST_UPGRADE_COMMANDS: "[\"^.*\",]"
     existingSecret: renovate-secrets
