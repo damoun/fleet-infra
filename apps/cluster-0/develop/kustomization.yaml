@@ -5,6 +5,8 @@ resources:
   - ../../base/develop
   - secrets.yaml
   - ../../base/develop/renovate
+  - ../../base/develop/actions-runner-controller
 patchesStrategicMerge:
   - namespace.yaml
   - renovate.yaml
+  - actions-runner-controller.yaml

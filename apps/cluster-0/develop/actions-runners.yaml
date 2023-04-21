@@ -1,0 +1,10 @@
+---
+apiVersion: actions.summerwind.dev/v1alpha1
+kind: RunnerDeployment
+metadata:
+  name: tf-nas
+spec:
+  replicas: 1
+  template:
+    spec:
+      repository: damoun/tf-nas
