@@ -5,6 +5,9 @@ metadata:
   name: actions-runner-controller
   namespace: develop
 spec:
+  dependsOn:
+    - name: cert-manager
+      namespace: cert-manager
   chart:
     spec:
       chart: actions-runner-controller
