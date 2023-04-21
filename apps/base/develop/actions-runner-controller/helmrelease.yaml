@@ -16,3 +16,4 @@ spec:
   values:
     authSecret:
       create: true
+  interval: 1m0s
