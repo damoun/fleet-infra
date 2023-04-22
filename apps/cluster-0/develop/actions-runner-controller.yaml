@@ -10,5 +10,5 @@ spec:
       - name: GITHUB_TOKEN
         valueFrom:
           secretKeyRef:
-            key: github-actions-runner
-            name: token
+            name: github-actions-runner
+            key: token
