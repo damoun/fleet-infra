@@ -9,3 +9,4 @@ spec:
   template:
     spec:
       repository: damoun/tf-nas
+      labels: ["home"]
