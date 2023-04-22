@@ -2,7 +2,7 @@
 apiVersion: actions.summerwind.dev/v1alpha1
 kind: RunnerDeployment
 metadata:
-  name: tf-nas
+  name: actions-runner-tf-nas
   namespace: develop
 spec:
   replicas: 1
