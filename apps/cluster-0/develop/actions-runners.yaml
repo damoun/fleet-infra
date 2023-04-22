@@ -22,3 +22,15 @@ spec:
     spec:
       repository: damoun/tf-talos
       labels: ["home"]
+---
+apiVersion: actions.summerwind.dev/v1alpha1
+kind: RunnerDeployment
+metadata:
+  name: actions-runner-tf-compute
+  namespace: develop
+spec:
+  replicas: 1
+  template:
+    spec:
+      repository: damoun/tf-compute
+      labels: ["home"]
