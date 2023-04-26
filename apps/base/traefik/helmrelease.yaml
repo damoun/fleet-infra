@@ -16,5 +16,5 @@ spec:
       sourceRef:
         kind: HelmRepository
         name: traefik
-      version: 22.1.0
+      version: 23.0.0
   interval: 1m0s
