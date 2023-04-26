@@ -6,7 +6,7 @@ metadata:
   namespace: monitoring
 spec:
   dependsOn:
-    - name: kube-prometheus-stack
+    - name: prometheus-operator-crds
       namespace: monitoring
   chart:
     spec:

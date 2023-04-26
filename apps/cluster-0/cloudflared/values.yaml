@@ -5,7 +5,7 @@ metadata:
   namespace: cloudflare
 spec:
   dependsOn:
-    - name: kube-prometheus-stack
+    - name: prometheus-operator-crds
       namespace: monitoring
   values:
     replicaCount: 3
