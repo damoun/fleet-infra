@@ -5,6 +5,9 @@ metadata:
   name: actions-runner-controller
   namespace: develop
 spec:
+  dependsOn:
+    - name: connect
+      namespace: 1password
   values:
     env:
       - name: GITHUB_TOKEN
