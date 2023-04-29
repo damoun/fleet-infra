@@ -2,17 +2,14 @@
 apiVersion: helm.toolkit.fluxcd.io/v2beta1
 kind: HelmRelease
 metadata:
-  name: kube-prometheus-stack
-  namespace: monitoring
+  name: prometheus-operator-crds
 spec:
-  dependsOn:
-    - name: prometheus-operator-crds
   chart:
     spec:
-      chart: kube-prometheus-stack
+      chart: prometheus-operator-crds
       reconcileStrategy: ChartVersion
       sourceRef:
         kind: HelmRepository
         name: prometheus-community
-      version: 45.21.0
+      version: 3.0.0
   interval: 1m0s

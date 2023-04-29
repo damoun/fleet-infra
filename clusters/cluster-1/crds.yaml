@@ -2,21 +2,15 @@
 apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
 kind: Kustomization
 metadata:
-  name: apps
+  name: crds
   namespace: flux-system
 spec:
-  dependsOn:
-    - name: crds
   interval: 1h
   retryInterval: 1m
   timeout: 5m
   sourceRef:
     kind: GitRepository
     name: flux-system
-  path: ./apps/cluster-1
+  path: ./crds/cluster-1
   prune: true
   wait: true
-  decryption:
-    provider: sops
-    secretRef:
-      name: sops-gpg
