@@ -8,7 +8,17 @@ spec:
   dependsOn:
     - name: connect
       namespace: 1password
+    - name: prometheus-operator-crds
+      namespace: monitoring
   values:
+    metrics:
+      serviceMonitor: true
+      serviceMonitorLabels:
+        release: kube-prometheus-stack
+    actionsMetrics:
+      serviceMonitor: true
+      serviceMonitorLabels:
+        release: kube-prometheus-stack
     env:
       - name: GITHUB_TOKEN
         valueFrom:
