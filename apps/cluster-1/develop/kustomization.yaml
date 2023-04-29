@@ -8,6 +8,5 @@ resources:
   - ../../base/develop/actions-runner-controller
 #  - actions-runners.yaml
 patchesStrategicMerge:
-  - namespace.yaml
   - renovate.yaml
   - actions-runner-controller.yaml

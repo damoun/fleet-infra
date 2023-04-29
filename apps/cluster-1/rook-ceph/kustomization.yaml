@@ -4,5 +4,4 @@ namespace: rook-ceph
 resources:
   - ../../base/rook-ceph
 patchesStrategicMerge:
-  - namespace.yaml
   - rook-ceph.yaml

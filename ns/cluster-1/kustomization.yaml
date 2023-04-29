@@ -1,0 +1,14 @@
+---
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - ../base/1password.yaml
+  - ../base/cert-manager.yaml
+  - ../base/cloudflare.yaml
+  - ../base/develop.yaml
+  - ../base/monitoring.yaml
+  - ../base/rook-ceph.yaml
+patchesStrategicMerge:
+  - rook-ceph.yaml
+  - develop.yaml
+  - monitoring.yaml

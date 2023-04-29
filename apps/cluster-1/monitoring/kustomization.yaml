@@ -8,7 +8,6 @@ resources:
   - ../../base/monitoring/proxmox-exporter
   - ../../base/monitoring/prometheus-blackbox-exporter
 patchesStrategicMerge:
-  - namespace.yaml
   - kube-prometheus-stack.yaml
   - proxmox-exporter.yaml
   - prometheus-blackbox-exporter.yaml
