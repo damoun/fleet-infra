@@ -8,6 +8,7 @@ resources:
   - ../base/develop.yaml
   - ../base/monitoring.yaml
   - ../base/rook-ceph.yaml
+  - ../base/shared.yaml
 patchesStrategicMerge:
   - rook-ceph.yaml
   - develop.yaml
