@@ -3,5 +3,3 @@ kind: Kustomization
 namespace: rook-ceph
 resources:
   - ../../base/rook-ceph
-patchesStrategicMerge:
-  - rook-ceph.yaml
