@@ -5,4 +5,13 @@ metadata:
   namespace: rook-ceph
 spec:
   values:
-    toolbox.resources: {}
+    cephClusterSpec:
+      resources:
+        mgr:
+        mon:
+        osd:
+        prepareosd:
+        mgr-sidecar:
+        crashcollector:
+        logcollector:
+        cleanup:
