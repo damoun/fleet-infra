@@ -12,6 +12,7 @@ spec:
       sourceRef:
         kind: HelmRepository
         name: damoun
+        namespace: shared
       version: 1.4.0
   values: 
   interval: 1m0s
