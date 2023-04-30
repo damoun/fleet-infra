@@ -5,6 +5,7 @@ resources:
   - ../base/1password.yaml
   - ../base/cert-manager.yaml
   - ../base/cloudflare.yaml
+  - ../base/database.yaml
   - ../base/develop.yaml
   - ../base/monitoring.yaml
   - ../base/rook-ceph.yaml

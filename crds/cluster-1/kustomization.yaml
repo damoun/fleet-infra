@@ -5,3 +5,4 @@ resources:
   - ../base/1password-connect
   - ../base/prometheus-operator.yaml
   - ../base/actions-runner-controller
+  - ../base/postgres-operator
