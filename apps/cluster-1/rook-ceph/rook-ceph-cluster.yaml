@@ -15,3 +15,14 @@ spec:
         crashcollector:
         logcollector:
         cleanup:
+    cephFileSystems:
+      - name: ceph-filesystem
+        spec:
+          metadataServer:
+            resources:
+    cephObjectStores:
+      - name: ceph-objectstore
+        spec:
+          gateway:
+            resources:
+    
