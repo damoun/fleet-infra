@@ -6,7 +6,7 @@ resources:
   - ../../base/monitoring/speedtest-exporter
   - ../../base/monitoring/proxmox-exporter
   - ../../base/monitoring/prometheus-blackbox-exporter
-  - ./postgresql.yaml
+#  - ./postgresql.yaml
 patchesStrategicMerge:
   - kube-prometheus-stack.yaml
   - proxmox-exporter.yaml
