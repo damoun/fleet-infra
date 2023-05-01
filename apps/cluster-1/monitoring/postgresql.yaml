@@ -1,0 +1,19 @@
+apiVersion: "acid.zalan.do/v1"
+kind: postgresql
+metadata:
+  name: grafana-postgresql
+  namespace: monitoring
+spec:
+  teamId: "grafana"
+  volume:
+    size: 18Gi
+    storageClass: ceph-block
+  numberOfInstances: 2
+  users:
+    grafana:
+    - superuser
+    - createdb
+  databases:
+    grafana: grafana
+  postgresql:
+    version: "15"
