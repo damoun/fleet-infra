@@ -13,3 +13,4 @@ resources:
 patchesStrategicMerge:
   - develop.yaml
   - monitoring.yaml
+  - openebs-jiva.yaml
