@@ -9,3 +9,4 @@ resources:
   - ./monitoring/
   - ./develop/
   - ./database/
+  - ./openebs-jiva/

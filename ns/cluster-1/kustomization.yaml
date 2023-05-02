@@ -9,6 +9,7 @@ resources:
   - ../base/develop.yaml
   - ../base/monitoring.yaml
   - ../base/shared.yaml
+  - ../base/openebs-jiva.yaml
 patchesStrategicMerge:
   - develop.yaml
   - monitoring.yaml
