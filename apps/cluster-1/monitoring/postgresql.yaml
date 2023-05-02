@@ -7,7 +7,7 @@ spec:
   teamId: "grafana"
   volume:
     size: 18Gi
-    storageClass: ceph-block
+    storageClass: openebs-jiva-csi-default
   numberOfInstances: 2
   users:
     grafana:
