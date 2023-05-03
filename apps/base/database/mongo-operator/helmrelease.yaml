@@ -5,6 +5,8 @@ metadata:
   name: mongo-operator
   namespace: database
 spec:
+  dependsOn:
+    - name: mongo-operator-crds
   chart:
     spec:
       chart: community-operator
@@ -13,5 +15,7 @@ spec:
         kind: HelmRepository
         name: mongodb
       version: 0.7.9
-  values: 
+  values:
+    community-operator-crds:
+      enabled: false
   interval: 1m0s
