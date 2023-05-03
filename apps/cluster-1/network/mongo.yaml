@@ -15,20 +15,20 @@ spec:
     - name: admin
       db: admin
       passwordSecretRef:
-        name: password
+        name: mongo-omada-admin-credentials
       roles:
         - name: clusterAdmin
           db: admin
         - name: userAdminAnyDatabase
           db: admin
-      scramCredentialsSecretName: mongo-omada-admin-credentials
+      scramCredentialsSecretName: admin
     - name: omada
       db: omada
       passwordSecretRef:
-        name: password
+        name: mongo-omada-omada-credentials
       roles:
         - name: readWrite
           db: omada
-      scramCredentialsSecretName: mongo-omada-omada-credentials
+      scramCredentialsSecretName: omada
   additionalMongodConfig:
     storage.wiredTiger.engineConfig.journalCompressor: zlib
