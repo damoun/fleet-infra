@@ -11,6 +11,25 @@ spec:
   security:
     authentication:
       modes: ["SCRAM"]
+  statefulSet:
+    spec:
+      volumeClaimTemplates:
+        - metadata:
+            name: data-volume
+          spec:
+            accessModes: [ "ReadWriteOnce" ]
+            storageClassName: openebs-jiva-csi-default
+            resources:
+              requests:
+                storage: 8Gi
+        - metadata:
+            name: logs-volume
+          spec:
+            accessModes: [ "ReadWriteOnce" ]
+            storageClassName: openebs-jiva-csi-default
+            resources:
+              requests:
+                storage: 8Gi
   users:
     - name: admin
       db: admin
