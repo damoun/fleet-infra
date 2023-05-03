@@ -7,5 +7,4 @@ metadata:
 spec:
   values:
     operator:
-      watchNamespace:
-        - network
+      watchNamespace: "*"
