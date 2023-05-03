@@ -2,7 +2,8 @@
 apiVersion: mongodbcommunity.mongodb.com/v1
 kind: MongoDBCommunity
 metadata:
-  name: mongo-omada
+  name: mongo-omada-controller
+  namespace: network
 spec:
   members: 3
   type: ReplicaSet
