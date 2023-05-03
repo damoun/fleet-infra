@@ -20,4 +20,6 @@ spec:
       config: '{}'
     dind:
       enabled: true
+    image:
+      repository: "ghcr.io/renovatebot/renovate"
   interval: 1m0s
