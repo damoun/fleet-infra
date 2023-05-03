@@ -1,0 +1,16 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: mongo-operator-crds
+  namespace: database
+spec:
+  chart:
+    spec:
+      chart: community-operator-crds
+      reconcileStrategy: ChartVersion
+      sourceRef:
+        kind: HelmRepository
+        name: mongodb
+      version: 0.7.9
+  interval: 1m0s
