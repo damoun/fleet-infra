@@ -29,7 +29,7 @@ spec:
             storageClassName: openebs-jiva-csi-default
             resources:
               requests:
-                storage: 8Gi
+                storage: 2Gi
   users:
     - name: admin
       db: admin
