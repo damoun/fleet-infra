@@ -4,3 +4,5 @@ kind: Kustomization
 bases:
   - ../../base/database/postgres-operator
   - ../../base/database/mongo-operator
+patchesStrategicMerge:
+  - mongo-operator.yaml
