@@ -1,0 +1,33 @@
+---
+apiVersion: mongodbcommunity.mongodb.com/v1
+kind: MongoDBCommunity
+metadata:
+  name: mongo-omada
+spec:
+  members: 3
+  type: ReplicaSet
+  version: "6.0.5"
+  security:
+    authentication:
+      modes: ["SCRAM"]
+  users:
+    - name: admin
+      db: admin
+      passwordSecretRef:
+        name: password
+      roles:
+        - name: clusterAdmin
+          db: admin
+        - name: userAdminAnyDatabase
+          db: admin
+      scramCredentialsSecretName: mongo-omada-admin-credentials
+    - name: omada
+      db: omada
+      passwordSecretRef:
+        name: password
+      roles:
+        - name: readWrite
+          db: omada
+      scramCredentialsSecretName: mongo-omada-omada-credentials
+  additionalMongodConfig:
+    storage.wiredTiger.engineConfig.journalCompressor: zlib

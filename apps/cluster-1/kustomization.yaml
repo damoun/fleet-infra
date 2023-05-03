@@ -10,3 +10,4 @@ resources:
   - ./develop/
   - ./database/
   - ./openebs-jiva/
+  - ./network/
