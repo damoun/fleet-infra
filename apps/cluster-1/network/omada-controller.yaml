@@ -9,3 +9,10 @@ spec:
     mongoUri:
       secretName: mongo-omada-connection-string
       secretKey: connectionString.standard
+    service:
+      ports:
+        https: 8043
+    livenessProbe:
+      enabled: false
+    readinessProbe:
+      enabled: false
