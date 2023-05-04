@@ -48,16 +48,14 @@ spec:
               requests:
                 storage: 2Gi
   users:
-    - name: admin
+    - name: omada
       db: admin
       passwordSecretRef:
         name: mongo-omada-admin-credentials
       roles:
-        - name: clusterAdmin
+        - name: root
           db: admin
-        - name: userAdminAnyDatabase
-          db: admin
-      scramCredentialsSecretName: admin
+      scramCredentialsSecretName: omada
       connectionStringSecretName: mongo-omada-connection-string
   additionalMongodConfig:
     storage.wiredTiger.engineConfig.journalCompressor: zlib
