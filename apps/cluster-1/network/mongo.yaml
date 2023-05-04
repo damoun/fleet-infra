@@ -49,5 +49,6 @@ spec:
         - name: readWrite
           db: omada
       scramCredentialsSecretName: omada
+      connectionStringSecretName: mongo-omada-connection-string
   additionalMongodConfig:
     storage.wiredTiger.engineConfig.journalCompressor: zlib
