@@ -8,3 +8,5 @@ bases:
 resources:
   - ./mongo.yaml
   - ./secrets.yaml
+patches:
+  - path: omada-controller.yaml
