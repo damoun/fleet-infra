@@ -6,4 +6,4 @@ bases:
 resources:
   - ./mongo.yaml
   - ./secrets.yaml
-  - https://github.com/mongodb/helm-charts/raw/community-operator-0.7.9/charts/community-operator/templates/database_roles.yaml
+  - mongo-operator-rbac.yaml
