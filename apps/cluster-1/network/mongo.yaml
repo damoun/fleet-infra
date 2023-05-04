@@ -58,14 +58,6 @@ spec:
         - name: userAdminAnyDatabase
           db: admin
       scramCredentialsSecretName: admin
-    - name: omada
-      db: omada
-      passwordSecretRef:
-        name: mongo-omada-omada-credentials
-      roles:
-        - name: readWrite
-          db: omada
-      scramCredentialsSecretName: omada
       connectionStringSecretName: mongo-omada-connection-string
   additionalMongodConfig:
     storage.wiredTiger.engineConfig.journalCompressor: zlib
