@@ -21,7 +21,7 @@ spec:
               - -R
               - "2000"
               - /data
-              image: busybox@sha256:9e2bbca079387d7965c3a9cee6d0c53f4f4e63ff7637877a83c4c05f2a666112
+              image: busybox@sha256:6e494387c901caf429c1bf77bd92fb82b33a68c0e19f6d1aa6a3ac8d27a7049d
               volumeMounts:
                 - mountPath: /data
                   name: data-volume
