@@ -12,7 +12,7 @@ spec:
       sourceRef:
         kind: HelmRepository
         name: renovate
-      version: 35.120.0
+      version: 35.122.0
   values:
     cronjob:
        schedule: "@hourly"
