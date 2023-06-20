@@ -13,6 +13,6 @@ spec:
         kind: HelmRepository
         name: damoun
         namespace: shared
-      version: 1.7.0
+      version: 1.8.0
   values: 
   interval: 1m0s
