@@ -8,7 +8,6 @@ spec:
     defaultRules:
       create: false
     grafana:
-      enabled: false
       defaultDashboardsEnabled: false
       annotations:
         operator.1password.io/item-path: "vaults/Kubernetes/items/grafana-secrets"
