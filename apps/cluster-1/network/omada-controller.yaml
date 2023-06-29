@@ -11,8 +11,12 @@ spec:
       secretKey: connectionString.standard
     service:
       type: NodePort
+      ports:
+        discovery: 29811
       nodePorts:
         discovery: 32000
+    containerPorts:
+      discovery: 29811
     livenessProbe:
       enabled: false
     readinessProbe:
