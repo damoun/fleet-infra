@@ -16,3 +16,4 @@ spec:
       enabled: false
     readinessProbe:
       enabled: false
+    image: ghcr.io/damoun/omada-controller:main
