@@ -39,14 +39,6 @@ spec:
             resources:
               requests:
                 storage: 8Gi
-        - metadata:
-            name: logs-volume
-          spec:
-            accessModes: [ "ReadWriteOnce" ]
-            storageClassName: openebs-jiva-csi-default
-            resources:
-              requests:
-                storage: 2Gi
   users:
     - name: omada
       db: admin
