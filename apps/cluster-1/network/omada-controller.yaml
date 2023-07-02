@@ -12,11 +12,11 @@ spec:
     service:
       type: NodePort
       ports:
-        discovery: 29811
+        discovery: 32000
       nodePorts:
         discovery: 32000
     containerPorts:
-      discovery: 29811
+      discovery: 32000
     livenessProbe:
       enabled: false
     readinessProbe:
