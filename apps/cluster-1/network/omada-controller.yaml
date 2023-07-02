@@ -22,3 +22,4 @@ spec:
     readinessProbe:
       enabled: false
     image: ghcr.io/damoun/omada-controller:main
+    imagePullPolicy: Always
