@@ -10,13 +10,30 @@ spec:
       secretName: mongo-omada-connection-string
       secretKey: connectionString.standard
     service:
-      type: NodePort
-      ports:
-        discovery: 32000
-      nodePorts:
-        discovery: 32000
+      tcp:
+        type: NodePort
+        ports:
+          adoptV1: 32001
+          upgradeV1: 32002
+          managerV1: 32003
+          managerV2: 32004
+        nodePorts:
+          adoptV1: 32001
+          upgradeV1: 32002
+          managerV1: 32003
+          managerV2: 32004
+      udp:
+        type: NodePort
+        ports:
+          discovery: 32000
+        nodePorts:
+          discovery: 32000
     containerPorts:
       discovery: 32000
+      adoptV1: 32001
+      upgradeV1: 32002
+      managerV1: 32003
+      managerV2: 32004
     livenessProbe:
       enabled: false
     readinessProbe:
