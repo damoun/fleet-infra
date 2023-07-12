@@ -45,5 +45,5 @@ spec:
       enabled: false
     readinessProbe:
       enabled: false
-    image: ghcr.io/damoun/omada-controller:main
+    image: ghcr.io/damoun/omada-controller:main@sha256:3001bf7990b9d4e8bc0fb6fa28f6621dbb1e83f44f1264bedecb48852d49c757
     imagePullPolicy: Always
