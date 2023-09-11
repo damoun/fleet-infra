@@ -14,7 +14,7 @@ spec:
       sourceRef:
         kind: HelmRepository
         name: mongodb
-      version: 0.8.0
+      version: 0.8.2
   values:
     community-operator-crds:
       enabled: false
