@@ -12,6 +12,6 @@ spec:
       sourceRef:
         kind: HelmRepository
         name: zalando-postgres-operator
-      version: 1.10.0
+      version: 1.10.1
   values: 
   interval: 1m0s
