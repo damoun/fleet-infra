@@ -28,7 +28,7 @@ spec:
       sourceRef:
         kind: HelmRepository
         name: rook
-      version: v1.12.4
+      version: v1.12.5
   values:
     operatorNamespace: rook-ceph
   interval: 1m0s
