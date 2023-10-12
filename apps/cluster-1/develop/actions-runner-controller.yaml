@@ -12,7 +12,8 @@ spec:
       namespace: monitoring
   values:
     metrics:
-      serviceMonitor: true
+      serviceMonitor:
+        enable: true
       serviceMonitorLabels:
         release: kube-prometheus-stack
     actionsMetrics:
