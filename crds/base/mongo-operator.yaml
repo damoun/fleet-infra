@@ -12,5 +12,5 @@ spec:
       sourceRef:
         kind: HelmRepository
         name: mongodb
-      version: 0.8.2
+      version: 0.8.3
   interval: 1m0s
