@@ -16,7 +16,7 @@ spec:
         kind: HelmRepository
         name: damoun
         namespace: shared
-      version: 1.5.0
+      version: 1.7.0
   values:
     serviceMonitor:
       enabled: true
