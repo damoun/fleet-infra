@@ -14,10 +14,6 @@ spec:
     prometheus:
       agentMode: true
       prometheusSpec:
-        podMetadata:
-          annotations:
-            operator.1password.io/item-path: "vaults/Kubernetes/items/mimir-remote-write"
-            operator.1password.io/item-name: "mimir-remote-write"
         remoteWrite:
           - url: https://mimir.damoun.cloud/api/v1/receive
             basicAuth:

@@ -5,6 +5,7 @@ resources:
   - ../../base/monitoring/kube-prometheus-stack
   - ../../base/monitoring/speedtest-exporter
   - ../../base/monitoring/prometheus-blackbox-exporter
+  - secrets.yaml
 patchesStrategicMerge:
   - kube-prometheus-stack.yaml
   - prometheus-blackbox-exporter.yaml
