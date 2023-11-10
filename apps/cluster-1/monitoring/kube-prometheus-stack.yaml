@@ -11,11 +11,3 @@ spec:
       enabled: false
     prometheus:
       prometheusSpec:
-        additionalScrapeConfigs:
-          - job_name: node-exporter
-            scheme: http
-            static_configs:
-              - targets:
-                - pve.home.damoun.cloud:9100
-                - vpn1.home.damoun.cloud:9100
-                - nas.home.damoun.cloud:9100
