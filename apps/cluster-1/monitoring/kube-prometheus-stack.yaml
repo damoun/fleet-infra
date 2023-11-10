@@ -12,4 +12,17 @@ spec:
     grafana:
       enabled: false
     prometheus:
+      agentMode: true
+      annotations:
+        operator.1password.io/item-path: "vaults/Kubernetes/items/mimir-remote-write"
+        operator.1password.io/item-name: "mimir-remote-write"
       prometheusSpec:
+        remoteWrite:
+          - url: https://mimir.damoun.cloud/api/v1/receive
+            basicAuth:
+              username:
+                name: mimir-remote-write
+                key: username
+              password:
+                name: mimir-remote-write
+                key: password
