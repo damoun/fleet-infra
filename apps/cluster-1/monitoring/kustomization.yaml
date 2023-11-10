@@ -4,9 +4,7 @@ kind: Kustomization
 resources:
   - ../../base/monitoring/kube-prometheus-stack
   - ../../base/monitoring/speedtest-exporter
-  - ../../base/monitoring/proxmox-exporter
   - ../../base/monitoring/prometheus-blackbox-exporter
 patchesStrategicMerge:
   - kube-prometheus-stack.yaml
-  - proxmox-exporter.yaml
   - prometheus-blackbox-exporter.yaml
