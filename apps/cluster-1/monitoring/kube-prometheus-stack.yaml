@@ -15,7 +15,7 @@ spec:
       agentMode: true
       prometheusSpec:
         remoteWrite:
-          - url: https://mimir.damoun.cloud/api/v1/receive
+          - url: https://mimir.damoun.cloud/api/v1/push
             basicAuth:
               username:
                 name: mimir-remote-write
