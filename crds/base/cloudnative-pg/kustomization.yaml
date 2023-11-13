@@ -4,4 +4,9 @@ kind: Kustomization
 metadata:
   name: cloudnative-pg-crds
 resources:
-  - https://github.com/cloudnative-pg/charts/raw/cloudnative-pg-v0.19.1/charts/cloudnative-pg/templates/crds/crds.yaml
+  - https://github.com/cloudnative-pg/cloudnative-pg/raw/v1.21.1/config/crd/bases/postgresql.cnpg.io_clusters.yaml
+  - https://github.com/cloudnative-pg/cloudnative-pg/raw/v1.21.1/config/crd/bases/postgresql.cnpg.io_backups.yaml
+  - https://github.com/cloudnative-pg/cloudnative-pg/raw/v1.21.1/config/crd/bases/postgresql.cnpg.io_scheduledbackups.yaml
+  - https://github.com/cloudnative-pg/cloudnative-pg/raw/v1.21.1/config/crd/bases/postgresql.cnpg.io_poolers.yaml
+configurations:
+  - https://github.com/cloudnative-pg/cloudnative-pg/raw/v1.21.1/config/crd/kustomizeconfig.yaml

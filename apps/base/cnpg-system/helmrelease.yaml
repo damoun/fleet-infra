@@ -15,4 +15,6 @@ spec:
         namespace: cnpg-system
       version: 0.19.1
   values: 
+    crds:
+      create: false
   interval: 1m0s
