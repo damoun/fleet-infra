@@ -11,3 +11,4 @@ resources:
   - ./database/
   - ./openebs-jiva/
   - ./network/
+  - ./cnpg-system/
