@@ -12,3 +12,4 @@ resources:
   - ./openebs-jiva/
 #  - ./network/
   - ./cnpg-system/
+  - ./home-automation/

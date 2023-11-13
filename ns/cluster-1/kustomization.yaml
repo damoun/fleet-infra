@@ -17,3 +17,4 @@ patchesStrategicMerge:
   - develop.yaml
   - monitoring.yaml
   - openebs-jiva.yaml
+  - home-automation.yaml
