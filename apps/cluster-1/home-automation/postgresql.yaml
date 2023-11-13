@@ -2,6 +2,7 @@ apiVersion: postgresql.cnpg.io/v1
 kind: Cluster
 metadata:
   name: postgresql
+  namespace: home-automation
 spec:
   instances: 2
   primaryUpdateStrategy: unsupervised
