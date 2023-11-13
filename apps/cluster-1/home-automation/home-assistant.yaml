@@ -12,7 +12,7 @@ spec:
           configuration.yaml: |
             default_config:
             recorder:
-              db_url: !env_var JDBC-URI
+              db_url: !env_var uri
             http:
               use_x_forwarded_for: true
               trusted_proxies:
@@ -20,4 +20,3 @@ spec:
     envFrom:
       - secretRef:
           name: postgresql-app
-          key: jdbc-uri
