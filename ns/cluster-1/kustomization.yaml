@@ -11,6 +11,7 @@ resources:
   - ../base/shared.yaml
   - ../base/openebs-jiva.yaml
   - ../base/network.yaml
+  - ../base/home-automation.yaml
 patchesStrategicMerge:
   - develop.yaml
   - monitoring.yaml
