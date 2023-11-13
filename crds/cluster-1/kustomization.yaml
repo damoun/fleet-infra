@@ -4,8 +4,8 @@ kind: Kustomization
 bases:
   - ../base/1password-connect
   - ../base/actions-runner-controller
-  - ../base/postgres-operator
-  - ../base/openebs-jiva/
+  - ../base/openebs-jiva
+  - ../base/cloudnative-pg
 resources:
   - ../base/prometheus-operator.yaml
   - ../base/mongo-operator.yaml

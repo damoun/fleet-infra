@@ -1,0 +1,7 @@
+---
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+metadata:
+  name: cloudnative-pg-crds
+resources:
+  - https://github.com/cloudnative-pg/charts/raw/cloudnative-pg-v0.19.1/charts/cloudnative-pg/templates/crds/crds.yaml

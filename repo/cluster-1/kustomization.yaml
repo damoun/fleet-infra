@@ -10,3 +10,4 @@ resources:
   - ../base/renovate.yaml
   - ../base/openebs-jiva.yaml
   - ../base/mongodb.yaml
+  - ../base/cloudnative-pg.yaml

@@ -12,6 +12,7 @@ resources:
   - ../base/openebs-jiva.yaml
   - ../base/network.yaml
   - ../base/home-automation.yaml
+  - ../base/cnpg-system.yaml
 patchesStrategicMerge:
   - develop.yaml
   - monitoring.yaml
