@@ -25,7 +25,7 @@ spec:
               password:
                 name: mimir-remote-write
                 key: password
-          - url: https://prometheus-prod-24-prod-eu-west-2.grafana.net/api/prom
+          - url: https://prometheus-prod-24-prod-eu-west-2.grafana.net/api/prom/push
             basicAuth:
               username:
                 name: grafana-cloud-remote-write
