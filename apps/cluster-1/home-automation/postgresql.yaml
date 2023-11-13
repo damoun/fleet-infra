@@ -1,0 +1,12 @@
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: postgresql
+spec:
+  instances: 2
+  primaryUpdateStrategy: unsupervised
+  storage:
+    storageClass: openebs-jiva-csi-default
+    size: 10Gi
+  monitoring:
+    enablePodMonitor: true

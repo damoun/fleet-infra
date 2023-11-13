@@ -1,0 +1,23 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: home-assistant
+  namespace: home-automation
+spec:
+  values:
+    configmap:
+      config:
+        data:
+          configuration.yaml: |
+            default_config:
+            recorder:
+              db_url: !env_var JDBC-URI
+            http:
+              use_x_forwarded_for: true
+              trusted_proxies:
+                - "10.0.0.0/8"
+    envFrom:
+      secretKeyRef:
+        name: postgresql-app
+        key: jdbc-uri
