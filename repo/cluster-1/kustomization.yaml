@@ -8,6 +8,5 @@ resources:
   - ../base/jetstack.yaml
   - ../base/prometheus-community.yaml
   - ../base/renovate.yaml
-  - ../base/zalando-postgres-operator.yaml
   - ../base/openebs-jiva.yaml
   - ../base/mongodb.yaml
