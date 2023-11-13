@@ -9,6 +9,6 @@ resources:
   - ./monitoring/
   - ./develop/
   - ./database/
-  - ./openebs-jiva/
-  - ./network/
+#  - ./openebs-jiva/
+#  - ./network/
   - ./cnpg-system/
