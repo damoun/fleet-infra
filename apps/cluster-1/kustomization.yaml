@@ -8,7 +8,7 @@ resources:
   - ./cloudflared/
   - ./monitoring/
   - ./develop/
-  - ./database/
-#  - ./openebs-jiva/
+#  - ./database/
+  - ./openebs-jiva/
 #  - ./network/
   - ./cnpg-system/
