@@ -8,6 +8,8 @@ spec:
   values:
     persistence:
       enabled: true
+      storageClass: openebs-jiva-csi-default
+      size: 10Gi
     configmap:
       config:
         data:
