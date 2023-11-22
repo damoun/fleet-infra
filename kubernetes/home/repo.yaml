@@ -13,6 +13,6 @@ spec:
   sourceRef:
     kind: GitRepository
     name: flux-system
-  path: ./repo/cluster-1
+  path: ./kubernetes/home/repo/cluster-1
   prune: true
   wait: true

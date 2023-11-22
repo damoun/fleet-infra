@@ -2,18 +2,15 @@
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: crds
+  name: ns
   namespace: flux-system
 spec:
-  dependsOn:
-    - name: ns
-    - name: repo
   interval: 1h
   retryInterval: 1m
   timeout: 5m
   sourceRef:
     kind: GitRepository
     name: flux-system
-  path: ./crds/cluster-1
+  path: ./kubernetes/home/ns/cluster-1
   prune: true
   wait: true

@@ -15,7 +15,7 @@ spec:
   sourceRef:
     kind: GitRepository
     name: flux-system
-  path: ./apps/cluster-1
+  path: ./kubernetes/home/apps/cluster-1
   prune: true
   wait: true
   decryption:
