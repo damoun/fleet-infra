@@ -8,8 +8,6 @@ spec:
   dependsOn:
     - name: cert-manager
       namespace: cert-manager
-    - name: connect
-      namespace: 1password
     - name: kube-prometheus-stack
       namespace: monitoring
   chart:
@@ -22,6 +20,9 @@ spec:
         namespace: flux-system
       version: 0.23.5
   values:
+    podAnnotations:
+      operator.1password.io/item-path: "vaults/Kubernetes/items/github-actions-runner"
+      operator.1password.io/item-name: "github-actions-runner"
     authSecret:
       create: true
     metrics:
