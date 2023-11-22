@@ -5,4 +5,4 @@ resources:
   - namespace.yaml
   - ./renovate
   - ./actions-runner-controller
-  - actions-runners.yaml
+#  - actions-runners.yaml
