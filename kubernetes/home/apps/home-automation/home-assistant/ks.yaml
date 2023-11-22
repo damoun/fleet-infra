@@ -15,6 +15,3 @@ spec:
   wait: true
   dependsOn:
     - name: cloudnative-pg
-      nameservers: database
-    - name: openebs-jiva
-      namespace: storage

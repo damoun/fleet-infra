@@ -2,16 +2,14 @@
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: renovate
+  name: cloudnative-pg
   namespace: flux-system
 spec:
-  targetNamespace: develop
+  targetNamespace: database
   interval: 10m
-  path: "./kubernetes/home/apps/develop/renovate/app"
+  path: "./kubernetes/home/apps/database/cloudnative-pg/app"
   prune: true
   sourceRef:
     kind: GitRepository
     name: flux-system
   wait: true
-  dependsOn:
-    - name: connect
