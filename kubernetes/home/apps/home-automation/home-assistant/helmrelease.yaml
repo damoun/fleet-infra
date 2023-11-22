@@ -1,0 +1,39 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: home-assistant
+  namespace: home-automation
+spec:
+  dependsOn:
+    - name: openebs-jiva
+      namespace: storage
+  chart:
+    spec:
+      chart: home-assistant
+      reconcileStrategy: ChartVersion
+      sourceRef:
+        kind: HelmRepository
+        name: damoun
+        namespace: flux-system
+      version: 1.0.4
+  values:
+    persistence:
+      enabled: true
+      storageClass: openebs-jiva-csi-default
+      size: 10Gi
+    configmap:
+      config:
+        data:
+          configuration.yaml: |
+            default_config:
+            recorder:
+              db_url: !env_var uri
+            http:
+              use_x_forwarded_for: true
+              trusted_proxies:
+                - "10.0.0.0/8"
+    envFrom:
+      - secretRef:
+          name: postgresql-app
+  interval: 1m0s
