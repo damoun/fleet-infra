@@ -14,6 +14,7 @@ spec:
         name: openebs-jiva
         namespace: flux-system
       version: 3.5.1
+  interval: 1m0s
   postRenderers:
     - kustomize:
         patches:
