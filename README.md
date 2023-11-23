@@ -5,4 +5,4 @@
   <br>
 </h1>
 
-<h4 align="center">My Kubernetes home cluster using <a href="https://fluxcd.io">FluxCD</a>.</h4>
+<h4 align="center">My home infrastructure using <a href="https://fluxcd.io">FluxCD</a>.</h4>
