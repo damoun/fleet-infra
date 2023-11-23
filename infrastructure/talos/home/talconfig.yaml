@@ -1,0 +1,196 @@
+---
+clusterName: home
+talosVersion: v1.5.5
+kubernetesVersion: v1.28.3
+endpoint: https://192.168.2.141:6443
+allowSchedulingOnMasters: true
+additionalMachineCertSans:
+  - 192.168.2.152
+clusterPodNets:
+  - 10.244.0.0/16
+clusterSvcNets:
+  - 10.96.0.0/12
+nodes:
+  - hostname: control-plane-vdcj
+    ipAddress: 192.168.2.141
+    controlPlane: true
+    schematic:
+      customization:
+        extraKernelArgs:
+          - net.ifnames=0
+        systemExtensions:
+          officialExtensions:
+            - siderolabs/intel-ucode
+    networkInterfaces:
+      - dhcp: true
+        mtu: 1500
+        deviceSelector:
+          hardwareAddr: "40:b0:34:fa:dc:27"
+    disableSearchDomain: true
+    installDiskSelector:
+      type: ssd
+      busPath: /pci0000:00/0000:00:17.0/ata1/host0/target0:0:0/0:0:0:0/
+    nameservers:
+      - 1.1.1.1
+      - 8.8.8.8
+      - 8.8.4.4
+  - hostname: control-plane-hiuw
+    ipAddress: 192.168.2.146
+    controlPlane: true
+    schematic:
+      customization:
+        extraKernelArgs:
+          - net.ifnames=0
+        systemExtensions:
+          officialExtensions:
+            - siderolabs/intel-ucode
+    networkInterfaces:
+      - dhcp: true
+        mtu: 1500
+        deviceSelector:
+          hardwareAddr: "40:b0:34:fa:de:6e"
+    disableSearchDomain: true
+    installDiskSelector:
+      type: ssd
+      busPath: /pci0000:00/0000:00:17.0/ata1/host0/target0:0:0/0:0:0:0/
+    nameservers:
+      - 1.1.1.1
+      - 8.8.8.8
+      - 8.8.4.4
+  - hostname: control-plane-eqwd
+    ipAddress: 192.168.2.134
+    controlPlane: true
+    schematic:
+      customization:
+        extraKernelArgs:
+          - net.ifnames=0
+        systemExtensions:
+          officialExtensions:
+            - siderolabs/intel-ucode
+    networkInterfaces:
+      - dhcp: true
+        mtu: 1500
+        deviceSelector:
+          hardwareAddr: "40:b0:34:f9:52:55"
+    disableSearchDomain: true
+    nodeLabels:
+      openebs.io/data-plane: "true"
+    installDiskSelector:
+      type: ssd
+      busPath: /pci0000:00/0000:00:17.0/ata1/host0/target0:0:0/0:0:0:0/
+    nameservers:
+      - 1.1.1.1
+      - 8.8.8.8
+      - 8.8.4.4
+  - hostname: worker-jsai
+    ipAddress: 192.168.2.128
+    controlPlane: false
+    patches:
+      - |-
+        - op: add
+          path: /machine/kubelet/extraMounts
+          value:
+            - destination: /var/openebs/local
+              type: bind
+              source: /var/openebs/local
+              options:
+                - bind
+                - rshared
+                - rw
+    schematic:
+      customization:
+        extraKernelArgs:
+          - net.ifnames=0
+        systemExtensions:
+          officialExtensions:
+            - siderolabs/intel-ucode
+            - siderolabs/iscsi-tools
+    networkInterfaces:
+      - dhcp: true
+        mtu: 1500
+        deviceSelector:
+          hardwareAddr: "ec:8e:b5:6f:0d:73"
+    disableSearchDomain: true
+    nodeLabels:
+      openebs.io/data-plane: "true"
+    installDiskSelector:
+      type: ssd
+      busPath: /pci0000:00/0000:00:17.0/ata1/host0/target0:0:0/0:0:0:0/
+    nameservers:
+      - 1.1.1.1
+      - 8.8.8.8
+      - 8.8.4.4
+  - hostname: worker-ajkf
+    ipAddress: 192.168.2.148
+    controlPlane: false
+    patches:
+      - |-
+        - op: add
+          path: /machine/kubelet/extraMounts
+          value:
+            - destination: /var/openebs/local
+              type: bind
+              source: /var/openebs/local
+              options:
+                - bind
+                - rshared
+                - rw
+    schematic:
+      customization:
+        extraKernelArgs:
+          - net.ifnames=0
+        systemExtensions:
+          officialExtensions:
+            - siderolabs/intel-ucode
+            - siderolabs/iscsi-tools
+    networkInterfaces:
+      - dhcp: true
+        mtu: 1500
+        deviceSelector:
+          hardwareAddr: "ec:8e:b5:6f:0b:df"
+    disableSearchDomain: true
+    installDiskSelector:
+      type: ssd
+      busPath: /pci0000:00/0000:00:17.0/ata1/host0/target0:0:0/0:0:0:0/
+    nameservers:
+      - 1.1.1.1
+      - 8.8.8.8
+      - 8.8.4.4
+  - hostname: worker-dsfg
+    ipAddress: 192.168.2.126
+    controlPlane: false
+    patches:
+      - |-
+        - op: add
+          path: /machine/kubelet/extraMounts
+          value:
+            - destination: /var/openebs/local
+              type: bind
+              source: /var/openebs/local
+              options:
+                - bind
+                - rshared
+                - rw
+    schematic:
+      customization:
+        extraKernelArgs:
+          - net.ifnames=0
+        systemExtensions:
+          officialExtensions:
+            - siderolabs/intel-ucode
+            - siderolabs/iscsi-tools
+    networkInterfaces:
+      - dhcp: true
+        mtu: 1500
+        deviceSelector:
+          hardwareAddr: "40:b0:34:fa:e0:d3"
+    disableSearchDomain: true
+    nodeLabels:
+      openebs.io/data-plane: "true"
+    installDiskSelector:
+      type: ssd
+      busPath: /pci0000:00/0000:00:17.0/ata1/host0/target0:0:0/0:0:0:0/
+    nameservers:
+      - 1.1.1.1
+      - 8.8.8.8
+      - 8.8.4.4
