@@ -1,0 +1,18 @@
+version: '3'
+
+tasks:
+  apply-config:
+    dir: infrastructure/talos/home
+    cmds:
+      - talhelper genconfig
+      - talosctl apply-config -n 192.168.2.141 --talosconfig ./clusterconfig/talosconfig -f ./clusterconfig/home-control-plane-vdcj.yaml
+      - talosctl apply-config -n 192.168.2.146 --talosconfig ./clusterconfig/talosconfig -f ./clusterconfig/home-control-plane-hiuw.yaml
+      - talosctl apply-config -n 192.168.2.134 --talosconfig ./clusterconfig/talosconfig -f ./clusterconfig/home-control-plane-eqwd.yaml
+      - talosctl apply-config -n 192.168.2.128 --talosconfig ./clusterconfig/talosconfig -f ./clusterconfig/home-worker-jsai.yaml
+      - talosctl apply-config -n 192.168.2.148 --talosconfig ./clusterconfig/talosconfig -f ./clusterconfig/home-worker-ajkf.yaml
+      - talosctl apply-config -n 192.168.2.126 --talosconfig ./clusterconfig/talosconfig -f ./clusterconfig/home-worker-dsfg.yaml
+
+  reconcile:
+    cmds:
+      - flux reconcile source git flux-system
+      - flux reconcile kustomization apps
