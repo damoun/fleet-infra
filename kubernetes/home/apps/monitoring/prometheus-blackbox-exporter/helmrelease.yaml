@@ -16,7 +16,7 @@ spec:
         kind: HelmRepository
         name: prometheus-community
         namespace: flux-system
-      version: 8.4.0
+      version: 8.6.1
   values:
     serviceMonitor:
       enabled: true
