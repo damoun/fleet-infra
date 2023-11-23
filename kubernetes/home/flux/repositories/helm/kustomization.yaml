@@ -5,10 +5,11 @@ namespace: flux-system
 resources:
   - ./1password.yaml
   - ./actions-runner-controller.yaml
+  - ./cloudnative-pg.yaml
   - ./damoun.yaml
+  - ./grafana.yaml
   - ./jetstack.yaml
+  - ./mongodb.yaml
+  - ./openebs-jiva.yaml
   - ./prometheus-community.yaml
   - ./renovate.yaml
-  - ./openebs-jiva.yaml
-  - ./mongodb.yaml
-  - ./cloudnative-pg.yaml

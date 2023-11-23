@@ -6,3 +6,4 @@ resources:
   - ./kube-prometheus-stack
   - ./speedtest-exporter
   - ./prometheus-blackbox-exporter
+  - ./grafana/ks.yaml

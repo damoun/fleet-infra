@@ -1,0 +1,41 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: grafana
+  namespace: monitoring
+spec:
+  chart:
+    spec:
+      chart: grafana
+      reconcileStrategy: ChartVersion
+      sourceRef:
+        kind: HelmRepository
+        name: grafana
+        namespace: flux-system
+      version: 7.0.8
+  values:
+    serviceMonitor:
+      enabled: true
+    podAnnotations:
+      operator.1password.io/item-path: "vaults/Kubernetes/items/grafana-secret"
+      operator.1password.io/item-name: "grafana-secret"
+    admin:
+      existingSecret: "grafana-secret"
+      userKey: username
+      passwordKey: password
+    envValueFrom:
+      GF_DATABASE_URL:
+        secretKeyRef:
+          name: postgresql-app
+          key: uri
+    datasources:
+      datasources.yaml:
+        apiVersion: 1
+        datasources:
+          - name: Prometheus
+            type: prometheus
+            url: http://kube-prometheus-stack-prometheus:9090
+            access: proxy
+            isDefault: true
+  interval: 1m0s
