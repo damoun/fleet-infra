@@ -24,11 +24,22 @@ spec:
       existingSecret: "grafana-secret"
       userKey: username
       passwordKey: password
+    env:
+      GF_DATABASE_TYPE: postgres
+      GF_DATABASE_HOST: postgresql-rw
     envValueFrom:
-      GF_DATABASE_URL:
+      GF_DATABASE_NAME:
         secretKeyRef:
           name: postgresql-app
-          key: uri
+          key: dbname
+      GF_DATABASE_USER:
+        secretKeyRef:
+          name: postgresql-app
+          key: user
+      GF_DATABASE_PASSWORD:
+        secretKeyRef:
+          name: postgresql-app
+          key: password
     datasources:
       datasources.yaml:
         apiVersion: 1
