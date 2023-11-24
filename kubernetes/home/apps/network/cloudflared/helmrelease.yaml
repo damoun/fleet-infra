@@ -27,8 +27,6 @@ spec:
       operator.1password.io/item-path: "vaults/Kubernetes/items/cloudflared-credentials"
       operator.1password.io/item-name: "tunnel-credentials"
     envFrom:
-      - name: CLOUDFLARED_TOKEN
-        secretRef:
+      - secretRef:
           name: tunnel-credentials
-          key: token
   interval: 1m0s
