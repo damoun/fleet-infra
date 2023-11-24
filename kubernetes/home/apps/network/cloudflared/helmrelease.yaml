@@ -16,10 +16,10 @@ spec:
         kind: HelmRepository
         name: damoun
         namespace: flux-system
-      version: 3.0.0
+      version: 3.0.1
   values:
     replicaCount: 2
-    serviceMonitor:
+    podMonitor:
       enabled: true
     annotations:
       operator.1password.io/item-path: "vaults/Kubernetes/items/cloudflared-credentials"
