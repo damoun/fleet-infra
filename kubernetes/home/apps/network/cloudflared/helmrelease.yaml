@@ -16,13 +16,11 @@ spec:
         kind: HelmRepository
         name: damoun
         namespace: flux-system
-      version: 2.0.2
+      version: 3.0.0
   values:
     replicaCount: 2
     serviceMonitor:
       enabled: true
-      extraLabels:
-        release: kube-prometheus-stack
     annotations:
       operator.1password.io/item-path: "vaults/Kubernetes/items/cloudflared-credentials"
       operator.1password.io/item-name: "tunnel-credentials"
