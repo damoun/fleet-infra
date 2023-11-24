@@ -28,12 +28,8 @@ spec:
     metrics:
       serviceMonitor:
         enable: true
-      serviceMonitorLabels:
-        release: kube-prometheus-stack
     actionsMetrics:
       serviceMonitor: true
-      serviceMonitorLabels:
-        release: kube-prometheus-stack
     env:
       - name: GITHUB_TOKEN
         valueFrom:

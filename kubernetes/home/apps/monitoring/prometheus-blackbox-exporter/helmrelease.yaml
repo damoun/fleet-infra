@@ -20,7 +20,4 @@ spec:
   values:
     serviceMonitor:
       enabled: true
-      defaults:
-        labels:
-          release: kube-prometheus-stack
   interval: 1m0s
