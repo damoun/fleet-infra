@@ -6,8 +6,6 @@ metadata:
   namespace: network
 spec:
   dependsOn:
-    - name: connect
-      namespace: 1password
     - name: kube-prometheus-stack
       namespace: monitoring
   chart:
@@ -18,18 +16,19 @@ spec:
         kind: HelmRepository
         name: damoun
         namespace: flux-system
-      version: 1.15.0
+      version: 2.0.0
   values:
     replicaCount: 2
     serviceMonitor:
       enabled: true
-    secret:
-      certificates:
-        name: tunnel-credentials
+      extraLabels:
+        release: kube-prometheus-stack
     annotations:
       operator.1password.io/item-path: "vaults/Kubernetes/items/cloudflared-credentials"
       operator.1password.io/item-name: "tunnel-credentials"
-    config:
-      tunnel: 657d9290-e9f2-414e-a3a9-d35315808b56
-      credentials-file: /etc/cloudflared/creds/657d9290-e9f2-414e-a3a9-d35315808b56.json
+    envFrom:
+      - name: CLOUDFLARED_TOKEN
+        secretRef:
+          name: tunnel-credentials
+          key: token
   interval: 1m0s
