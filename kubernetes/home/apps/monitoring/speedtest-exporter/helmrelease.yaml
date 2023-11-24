@@ -16,10 +16,8 @@ spec:
         kind: HelmRepository
         name: damoun
         namespace: flux-system
-      version: 1.0.5
+      version: 1.0.6
   values:
     serviceMonitor:
       enabled: true
-      extraLabels:
-        release: kube-prometheus-stack
   interval: 1m0s
