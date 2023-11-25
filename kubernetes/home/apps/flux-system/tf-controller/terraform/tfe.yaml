@@ -10,11 +10,7 @@ spec:
   sourceRef:
     kind: GitRepository
     name: flux-system
-  runnerPodTemplate:
-    spec:
-      env:
-        - name: TF_VAR_tfe_token
-          valueFrom:
-            secretKeyRef:
-              name: tfe-token
-              key: token
+  backendConfig:
+    disable: true
+  cliConfigSecretRef:
+    name: tfe-cli-config
