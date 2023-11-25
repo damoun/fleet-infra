@@ -1,0 +1,12 @@
+---
+apiVersion: infra.contrib.fluxcd.io/v1alpha2
+kind: Terraform
+metadata:
+  name: tfe
+spec:
+  interval: 12h
+  approvePlan: "auto"
+  path: "./infrastructure/terraform/tfe"
+  sourceRef:
+    kind: GitRepository
+    name: flux-system

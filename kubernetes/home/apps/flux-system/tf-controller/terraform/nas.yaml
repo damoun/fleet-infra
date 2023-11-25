@@ -1,0 +1,25 @@
+---
+apiVersion: infra.contrib.fluxcd.io/v1alpha2
+kind: Terraform
+metadata:
+  name: nas
+spec:
+  interval: 12h
+  approvePlan: "auto"
+  path: "./infrastructure/terraform/nas"
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+  runnerPodTemplate:
+    spec:
+      env:
+        - name: TF_VAR_truenas_api_key
+          valueFrom:
+            secretKeyRef:
+              name: truenas-token
+              key: api_key
+        - name: TF_VAR_truenas_base_url
+          valueFrom:
+            secretKeyRef:
+              name: truenas-token
+              key: url

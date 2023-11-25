@@ -13,6 +13,7 @@ spec:
   ignore: |
     /*
     !/kubernetes
+    !/infrastructure/terraform
 ---
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
