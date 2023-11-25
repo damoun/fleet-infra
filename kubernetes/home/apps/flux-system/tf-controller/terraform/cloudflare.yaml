@@ -14,11 +14,6 @@ spec:
     disable: true
   cliConfigSecretRef:
     name: tfe-cli-config
-  runnerPodTemplate:
-    spec:
-      env:
-        - name: TF_VAR_cloudflare_token
-          valueFrom:
-            secretKeyRef:
-              name: cloudflare-token
-              key: token
+  varsFrom:
+    - kind: Secret
+      name: cloudflare-token

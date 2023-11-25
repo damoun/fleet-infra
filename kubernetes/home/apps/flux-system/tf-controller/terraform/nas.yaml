@@ -14,16 +14,6 @@ spec:
     disable: true
   cliConfigSecretRef:
     name: tfe-cli-config
-  runnerPodTemplate:
-    spec:
-      env:
-        - name: TF_VAR_truenas_api_key
-          valueFrom:
-            secretKeyRef:
-              name: truenas-token
-              key: api_key
-        - name: TF_VAR_truenas_base_url
-          valueFrom:
-            secretKeyRef:
-              name: truenas-token
-              key: url
+  varsFrom:
+    - kind: Secret
+      name: truenas-token
