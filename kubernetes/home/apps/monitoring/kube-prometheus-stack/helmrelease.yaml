@@ -22,6 +22,12 @@ spec:
         podMonitorSelectorNilUsesHelmValues: false
         serviceMonitorSelectorNilUsesHelmValues: false
         probeSelectorNilUsesHelmValues: false
+        additionalScrapeConfigs:
+          - job_name: node-exporter
+            scheme: http
+            static_configs:
+              - targets:
+                - nas.home.damoun.cloud:9100
     defaultRules:
       create: false
     alertmanager:
