@@ -10,6 +10,8 @@ clusterPodNets:
   - 10.244.0.0/16
 clusterSvcNets:
   - 10.96.0.0/12
+cniConfig:
+  name: none
 nodes:
   - hostname: control-plane-vdcj
     ipAddress: 192.168.2.141
@@ -194,3 +196,18 @@ nodes:
       - 1.1.1.1
       - 8.8.8.8
       - 8.8.4.4
+
+controlPlane:
+  patches:
+    # Disable kube-proxy
+    - |-
+      cluster:
+        proxy:
+          disabled: true
+    # Enable KubePrism
+    - |-
+      machine:
+        features:
+          kubePrism:
+            enabled: true
+            port: 7445
