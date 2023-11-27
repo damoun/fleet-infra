@@ -6,6 +6,9 @@ metadata:
 spec:
   instances: 2
   primaryUpdateStrategy: unsupervised
+  affinity:
+    nodeSelector:
+      openebs.io/data-plane: "true"
   storage:
     storageClass: openebs-jiva-csi-default
     size: 10Gi
