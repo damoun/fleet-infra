@@ -18,7 +18,7 @@ spec:
         kind: HelmRepository
         name: actions-runner-controller
         namespace: flux-system
-      version: 0.23.5
+      version: 0.23.7
   values:
     podAnnotations:
       operator.1password.io/item-path: "vaults/Kubernetes/items/github-actions-runner"
