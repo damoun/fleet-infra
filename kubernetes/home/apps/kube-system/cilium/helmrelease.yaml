@@ -21,6 +21,22 @@ spec:
         enabled: true
 
     l7Proxy: true
+    loadBalancer:
+      algorithm: maglev
+      mode: dsr
+
+    ingressController:
+      enabled: false
+      loadbalancerMode: shared
+    
+    bgp:
+      enabled: false
+      announce:
+        loadbalancerIP: true
+        podCIDR: false
+
+    bgpControlPlane:
+      enabled: true
 
     cluster:
       name: home
