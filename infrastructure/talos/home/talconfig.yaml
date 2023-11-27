@@ -75,8 +75,6 @@ nodes:
         deviceSelector:
           hardwareAddr: "40:b0:34:f9:52:55"
     disableSearchDomain: true
-    nodeLabels:
-      openebs.io/data-plane: "true"
     installDiskSelector:
       type: ssd
       busPath: /pci0000:00/0000:00:17.0/ata1/host0/target0:0:0/0:0:0:0/
@@ -151,6 +149,8 @@ nodes:
         deviceSelector:
           hardwareAddr: "ec:8e:b5:6f:0b:df"
     disableSearchDomain: true
+    nodeLabels:
+      openebs.io/data-plane: "true"
     installDiskSelector:
       type: ssd
       busPath: /pci0000:00/0000:00:17.0/ata1/host0/target0:0:0/0:0:0:0/
