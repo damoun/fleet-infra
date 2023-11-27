@@ -1,0 +1,5 @@
+clusterconfig
+.terraform
+terraform.tfstate*
+*.tfvars
+*.lock.hcl
