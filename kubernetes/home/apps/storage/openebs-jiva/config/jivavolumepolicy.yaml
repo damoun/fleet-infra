@@ -1,0 +1,30 @@
+apiVersion: openebs.io/v1alpha1
+kind: JivaVolumePolicy
+metadata:
+  name: openebs-jiva-default-policy
+  namespace: storage
+spec:
+  replicaSC: openebs-hostpath
+  target:
+    replicationFactor: 3
+    affinity:
+      podAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                  - key: openebs.io/data-plane
+                    operator: In
+                    values:
+                      - "true"
+              topologyKey: kubernetes.io/hostname
+  replica:
+    affinity:
+      podAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+                - key: openebs.io/data-plane
+                  operator: In
+                  values:
+                    - "true"
+            topologyKey: kubernetes.io/hostname
