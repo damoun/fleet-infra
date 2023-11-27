@@ -7,24 +7,8 @@ spec:
   replicaSC: openebs-hostpath
   target:
     replicationFactor: 3
-    affinity:
-      podAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-            - labelSelector:
-                matchExpressions:
-                  - key: openebs.io/data-plane
-                    operator: In
-                    values:
-                      - "true"
-              topologyKey: kubernetes.io/hostname
+    nodeSelector:
+      openebs.io/data-plane: "true"
   replica:
-    affinity:
-      podAffinity:
-        requiredDuringSchedulingIgnoredDuringExecution:
-          - labelSelector:
-              matchExpressions:
-                - key: openebs.io/data-plane
-                  operator: In
-                  values:
-                    - "true"
-            topologyKey: kubernetes.io/hostname
+    nodeSelector:
+      openebs.io/data-plane: "true"
