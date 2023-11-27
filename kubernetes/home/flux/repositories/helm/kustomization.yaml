@@ -9,6 +9,7 @@ resources:
   - ./cloudnative-pg.yaml
   - ./damoun.yaml
   - ./grafana.yaml
+  - ./ingress-nginx.yaml
   - ./jetstack.yaml
   - ./mongodb.yaml
   - ./openebs-jiva.yaml
