@@ -199,6 +199,11 @@ nodes:
 
 controlPlane:
   patches:
+    # Disable kube-proxy
+    - |-
+      cluster:
+        proxy:
+          disabled: true
     # Enable KubePrism
     - |-
       machine:
