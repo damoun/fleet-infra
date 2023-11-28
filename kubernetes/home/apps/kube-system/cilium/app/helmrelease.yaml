@@ -21,6 +21,11 @@ spec:
         enabled: true
 
     l7Proxy: true
+    l2announcements:
+      enabled: true
+      leaseDuration: 120s
+      leaseRenewDeadline: 60s
+      leaseRetryPeriod: 1s
     loadBalancer:
       algorithm: maglev
       mode: dsr
