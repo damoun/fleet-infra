@@ -18,7 +18,7 @@ spec:
         kind: HelmRepository
         name: renovate
         namespace: flux-system
-      version: 37.68.4
+      version: 37.71.1
   values:
     env:
       RENOVATE_AUTODISCOVER: "true"
