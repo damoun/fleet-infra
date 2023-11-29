@@ -1,0 +1,27 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: agones
+  namespace: game
+spec:
+  chart:
+    spec:
+      chart: agones
+      reconcileStrategy: ChartVersion
+      sourceRef:
+        kind: HelmRepository
+        name: agones
+        namespace: flux-system
+      version: 0.19.1
+  values:
+    gameservers:
+      namespaces:
+        - game
+    agones:
+      createPriorityClass: false
+      allocator:
+        install: true
+        service:
+          serviceType: ClusterIP
+  interval: 1m0s
