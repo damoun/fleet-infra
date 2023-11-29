@@ -5,6 +5,9 @@ metadata:
   name: agones
   namespace: game
 spec:
+  dependsOn:
+    - name: kube-prometheus-stack
+      namespace: monitoring
   chart:
     spec:
       chart: agones
@@ -20,7 +23,12 @@ spec:
         - game
     agones:
       createPriorityClass: false
+      controller:
+        replicas: 1
+      ping:
+        replicas: 1
       allocator:
+        replicas: 1
         install: true
         service:
           serviceType: ClusterIP
