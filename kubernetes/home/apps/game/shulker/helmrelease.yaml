@@ -1,0 +1,28 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: shulker
+  namespace: game
+spec:
+  dependsOn:
+    - name: agones
+    - name: kube-prometheus-stack
+      namespace: monitoring
+  interval: 30m
+  chart:
+    spec:
+      chart: /kube/helm
+      version: 0.1.0
+      sourceRef:
+        kind: GitRepository
+        name: shulker
+        namespace: flux-system
+      interval: 30m
+  values:
+    agones:
+      allocator:
+        host: agones-allocator
+    metrics:
+      servicemonitor:
+        enabled: true
