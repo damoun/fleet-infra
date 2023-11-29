@@ -20,9 +20,10 @@ spec:
         namespace: flux-system
       interval: 30m
   values:
-    agones:
-      allocator:
-        host: agones-allocator
-    metrics:
-      servicemonitor:
-        enabled: true
+    operator:
+      agones:
+        allocator:
+          host: agones-allocator
+      metrics:
+        servicemonitor:
+          enabled: true
