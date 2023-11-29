@@ -12,7 +12,7 @@ spec:
   interval: 30m
   chart:
     spec:
-      chart: /kube/helm
+      chart: ./kube/helm
       version: 0.1.0
       sourceRef:
         kind: GitRepository

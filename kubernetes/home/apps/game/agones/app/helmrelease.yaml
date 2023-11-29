@@ -32,4 +32,6 @@ spec:
         install: true
         service:
           serviceType: ClusterIP
+      extentions:
+        replicas: 1
   interval: 1m0s
