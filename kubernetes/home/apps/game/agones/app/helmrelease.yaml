@@ -13,7 +13,7 @@ spec:
         kind: HelmRepository
         name: agones
         namespace: flux-system
-      version: 0.19.1
+      version: 1.36.0
   values:
     gameservers:
       namespaces:
