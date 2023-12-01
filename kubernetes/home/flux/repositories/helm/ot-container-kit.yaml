@@ -3,8 +3,8 @@
 apiVersion: source.toolkit.fluxcd.io/v1beta2
 kind: HelmRepository
 metadata:
-  name: spotahome-redis-operator
+  name: ot-container-kit
   namespace: flux-system
 spec:
   interval: 30m
-  url: https://spotahome.github.io/redis-operator
+  url: https://ot-container-kit.github.io/helm-charts/

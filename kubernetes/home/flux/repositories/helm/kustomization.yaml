@@ -14,7 +14,7 @@ resources:
   - ./jetstack.yaml
   - ./mongodb.yaml
   - ./openebs-jiva.yaml
+  - ./ot-container-kit.yaml
   - ./prometheus-community.yaml
   - ./renovate.yaml
-  - ./spotahome-redis-operator.yaml
   - ./tf-controller.yaml

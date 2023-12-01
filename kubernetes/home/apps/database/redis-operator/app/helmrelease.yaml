@@ -5,20 +5,16 @@ metadata:
   name: redis-operator
   namespace: database
 spec:
-  dependsOn:
-    - name: kube-prometheus-stack
-      namespace: monitoring
   chart:
     spec:
       chart: redis-operator
       reconcileStrategy: ChartVersion
       sourceRef:
         kind: HelmRepository
-        name: spotahome-redis-operator
+        name: ot-container-kit
         namespace: flux-system
-      version: 3.3.0
+      version: 0.15.9
   values:
-    monitoring:
-      enabled: true
-      serviceMonitor: true
+    redisOperator:
+      watch_namespace: "*"
   interval: 1m0s
