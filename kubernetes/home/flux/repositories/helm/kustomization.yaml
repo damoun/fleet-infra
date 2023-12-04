@@ -5,7 +5,6 @@ namespace: flux-system
 resources:
   - ./1password.yaml
   - ./actions-runner-controller.yaml
-  - ./agones.yaml
   - ./cilium.yaml
   - ./cloudnative-pg.yaml
   - ./damoun.yaml
