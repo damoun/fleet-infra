@@ -5,4 +5,5 @@ resources:
   - namespace.yaml
   - ./renovate/ks.yaml
   - ./actions-runner-controller
+  - ./code-server
 #  - actions-runners.yaml
