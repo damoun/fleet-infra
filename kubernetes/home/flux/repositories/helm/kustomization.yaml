@@ -10,6 +10,7 @@ resources:
   - ./damoun.yaml
   - ./grafana.yaml
   - ./ingress-nginx.yaml
+  - ./itzg-minecraft.yaml
   - ./jetstack.yaml
   - ./mongodb.yaml
   - ./openebs-jiva.yaml

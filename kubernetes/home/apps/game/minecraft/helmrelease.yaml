@@ -1,0 +1,31 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: minecraft
+  namespace: game
+spec:
+  chart:
+    spec:
+      chart: minecraft
+      reconcileStrategy: ChartVersion
+      sourceRef:
+        kind: HelmRepository
+        name: itzg-minecraft
+        namespace: flux-system
+      version: 4.12.0
+  values:
+    minecraftServer:
+      eula: "TRUE"
+      whitelist: "damoun"
+      type: "PAPER"
+      paperDownloadUrl: https://api.papermc.io/v2/projects/paper/versions/1.20.2/builds/318/downloads/paper-1.20.2-318.jar
+      ops: "damoun"
+      motd: "\u00A74\u00A7k-\u00A7r \u00A73InHouseRealms\u00A7f - A Kubernetes Minecraft server running at Home"
+      rcon:
+        enabled: true
+        withGeneratedPassword: true
+    persistent:
+      dataDir:
+        enabled: false
+  interval: 10m
