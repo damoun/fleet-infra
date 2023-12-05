@@ -23,7 +23,7 @@ resource "cloudflare_tunnel_config" "grafana" {
     }
     ingress_rule {
       hostname = cloudflare_record.code_server.hostname
-      service  = "http://code-server.develop.svc.cluster.local."
+      service  = "http://code-server.develop.svc.cluster.local.:8080"
     }
     ingress_rule {
       service = "http_status:404"
