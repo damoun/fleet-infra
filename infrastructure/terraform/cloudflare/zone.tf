@@ -5,3 +5,7 @@ data "cloudflare_zone" "cloud" {
 data "cloudflare_zone" "dev" {
   name = "damoun.dev"
 }
+
+data "cloudflare_zone" "games" {
+  name = "damoun.games"
+}

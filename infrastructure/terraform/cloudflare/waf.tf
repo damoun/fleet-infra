@@ -1,5 +1,9 @@
 resource "cloudflare_ruleset" "waf_custom_rules" {
-  for_each = toset([data.cloudflare_zone.dev.id, data.cloudflare_zone.cloud.id])
+  for_each = toset([
+    data.cloudflare_zone.dev.id,
+    data.cloudflare_zone.cloud.id,
+    data.cloudflare_zone.games.id
+  ])
   zone_id = each.key
   name    = "Zone custom WAF ruleset"
   kind    = "zone"
