@@ -30,6 +30,17 @@ resource "truenas_dataset" "git" {
   }
 }
 
+resource "truenas_dataset" "kubernetes_backup" {
+  name     = "kubernetes"
+  pool     = var.truenas_pool
+  parent   = truenas_dataset.backup.name
+  comments = "Created by terraform"
+
+  lifecycle {
+    prevent_destroy = true
+  }
+}
+
 resource "truenas_dataset" "kubernetes" {
   name     = "kubernetes"
   pool     = var.truenas_pool

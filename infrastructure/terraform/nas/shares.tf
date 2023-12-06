@@ -13,6 +13,22 @@ resource "truenas_share_smb" "time_machine" {
   comment       = "Created by terraform"
 }
 
+resource "truenas_share_nfs" "kubernetes_backup" {
+  enabled      = true
+  paths        = [truenas_dataset.kubernetes_backup.mount_point]
+  mapall_user  = "nobody"
+  mapall_group = "nobody"
+  comment      = "Created by terraform"
+}
+
+resource "truenas_share_nfs" "git" {
+  enabled      = true
+  paths        = [truenas_dataset.git.mount_point]
+  mapall_user  = "nobody"
+  mapall_group = "nobody"
+  comment      = "Created by terraform"
+}
+
 resource "truenas_share_smb" "private" {
   enabled       = true
   acl           = true
