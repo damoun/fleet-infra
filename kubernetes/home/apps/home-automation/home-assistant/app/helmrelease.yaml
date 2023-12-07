@@ -5,35 +5,76 @@ metadata:
   name: home-assistant
   namespace: home-automation
 spec:
+  interval: 30m
   dependsOn:
     - name: openebs-jiva
       namespace: storage
   chart:
     spec:
-      chart: home-assistant
-      reconcileStrategy: ChartVersion
+      chart: app-template
+      version: 2.3.0
+      interval: 30m
       sourceRef:
         kind: HelmRepository
-        name: damoun
+        name: bjw-s
         namespace: flux-system
-      version: 1.1.0
   values:
-#    persistence:
-#      enabled: true
-#      storageClass: openebs-jiva-csi-default
-#      size: 10Gi
-    configmap:
+    defaultPodOptions:
+      nodeSelector:
+        openebs.io/data-plane: "true"
+    controllers:
+      main:
+        containers:
+          main:
+            image:
+              repository: ghcr.io/home-assistant/home-assistant
+              tag: 2023.12.0
+            env:
+              SECRET_EXTERNAL_URL: http://hass.home.damoun.cloud
+              SECRET_TRUSTED_PROXIES_1: 10.244.0.0/16
+              SECRET_RECORDER_DB_URL:
+                valueFrom:
+                  secretKeyRef:
+                    name: "postgresql-app"
+                    key: uri
+            probes:
+              liveness:
+                enabled: false
+              readiness:
+                enabled: false
+              startup:
+                enabled: false
+            resources:
+              requests:
+                cpu: 47m
+                memory: 1254M
+              limits:
+                memory: 1254M
+
+    service:
+      main:
+        ports:
+          http:
+            port: 8123
+
+    ingress:
+      main:
+        enabled: true
+        className: "nginx"
+        hosts:
+          - host: "hass.home.damoun.cloud"
+            paths:
+              - path: /
+                service:
+                  name: main
+                  port: http
+
+    persistence:
       config:
-        data:
-          configuration.yaml: |
-            default_config:
-            recorder:
-              db_url: !env_var uri
-            http:
-              use_x_forwarded_for: true
-              trusted_proxies:
-                - "10.0.0.0/8"
-    envFrom:
-      - secretRef:
-          name: postgresql-app
-  interval: 1m0s
+        enabled: true
+        accessMode: ReadWriteOnce
+        storageClass: openebs-jiva-csi-default
+        advancedMounts:
+          main:
+            main:
+              - path: /config
