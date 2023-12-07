@@ -1,0 +1,102 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: mosquitto
+  namespace: home-automation
+spec:
+  interval: 30m
+  dependsOn:
+    - name: openebs-jiva
+      namespace: storage
+  chart:
+    spec:
+      chart: app-template
+      version: 2.3.0
+      interval: 30m
+      sourceRef:
+        kind: HelmRepository
+        name: bjw-s
+        namespace: flux-system
+
+  values:
+    defaultPodOptions:
+      nodeSelector:
+        openebs.io/data-plane: "true"
+    controllers:
+      main:
+        pod:
+          annotations:
+            operator.1password.io/item-path: "vaults/Kubernetes/items/mosquitto-secret"
+            operator.1password.io/item-name: "mosquitto-secret"
+          securityContext:
+            runAsUser: 568
+            runAsGroup: 568
+            fsGroup: 568
+            fsGroupChangePolicy: OnRootMismatch
+
+        initContainers:
+          init-config:
+            image:
+              repository: public.ecr.aws/docker/library/eclipse-mosquitto
+              tag: 2.0.18
+            command:
+              - "/bin/sh"
+              - "-c"
+            args:
+              - cp /tmp/secret/* /mosquitto/external_config/;
+                mosquitto_passwd -U /mosquitto/external_config/mosquitto_pwd;
+                chmod 0600 /mosquitto/external_config/mosquitto_pwd;
+
+        containers:
+          main:
+            image:
+              repository: public.ecr.aws/docker/library/eclipse-mosquitto
+              tag: 2.0.18
+            resources:
+              requests:
+                cpu: 5m
+                memory: 10M
+              limits:
+                memory: 10M
+
+    service:
+      main:
+        type: LoadBalancer
+        externalTrafficPolicy: Local
+        ports:
+          http:
+            enabled: false
+          mqtt:
+            enabled: true
+            port: 1883
+
+    persistence:
+      data:
+        enabled: true
+        accessMode: ReadWriteOnce
+        storageClass: openebs-jiva-csi-default
+        size: 512Mi
+        advancedMounts:
+          main:
+            main:
+              - path: /data
+      mosquitto-configfile:
+        type: configMap
+        name: mosquitto-configmap
+        advancedMounts:
+          main:
+            main:
+              - path: /mosquitto/config/mosquitto.conf
+                subPath: mosquitto.conf
+      mosquitto-secret:
+        type: secret
+        name: mosquitto-secret
+        advancedMounts:
+          main:
+            init-config:
+              - path: /tmp/secret
+      mosquitto-externalconfig:
+        type: emptyDir
+        globalMounts:
+          - path: /mosquitto/external_config
