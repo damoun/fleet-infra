@@ -18,4 +18,5 @@ resources:
   - ./ot-container-kit.yaml
   - ./prometheus-community.yaml
   - ./renovate.yaml
+  - ./selenium.yaml
   - ./tf-controller.yaml

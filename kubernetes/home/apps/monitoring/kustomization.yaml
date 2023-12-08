@@ -7,3 +7,4 @@ resources:
   - ./speedtest-exporter
   - ./prometheus-blackbox-exporter
   - ./grafana/ks.yaml
+  - ./selenium-grid
