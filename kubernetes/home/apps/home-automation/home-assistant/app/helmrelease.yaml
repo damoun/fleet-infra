@@ -28,7 +28,7 @@ spec:
           main:
             image:
               repository: ghcr.io/home-assistant/home-assistant
-              tag: 2023.12.0
+              tag: 2023.12.0@sha256:f173ad0c19bbc41bdf7bde0d5f18b3acd4dacade8c42bc2943c24853d6e74319
             env:
               SECRET_EXTERNAL_URL: http://hass.home.damoun.cloud
               SECRET_TRUSTED_PROXIES_1: 10.244.0.0/16
