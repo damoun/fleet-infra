@@ -18,3 +18,5 @@ spec:
     isolateComponents: true
     autoscaling:
       enabling: true
+    basicAuth.:
+      enabled: false
