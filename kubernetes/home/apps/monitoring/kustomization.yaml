@@ -8,3 +8,4 @@ resources:
   - ./prometheus-blackbox-exporter
   - ./grafana/ks.yaml
   - ./selenium-grid
+  - ./changedetection
