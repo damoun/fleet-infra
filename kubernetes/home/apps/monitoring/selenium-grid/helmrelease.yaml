@@ -20,3 +20,5 @@ spec:
       enabling: true
     basicAuth.:
       enabled: false
+    ingress:
+      enabled: false
