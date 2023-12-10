@@ -26,7 +26,11 @@ spec:
       rcon:
         enabled: true
         withGeneratedPassword: true
+    nodeSelector:
+      openebs.io/data-plane: "true"
     persistent:
+      storageClass: openebs-jiva-csi-default
       dataDir:
-        enabled: false
+        enabled: true
+        size: 5Gi
   interval: 10m
