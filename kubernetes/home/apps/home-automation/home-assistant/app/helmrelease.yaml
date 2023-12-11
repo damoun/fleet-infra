@@ -24,6 +24,20 @@ spec:
         openebs.io/data-plane: "true"
     controllers:
       main:
+        pod:
+          annotations:
+            operator.1password.io/item-path: "vaults/Kubernetes/items/home-assistant"
+            operator.1password.io/item-name: "home-assistant"
+        initContainers:
+          git:
+            image:
+              repository: bitnami/git
+              tag: 2.43.0
+            command:
+              - "/bin/sh"
+              - "-c"
+            args:
+              - "git clone https://github.com/damoun/hass-config.git /config || (cd /config ; git fetch && git reset --hard)"
         containers:
           main:
             image:
@@ -31,12 +45,16 @@ spec:
               tag: 2023.12.1@sha256:93b9ebc8a464475f42113ccf121bb3c495ce2b4adc0a6fe2c7c3946a5912e850
             env:
               SECRET_EXTERNAL_URL: http://hass.home.damoun.cloud
+              SECRET_INTERNAL_URL: http://home-assistant:8123
               SECRET_TRUSTED_PROXIES_1: 10.244.0.0/16
               SECRET_RECORDER_DB_URL:
                 valueFrom:
                   secretKeyRef:
                     name: "postgresql-app"
                     key: uri
+            envFrom:
+              - secretRef:
+                  name: "home-assistant"
             probes:
               liveness:
                 enabled: false
@@ -78,7 +96,5 @@ spec:
         enabled: true
         accessMode: ReadWriteOnce
         storageClass: openebs-jiva-csi-default
-        advancedMounts:
-          main:
-            main:
-              - path: /config
+        globalMounts:
+          - path: /config
