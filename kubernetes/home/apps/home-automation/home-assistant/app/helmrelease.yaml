@@ -25,6 +25,8 @@ spec:
     controllers:
       main:
         pod:
+          hostNetwork: true
+          dnsPolicy: ClusterFirstWithHostNet
           annotations:
             operator.1password.io/item-path: "vaults/Kubernetes/items/home-assistant"
             operator.1password.io/item-name: "home-assistant"
@@ -37,7 +39,7 @@ spec:
               - "/bin/sh"
               - "-c"
             args:
-              - "git clone https://github.com/damoun/hass-config.git /config || (cd /config ; git fetch && git reset --hard)"
+              - "git clone https://github.com/damoun/hass-config.git /config || (cd /config ; git fetch --all && git reset --hard origin/main)"
         containers:
           main:
             image:
@@ -71,8 +73,7 @@ spec:
 
     service:
       main:
-        type: LoadBalancer
-        externalTrafficPolicy: Cluster
+        type: ClusterIP
         ports:
           http:
             port: 8123
