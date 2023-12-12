@@ -32,7 +32,7 @@ spec:
           git:
             image:
               repository: bitnami/git
-              tag: 2.43.0
+              tag: 2.43.0@sha256:8f92cadd2c82668333628d6feb3e0a4d71738fab317cbebd44e18f57845f62cf
             command:
               - "/bin/sh"
               - "-c"
