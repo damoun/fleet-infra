@@ -29,6 +29,14 @@ resource "truenas_share_nfs" "git" {
   comment      = "Created by terraform"
 }
 
+resource "truenas_share_nfs" "download" {
+  enabled      = true
+  paths        = [truenas_dataset.download.mount_point]
+  mapall_user  = "kube"
+  mapall_group = "kube"
+  comment      = "Created by terraform"
+}
+
 resource "truenas_share_smb" "private" {
   enabled       = true
   acl           = true
