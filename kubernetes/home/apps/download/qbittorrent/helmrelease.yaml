@@ -52,6 +52,9 @@ spec:
             image:
               repository: docker.io/powerdns/dnsdist-18
               tag: 1.8.2
+            securityContext:
+              runAsUser: 0
+              runAsGroup: 0
           gluetun:
             image:
               repository: ghcr.io/qdm12/gluetun
@@ -78,7 +81,7 @@ spec:
               - name: DOT
                 value: "off"
               - name: DNS_PLAINTEXT_ADDRESS
-                value: "127.0.0.2"
+                value: "127.0.0.1"
             envFrom:
               - secretRef:
                   name: qbittorrent-secret
