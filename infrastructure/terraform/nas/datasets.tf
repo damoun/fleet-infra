@@ -65,6 +65,12 @@ resource "truenas_dataset" "public" {
   comments = "Created by terraform"
 }
 
+resource "truenas_dataset" "download" {
+  name     = "download"
+  pool     = var.truenas_pool
+  comments = "Created by terraform"
+}
+
 resource "truenas_dataset" "video" {
   name     = "video"
   pool     = var.truenas_pool
