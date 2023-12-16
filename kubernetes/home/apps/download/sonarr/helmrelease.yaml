@@ -1,0 +1,85 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta2
+kind: HelmRelease
+metadata:
+  name: sonarr
+  namespace: download
+spec:
+  interval: 30m
+  chart:
+    spec:
+      chart: app-template
+      version: 2.4.0
+      interval: 30m
+      sourceRef:
+        kind: HelmRepository
+        name: bjw-s
+        namespace: flux-system
+  values:
+    defaultPodOptions:
+      nodeSelector:
+        openebs.io/data-plane: "true"
+    controllers:
+      main:
+        pod:
+          annotations:
+            operator.1password.io/item-path: "vaults/Kubernetes/items/sonarr-secret"
+            operator.1password.io/item-name: "sonarr-secret"
+          securityContext:
+            runAsUser: 568
+            runAsGroup: 568
+            fsGroup: 568
+            fsGroupChangePolicy: "OnRootMismatch"
+            supplementalGroups:
+              - 65542
+        containers:
+          main:
+            image:
+              repository: ghcr.io/onedr0p/sonarr-develop
+              tag: 4.0.0.737@sha256:b87e975273270c62adff5df680d8d2159c0a9fe49466aabee30546685efd0ac8
+            env:
+              SONARR__INSTANCE_NAME: Sonarr
+              SONARR__PORT: 8989
+              SONARR__AUTHENTICATION_METHOD: External
+              SONARR__AUTHENTICATION_REQUIRED: DisabledForLocalAddresses
+              SONARR__APPLICATION_URL: "http://sonarr.home.damoun.cloud"
+              SONARR__LOG_LEVEL: info
+              SONARR__API_KEY:
+                valueFrom:
+                  secretKeyRef:
+                    name: sonarr-secret
+                    key: api_key
+            resources:
+              requests:
+                cpu: 20m
+                memory: 512M
+              limits:
+                memory: 768M
+    service:
+      main:
+        ports:
+          http:
+            port: 8989
+    ingress:
+      main:
+        enabled: true
+        className: "nginx"
+        hosts:
+          - host: "sonarr.home.damoun.cloud"
+            paths:
+              - path: /
+                service:
+                  name: main
+                  port: http
+    persistence:
+      config:
+        enabled: true
+        accessMode: ReadWriteOnce
+        storageClass: openebs-jiva-csi-default
+      media:
+        enabled: true
+        type: nfs
+        server: nas.home.damoun.cloud
+        path: /mnt/pool1/download
+        globalMounts:
+          - path: /data/nas-media

@@ -6,3 +6,4 @@ resources:
   - ./qbittorrent/ks.yaml
   - ./radarr
   - ./prowlarr
+  - ./sonarr
