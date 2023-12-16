@@ -127,6 +127,7 @@ spec:
             main:
               - path: /config
       media:
+        enabled: true
         type: nfs
         server: nas.home.damoun.cloud
         path: /mnt/pool1/download
