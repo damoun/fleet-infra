@@ -37,6 +37,22 @@ resource "truenas_share_nfs" "download" {
   comment      = "Created by terraform"
 }
 
+resource "truenas_share_nfs" "movie" {
+  enabled      = true
+  paths        = [truenas_dataset.movie.mount_point]
+  mapall_user  = "kube"
+  mapall_group = "kube"
+  comment      = "Created by terraform"
+}
+
+resource "truenas_share_nfs" "tv_show" {
+  enabled      = true
+  paths        = [truenas_dataset.tv_show.mount_point]
+  mapall_user  = "kube"
+  mapall_group = "kube"
+  comment      = "Created by terraform"
+}
+
 resource "truenas_share_smb" "private" {
   enabled       = true
   acl           = true
