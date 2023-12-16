@@ -82,6 +82,8 @@ spec:
                 value: "off"
               - name: DNS_PLAINTEXT_ADDRESS
                 value: "127.0.0.2"
+              - name: SHADOWSOCKS_LOG
+                value: "on"
             envFrom:
               - secretRef:
                   name: qbittorrent-secret
