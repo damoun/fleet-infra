@@ -1,0 +1,66 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta2
+kind: HelmRelease
+metadata:
+  name: recyclarr
+  namespace: download
+spec:
+  interval: 30m
+  chart:
+    spec:
+      chart: app-template
+      version: 2.4.0
+      interval: 30m
+      sourceRef:
+        kind: HelmRepository
+        name: bjw-s
+        namespace: flux-system
+  values:
+    defaultPodOptions:
+      nodeSelector:
+        openebs.io/data-plane: "true"
+    controllers:
+      main:
+        pod:
+          annotations:
+            operator.1password.io/item-path: "vaults/Kubernetes/items/recyclarr-secret"
+            operator.1password.io/item-name: "recyclarr-secret"
+          securityContext:
+            runAsUser: 568
+            runAsGroup: 568
+            fsGroup: 568
+            fsGroupChangePolicy: OnRootMismatch
+        containers:
+          main:
+            image:
+              repository: ghcr.io/recyclarr/recyclarr
+              tag: 6.0.2
+            envFrom:
+              - secretRef:
+                  name: recyclarr-secret
+            resources:
+              requests:
+                cpu: 5m
+                memory: 36M
+              limits:
+                memory: 128M
+    persistence:
+      config:
+        enabled: true
+        accessMode: ReadWriteOnce
+        storageClass: openebs-jiva-csi-default
+        advancedMounts:
+          main:
+            main:
+              - path: /config
+      config-file:
+        enabled: true
+        type: configMap
+        name: recyclarr-configmap
+        globalMounts:
+          - path: /config/recyclarr.yml
+            subPath: recyclarr.yml
+            readOnly: true
+    service:
+      main:
+        enabled: false
