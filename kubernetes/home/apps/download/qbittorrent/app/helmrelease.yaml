@@ -128,7 +128,7 @@ spec:
           main:
             main:
               - path: /config
-      media:
+      download:
         enabled: true
         type: nfs
         server: nas.home.damoun.cloud
@@ -136,7 +136,25 @@ spec:
         advancedMounts:
           main:
             main:
-              - path: /data/nas-media
+              - path: /data/download
+      tvshow:
+        enabled: true
+        type: nfs
+        server: nas.home.damoun.cloud
+        path: /mnt/pool1/video/tv-show
+        advancedMounts:
+          main:
+            main:
+              - path: /data/tv-show
+      movie:
+        enabled: true
+        type: nfs
+        server: nas.home.damoun.cloud
+        path: /mnt/pool1/video/movie
+        advancedMounts:
+          main:
+            main:
+              - path: /data/movie
       dnsdist-config:
         type: configMap
         name: qbittorrent-dnsdist

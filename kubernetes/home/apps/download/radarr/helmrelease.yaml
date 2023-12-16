@@ -76,10 +76,10 @@ spec:
         enabled: true
         accessMode: ReadWriteOnce
         storageClass: openebs-jiva-csi-default
-      media:
+      movie:
         enabled: true
         type: nfs
         server: nas.home.damoun.cloud
-        path: /mnt/pool1/download
+        path: /mnt/pool1/video/movie
         globalMounts:
-          - path: /data/nas-media
+          - path: /data/movie
