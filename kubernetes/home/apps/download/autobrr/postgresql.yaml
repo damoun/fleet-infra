@@ -1,0 +1,16 @@
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: autobrr-postgresql
+  namespace: download
+spec:
+  instances: 2
+  primaryUpdateStrategy: unsupervised
+  affinity:
+    nodeSelector:
+      openebs.io/data-plane: "true"
+  storage:
+    storageClass: openebs-jiva-csi-default
+    size: 10Gi
+  monitoring:
+    enablePodMonitor: true

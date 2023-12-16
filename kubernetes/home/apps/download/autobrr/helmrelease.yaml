@@ -1,0 +1,88 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta2
+kind: HelmRelease
+metadata:
+  name: autobrr
+  namespace: download
+spec:
+  interval: 30m
+  chart:
+    spec:
+      chart: app-template
+      version: 2.4.0
+      interval: 30m
+      sourceRef:
+        kind: HelmRepository
+        name: bjw-s
+        namespace: flux-system
+  values:
+    controllers:
+      main:
+        pod:
+          annotations:
+            operator.1password.io/item-path: "vaults/Kubernetes/items/autobrr-secret"
+            operator.1password.io/item-name: "autobrr-secret"
+          securityContext:
+            runAsUser: 568
+            runAsGroup: 568
+            fsGroup: 568
+            fsGroupChangePolicy: OnRootMismatch
+        containers:
+          main:
+            image:
+              repository: ghcr.io/autobrr/autobrr
+              tag: v1.34.1
+            env:
+              AUTOBRR__CHECK_FOR_UPDATES: "false"
+              AUTOBRR__HOST: 0.0.0.0
+              AUTOBRR__PORT: 7474
+              AUTOBRR__LOG_LEVEL: DEBUG
+              AUTOBRR__DATABASE_TYPE: postgres
+              AUTOBRR__POSTGRES_HOST:
+                valueFrom:
+                  secretKeyRef:
+                    name: "autobrr-postgresql-app"
+                    key: host
+              AUTOBRR__POSTGRES_PORT: "5432"
+              AUTOBRR__POSTGRES_USER:
+                valueFrom:
+                  secretKeyRef:
+                    name: "autobrr-postgresql-app"
+                    key: user
+              AUTOBRR__POSTGRES_PASS:
+                valueFrom:
+                  secretKeyRef:
+                    name: "autobrr-postgresql-app"
+                    key: password
+              AUTOBRR__POSTGRES_DATABASE:
+                valueFrom:
+                  secretKeyRef:
+                    name: "autobrr-postgresql-app"
+                    key: dbname
+              AUTOBRR__SESSION_SECRET:
+                valueFrom:
+                  secretKeyRef:
+                    name: autobrr-secret
+                    key: session_secret
+            resources:
+              requests:
+                cpu: 10m
+                memory: 128Mi
+              limits:
+                memory: 256Mi
+    service:
+      main:
+        ports:
+          http:
+            port: 7474
+    ingress:
+      main:
+        enabled: true
+        className: nginx
+        hosts:
+          - host: "autobrr.home.damoun.cloud"
+            paths:
+              - path: /
+                service:
+                  name: main
+                  port: http
