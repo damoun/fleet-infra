@@ -47,6 +47,13 @@ resource "truenas_dataset" "kubernetes" {
   comments = "Created by terraform"
 }
 
+resource "truenas_dataset" "transcoding" {
+  name     = "transcoding"
+  pool     = var.truenas_pool
+  parent   = truenas_dataset.kubernetes.name
+  comments = "Created by terraform"
+}
+
 resource "truenas_dataset" "private" {
   name     = "private"
   pool     = var.truenas_pool
