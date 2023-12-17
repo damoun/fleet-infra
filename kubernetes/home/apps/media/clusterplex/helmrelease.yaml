@@ -17,11 +17,9 @@ spec:
         namespace: flux-system
   values:
     global:
-      nodeSelector:
-        openebs.io/data-plane: "true"
       timezone: Europe/Amsterdam
       PGID: 65542
-      PUID: 568
+      PUID: 65542
       sharedStorage:
         transcode:
           enabled: true
@@ -34,6 +32,8 @@ spec:
           server: nas.home.damoun.cloud
           path: /mnt/pool1/video
     pms:
+      nodeSelector:
+        openebs.io/data-plane: "true"
       config:
         ingressConfig:
           enabled: true
@@ -49,6 +49,8 @@ spec:
         storageClass: openebs-jiva-csi-default
         size: 5Gi
     worker:
+      nodeSelector:
+        openebs.io/data-plane: "true"
       codecVolumes:
         enabled: true
         storageClass: openebs-jiva-csi-default
