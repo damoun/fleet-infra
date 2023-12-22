@@ -32,7 +32,7 @@ spec:
             nameOverride: "orchestrator"
             image:
               repository: ghcr.io/pabloromeo/clusterplex_orchestrator
-              tag: 1.4.8
+              tag: 1.4.8@sha256:3845e1ee632bd7bc4ae1dea7325a2f80822b1c9e45ad45fa1b11ecb99d738d6d
             env:
               TZ: Europe/Amsterdam
               PGID: '65542'
@@ -60,7 +60,7 @@ spec:
           main:
             image:
               repository: ghcr.io/pabloromeo/clusterplex_pms
-              tag: 1.4.8
+              tag: 1.4.8@sha256:1a89ff80ae4d4e6e953a057c855b87c23947cf08c2b2bc8c5c30788657b81953
             env:
               TZ: Europe/Amsterdam
               PGID: '65542'
@@ -97,7 +97,7 @@ spec:
           main:
             image:
               repository: ghcr.io/pabloromeo/clusterplex_worker
-              tag: 1.4.8
+              tag: 1.4.8@sha256:b8ba40e2e7d0f1d90c655e19c30b381f0a292c441d452c05b82003e9b97259b9
             env:
               TZ: Europe/Amsterdam
               PGID: '65542'
