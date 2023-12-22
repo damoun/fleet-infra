@@ -131,6 +131,6 @@ trackers:
     required_seed_days: 7.5
 
   - name: yggtorrent
-    urls: ["connect.gopeers.cc"]
-    required_seed_ratio: 2
+    urls: ["connect.drago-server.org", "tracker.loadpeers.org"]
+    required_seed_ratio: 1.05
     required_seed_days: 0
