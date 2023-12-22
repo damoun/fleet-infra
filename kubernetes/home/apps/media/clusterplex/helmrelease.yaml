@@ -160,15 +160,6 @@ spec:
           pms:
             main:
               - path: /config
-      codecs:
-        enabled: true
-        accessMode: ReadWriteOnce
-        storageClass: openebs-jiva-csi-default
-        size: 1Gi
-        advancedMounts:
-          worker:
-            main:
-              - path: /codecs
       transcode:
         enabled: true
         type: nfs
