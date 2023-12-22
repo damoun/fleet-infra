@@ -127,6 +127,13 @@ spec:
             port: 32400
           relay:
             port: 32499
+      remote:
+        type: LoadBalancer
+        externalTrafficPolicy: Cluster
+        controller: pms
+        ports:
+          http:
+            port: 32400
       worker:
         controller: worker
         ports:
