@@ -13,7 +13,7 @@ spec:
         kind: HelmRepository
         name: itzg-minecraft
         namespace: flux-system
-      version: 4.12.0
+      version: 4.13.0
   values:
     minecraftServer:
       eula: "TRUE"
