@@ -34,7 +34,7 @@ spec:
           git:
             image:
               repository: bitnami/git
-              tag: 2.43.0@sha256:ee9edfde54a963ac63c58f9d250305cf76d00292d0c0eaba5eb4a5c45d39e0af
+              tag: 2.43.0@sha256:e82ee3f7ba02d3a69d869cf0149928bc5b8500c4fb3d043bbb27a9ac59ece3ef
             command:
               - "/bin/sh"
               - "-c"
