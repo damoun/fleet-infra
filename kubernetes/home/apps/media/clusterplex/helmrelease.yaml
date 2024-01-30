@@ -97,7 +97,7 @@ spec:
           main:
             image:
               repository: ghcr.io/pabloromeo/clusterplex_worker
-              tag: 1.4.8@sha256:b8ba40e2e7d0f1d90c655e19c30b381f0a292c441d452c05b82003e9b97259b9
+              tag: 1.4.9@sha256:9f59f97f5b7e2dd5e4ce18bbb75b262b260a7e2669e78e3d3567bf20d5c88177
             env:
               TZ: Europe/Amsterdam
               PGID: '65542'
