@@ -32,7 +32,7 @@ spec:
             nameOverride: "orchestrator"
             image:
               repository: ghcr.io/pabloromeo/clusterplex_orchestrator
-              tag: 1.4.8@sha256:3845e1ee632bd7bc4ae1dea7325a2f80822b1c9e45ad45fa1b11ecb99d738d6d
+              tag: 1.4.9@sha256:425bd20fae63a1a09b3974a26d71da3a6a27ba84e76986958edafc496a768237
             env:
               TZ: Europe/Amsterdam
               PGID: '65542'
