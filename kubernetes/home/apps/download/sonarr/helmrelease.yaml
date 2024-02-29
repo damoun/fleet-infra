@@ -36,7 +36,7 @@ spec:
           main:
             image:
               repository: ghcr.io/onedr0p/sonarr-develop
-              tag: 4.0.0.752@sha256:2f236cef4ed862a0000db61aaf23e9d42ebe51c1257b48f3a2a36fdc696bccaf
+              tag: 4.0.2.1192@sha256:ac08c06ba9216f0bb54e1888f3a23a6091db7d54da3bfdad3e6a5366e778528f
             env:
               SONARR__INSTANCE_NAME: Sonarr
               SONARR__PORT: 8989
