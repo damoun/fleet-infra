@@ -60,7 +60,7 @@ spec:
           main:
             image:
               repository: ghcr.io/pabloromeo/clusterplex_pms
-              tag: 1.4.8@sha256:1a89ff80ae4d4e6e953a057c855b87c23947cf08c2b2bc8c5c30788657b81953
+              tag: 1.4.9@sha256:1de1ca52b239a49e898b68e9fec6f2d44293c0b42476ac446d3109ee178de40b
             env:
               TZ: Europe/Amsterdam
               PGID: '65542'
