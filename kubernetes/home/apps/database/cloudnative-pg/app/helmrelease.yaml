@@ -16,7 +16,7 @@ spec:
         kind: HelmRepository
         name: cloudnative-pg
         namespace: flux-system
-      version: 0.20.0
+      version: 0.20.1
   values:
     monitoring:
       podMonitorEnabled: true
