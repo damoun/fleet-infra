@@ -5,6 +5,9 @@ metadata:
   name: recyclarr
   namespace: download
 spec:
+  dependsOn:
+    - name: openebs-jiva
+      namespace: storage
   interval: 30m
   chart:
     spec:
