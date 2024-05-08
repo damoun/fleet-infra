@@ -15,7 +15,7 @@ resources:
   - ./itzg-minecraft.yaml
   - ./jetstack.yaml
   - ./mongodb.yaml
-  - ./openebs-jiva.yaml
+  - ./openebs-mayastor.yaml
   - ./ot-container-kit.yaml
   - ./prometheus-community.yaml
   - ./renovate.yaml

@@ -1,0 +1,26 @@
+apiVersion: "openebs.io/v1beta2"
+kind: DiskPool
+metadata:
+  name: pool-jsai
+  namespace: storage
+spec:
+  node: worker-jsai
+  disks: ["/dev/nvme0n1"]
+---
+apiVersion: "openebs.io/v1beta2"
+kind: DiskPool
+metadata:
+  name: pool-dsfg
+  namespace: storage
+spec:
+  node: worker-dsfg
+  disks: ["/dev/nvme0n1"]
+---
+apiVersion: "openebs.io/v1beta2"
+kind: DiskPool
+metadata:
+  name: pool-ajkf
+  namespace: storage
+spec:
+  node: worker-ajkf
+  disks: ["/dev/nvme0n1"]

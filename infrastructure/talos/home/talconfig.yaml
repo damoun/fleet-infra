@@ -16,6 +16,18 @@ nodes:
   - hostname: control-plane-vdcj
     ipAddress: 192.168.2.141
     controlPlane: true
+    patches:
+      - |-
+        - op: add
+          path: /machine/kubelet/extraMounts
+          value:
+            - destination: /var/openebs/local
+              type: bind
+              source: /var/openebs/local
+              options:
+                - rbind
+                - rshared
+                - rw
     schematic:
       customization:
         extraKernelArgs:
@@ -39,6 +51,18 @@ nodes:
   - hostname: control-plane-hiuw
     ipAddress: 192.168.2.146
     controlPlane: true
+    patches:
+      - |-
+        - op: add
+          path: /machine/kubelet/extraMounts
+          value:
+            - destination: /var/openebs/local
+              type: bind
+              source: /var/openebs/local
+              options:
+                - rbind
+                - rshared
+                - rw
     schematic:
       customization:
         extraKernelArgs:
@@ -62,6 +86,18 @@ nodes:
   - hostname: control-plane-eqwd
     ipAddress: 192.168.2.134
     controlPlane: true
+    patches:
+      - |-
+        - op: add
+          path: /machine/kubelet/extraMounts
+          value:
+            - destination: /var/openebs/local
+              type: bind
+              source: /var/openebs/local
+              options:
+                - rbind
+                - rshared
+                - rw
     schematic:
       customization:
         extraKernelArgs:
@@ -88,13 +124,18 @@ nodes:
     patches:
       - |-
         - op: add
+          path: /machine/sysctls
+          value:
+            vm.nr_hugepages: "2048"
+      - |-
+        - op: add
           path: /machine/kubelet/extraMounts
           value:
             - destination: /var/openebs/local
               type: bind
               source: /var/openebs/local
               options:
-                - bind
+                - rbind
                 - rshared
                 - rw
     schematic:
@@ -112,7 +153,7 @@ nodes:
           hardwareAddr: "ec:8e:b5:6f:0d:73"
     disableSearchDomain: true
     nodeLabels:
-      openebs.io/data-plane: "true"
+      openebs.io/engine: mayastor
     installDiskSelector:
       type: ssd
       busPath: /pci0000:00/0000:00:17.0/ata1/host0/target0:0:0/0:0:0:0/
@@ -126,13 +167,18 @@ nodes:
     patches:
       - |-
         - op: add
+          path: /machine/sysctls
+          value:
+            vm.nr_hugepages: "2048"
+      - |-
+        - op: add
           path: /machine/kubelet/extraMounts
           value:
             - destination: /var/openebs/local
               type: bind
               source: /var/openebs/local
               options:
-                - bind
+                - rbind
                 - rshared
                 - rw
     schematic:
@@ -150,7 +196,7 @@ nodes:
           hardwareAddr: "ec:8e:b5:6f:0b:df"
     disableSearchDomain: true
     nodeLabels:
-      openebs.io/data-plane: "true"
+      openebs.io/engine: mayastor
     installDiskSelector:
       type: ssd
       busPath: /pci0000:00/0000:00:17.0/ata1/host0/target0:0:0/0:0:0:0/
@@ -164,13 +210,18 @@ nodes:
     patches:
       - |-
         - op: add
+          path: /machine/sysctls
+          value:
+            vm.nr_hugepages: "2048"
+      - |-
+        - op: add
           path: /machine/kubelet/extraMounts
           value:
             - destination: /var/openebs/local
               type: bind
               source: /var/openebs/local
               options:
-                - bind
+                - rbind
                 - rshared
                 - rw
     schematic:
@@ -188,7 +239,7 @@ nodes:
           hardwareAddr: "40:b0:34:fa:e0:d3"
     disableSearchDomain: true
     nodeLabels:
-      openebs.io/data-plane: "true"
+      openebs.io/engine: mayastor
     installDiskSelector:
       type: ssd
       busPath: /pci0000:00/0000:00:17.0/ata1/host0/target0:0:0/0:0:0:0/
