@@ -14,3 +14,7 @@ spec:
     size: 10Gi
   monitoring:
     enablePodMonitor: true
+  resources:
+    limits:
+      hugepages-2Mi: 512Mi
+      memory: 512Mi
