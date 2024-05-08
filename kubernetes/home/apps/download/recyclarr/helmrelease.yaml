@@ -6,7 +6,7 @@ metadata:
   namespace: download
 spec:
   dependsOn:
-    - name: openebs-jiva
+    - name: openebs-mayastor
       namespace: storage
   interval: 30m
   chart:
@@ -21,7 +21,7 @@ spec:
   values:
     defaultPodOptions:
       nodeSelector:
-        openebs.io/data-plane: "true"
+        openebs.io/engine: mayastor
     controllers:
       main:
         pod:
@@ -51,7 +51,7 @@ spec:
       config:
         enabled: true
         accessMode: ReadWriteOnce
-        storageClass: openebs-jiva-csi-default
+        storageClass: openebs-mayastor-dual-replica
         advancedMounts:
           main:
             main:

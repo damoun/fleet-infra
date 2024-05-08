@@ -18,7 +18,7 @@ spec:
   values:
     defaultPodOptions:
       nodeSelector:
-        openebs.io/data-plane: "true"
+        openebs.io/engine: mayastor
     controllers:
       main:
         pod:
@@ -122,7 +122,7 @@ spec:
       config:
         enabled: true
         accessMode: ReadWriteOnce
-        storageClass: openebs-jiva-csi-default
+        storageClass: openebs-mayastor-dual-replica
         size: 512Mi
         advancedMounts:
           main:

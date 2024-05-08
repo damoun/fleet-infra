@@ -19,7 +19,7 @@ spec:
       enabled: false
     csiNode:
       nodeSelector:
-        openebs.io/data-plane: "true"
+        openebs.io/engine: mayastor
   interval: 1m0s
   postRenderers:
     - kustomize:

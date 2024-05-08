@@ -8,9 +8,9 @@ spec:
   primaryUpdateStrategy: unsupervised
   affinity:
     nodeSelector:
-      openebs.io/data-plane: "true"
+      openebs.io/engine: mayastor
   storage:
-    storageClass: openebs-jiva-csi-default
+    storageClass: openebs-mayastor-dual-replica
     size: 10Gi
   monitoring:
     enablePodMonitor: true

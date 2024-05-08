@@ -14,6 +14,6 @@ spec:
     name: flux-system
   wait: true
   dependsOn:
-    - name: openebs-jiva-app
-    - name: openebs-jiva-config
+    - name: openebs-mayastor-app
+    - name: openebs-mayastor-config
     - name: cloudnative-pg

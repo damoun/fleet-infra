@@ -27,9 +27,9 @@ spec:
         enabled: true
         withGeneratedPassword: true
     nodeSelector:
-      openebs.io/data-plane: "true"
+      openebs.io/engine: mayastor
     persistent:
-      storageClass: openebs-jiva-csi-default
+      storageClass: openebs-mayastor-dual-replica
       dataDir:
         enabled: true
         size: 5Gi
