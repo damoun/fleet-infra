@@ -2,7 +2,7 @@
 apiVersion: helm.toolkit.fluxcd.io/v2beta2
 kind: HelmRelease
 metadata:
-  name: qbittorrent
+  name:
   namespace: download
 spec:
   interval: 30m
@@ -123,7 +123,7 @@ spec:
         enabled: true
         accessMode: ReadWriteOnce
         storageClass: openebs-mayastor-dual-replica
-        size: 512Mi
+        size: 2Gi
         advancedMounts:
           main:
             main:

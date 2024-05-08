@@ -76,3 +76,4 @@ spec:
         enabled: true
         accessMode: ReadWriteOnce
         storageClass: openebs-mayastor-dual-replica
+        size: 2Gi
