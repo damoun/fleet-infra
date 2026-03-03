@@ -25,7 +25,7 @@ variable "talos_version" {
 
 variable "server_type" {
   type    = string
-  default = "cx22"
+  default = "cx23"
 }
 
 variable "control_plane_count" {
