@@ -77,7 +77,7 @@ resource "talos_machine_bootstrap" "this" {
   depends_on = [talos_machine_configuration_apply.control_plane]
 }
 
-data "talos_cluster_kubeconfig" "this" {
+resource "talos_cluster_kubeconfig" "this" {
   client_configuration = talos_machine_secrets.this.client_configuration
   node                 = hcloud_server.control_plane[0].ipv4_address
 
