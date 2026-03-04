@@ -6,14 +6,6 @@ data "terraform_remote_state" "talos" {
   }
 }
 
-data "terraform_remote_state" "netbird" {
-  backend = "local"
-
-  config = {
-    path = "../netbird/terraform.tfstate"
-  }
-}
-
 locals {
   kubeconfig = yamldecode(data.terraform_remote_state.talos.outputs.kubeconfig)
 }
@@ -60,16 +52,5 @@ resource "kubernetes_secret" "hcloud" {
 
   data = {
     token = var.hcloud_token
-  }
-}
-
-resource "kubernetes_secret" "netbird_setup_key" {
-  metadata {
-    name      = "netbird-setup-key"
-    namespace = kubernetes_namespace.netbird.metadata[0].name
-  }
-
-  data = {
-    setupKey = data.terraform_remote_state.netbird.outputs.setup_key
   }
 }
