@@ -5,6 +5,7 @@ resources:
   - cert-manager.yaml
   - cilium.yaml
   - tofu-controller.yaml
+  - namespace-netbird.yaml
   - netbird-api-token.yaml
   - netbird.yaml
   - hcloud-csi.yaml
