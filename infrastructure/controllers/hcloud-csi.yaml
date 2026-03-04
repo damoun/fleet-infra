@@ -6,6 +6,7 @@ metadata:
   namespace: flux-system
 spec:
   targetNamespace: kube-system
+  releaseName: hcloud-csi
   interval: 1h
   chart:
     spec:

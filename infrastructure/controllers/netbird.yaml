@@ -6,6 +6,7 @@ metadata:
   namespace: flux-system
 spec:
   targetNamespace: netbird
+  releaseName: netbird-operator
   install:
     createNamespace: true
   dependsOn:
