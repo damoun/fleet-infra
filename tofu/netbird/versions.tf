@@ -4,7 +4,7 @@ terraform {
   required_providers {
     netbird = {
       source  = "registry.opentofu.org/netbirdio/netbird"
-      version = "~> 0.1"
+      version = "~> 0.0.3"
     }
   }
 }
