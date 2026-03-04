@@ -14,6 +14,33 @@ locals {
 
 resource "talos_machine_secrets" "this" {}
 
+locals {
+  common_machine_patch = {
+    time = {
+      servers = ["ntp1.hetzner.de", "ntp2.hetzner.com", "ntp3.hetzner.net"]
+    }
+    network = {
+      nameservers = ["185.12.64.1", "185.12.64.2"]
+      kubespan    = { enabled = false }
+    }
+    features = {
+      kubePrism = { enabled = true, port = 7445 }
+    }
+    kubelet = {
+      nodeIP = { validSubnets = [var.network_cidr] }
+    }
+  }
+
+  common_cluster_patch = {
+    network = {
+      cni            = { name = "none" }
+      podSubnets     = [var.pod_cidr]
+      serviceSubnets = [var.service_cidr]
+    }
+    proxy = { disabled = true }
+  }
+}
+
 data "talos_machine_configuration" "control_plane" {
   cluster_name       = var.cluster_name
   machine_type       = "controlplane"
@@ -23,39 +50,10 @@ data "talos_machine_configuration" "control_plane" {
 
   config_patches = [
     yamlencode({
-      cluster = {
-        network = {
-          cni = { name = "none" }
-          podSubnets     = [var.pod_cidr]
-          serviceSubnets = [var.service_cidr]
-        }
-        proxy = { disabled = true }
-        etcd = {
-          advertisedSubnets = [var.network_cidr]
-        }
-      }
-      machine = {
-        time = {
-          servers = ["ntp1.hetzner.de", "ntp2.hetzner.com", "ntp3.hetzner.net"]
-        }
-        network = {
-          nameservers = ["185.12.64.1", "185.12.64.2"]
-          kubespan = {
-            enabled = false
-          }
-        }
-        features = {
-          kubePrism = {
-            enabled = true
-            port    = 7445
-          }
-        }
-        kubelet = {
-          nodeIP = {
-            validSubnets = [var.network_cidr]
-          }
-        }
-      }
+      cluster = merge(local.common_cluster_patch, {
+        etcd = { advertisedSubnets = [var.node_subnet_cidr] }
+      })
+      machine = local.common_machine_patch
     }),
   ]
 }
@@ -69,36 +67,8 @@ data "talos_machine_configuration" "worker" {
 
   config_patches = [
     yamlencode({
-      cluster = {
-        network = {
-          cni = { name = "none" }
-          podSubnets     = [var.pod_cidr]
-          serviceSubnets = [var.service_cidr]
-        }
-        proxy = { disabled = true }
-      }
-      machine = {
-        time = {
-          servers = ["ntp1.hetzner.de", "ntp2.hetzner.com", "ntp3.hetzner.net"]
-        }
-        network = {
-          nameservers = ["185.12.64.1", "185.12.64.2"]
-          kubespan = {
-            enabled = false
-          }
-        }
-        features = {
-          kubePrism = {
-            enabled = true
-            port    = 7445
-          }
-        }
-        kubelet = {
-          nodeIP = {
-            validSubnets = [var.network_cidr]
-          }
-        }
-      }
+      cluster = local.common_cluster_patch
+      machine = local.common_machine_patch
     }),
   ]
 }

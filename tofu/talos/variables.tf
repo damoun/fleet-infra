@@ -13,6 +13,11 @@ variable "network_cidr" {
   default = "172.16.16.0/20"
 }
 
+variable "node_subnet_cidr" {
+  type    = string
+  default = "172.16.16.0/24"
+}
+
 variable "pod_cidr" {
   type    = string
   default = "172.20.0.0/16"
