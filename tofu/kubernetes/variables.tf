@@ -3,3 +3,8 @@ variable "sops_age_key" {
   sensitive   = true
   description = "age private key for SOPS decryption (AGE-SECRET-KEY-...)"
 }
+
+variable "hcloud_token" {
+  type      = string
+  sensitive = true
+}
