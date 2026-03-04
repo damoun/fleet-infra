@@ -29,6 +29,10 @@ resource "kubernetes_namespace" "flux_system" {
   metadata {
     name = "flux-system"
   }
+
+  lifecycle {
+    ignore_changes = [metadata[0].labels, metadata[0].annotations]
+  }
 }
 
 resource "kubernetes_namespace" "netbird" {
