@@ -15,21 +15,80 @@ tasks:
     cmds:
       - packer build -var-file=variables.pkrvars.hcl .
 
-  # OpenTofu
-  tofu:init:
+  # OpenTofu — Hetzner
+  tofu:hetzner:init:
     dir: tofu/hetzner
     cmds:
       - tofu init
 
-  tofu:plan:
+  tofu:hetzner:plan:
     dir: tofu/hetzner
     cmds:
       - tofu plan
 
-  tofu:apply:
+  tofu:hetzner:apply:
     dir: tofu/hetzner
     cmds:
       - tofu apply
+
+  # OpenTofu — Talos
+  tofu:talos:init:
+    dir: tofu/talos
+    cmds:
+      - tofu init
+
+  tofu:talos:plan:
+    dir: tofu/talos
+    cmds:
+      - tofu plan
+
+  tofu:talos:apply:
+    dir: tofu/talos
+    cmds:
+      - tofu apply
+
+  # OpenTofu — NetBird
+  tofu:netbird:init:
+    dir: tofu/netbird
+    cmds:
+      - tofu init
+
+  tofu:netbird:plan:
+    dir: tofu/netbird
+    cmds:
+      - tofu plan
+
+  tofu:netbird:apply:
+    dir: tofu/netbird
+    cmds:
+      - tofu apply
+
+  # OpenTofu — Kubernetes
+  tofu:kubernetes:init:
+    dir: tofu/kubernetes
+    cmds:
+      - tofu init
+
+  tofu:kubernetes:plan:
+    dir: tofu/kubernetes
+    cmds:
+      - tofu plan
+
+  tofu:kubernetes:apply:
+    dir: tofu/kubernetes
+    cmds:
+      - tofu apply
+
+  # SOPS
+  sops:encrypt:
+    desc: Encrypt a YAML file with SOPS
+    cmds:
+      - sops --encrypt --in-place {{.CLI_ARGS}}
+
+  sops:decrypt:
+    desc: Decrypt a YAML file with SOPS
+    cmds:
+      - sops --decrypt --in-place {{.CLI_ARGS}}
 
   # Flux
   flux:reconcile:
