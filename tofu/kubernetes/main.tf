@@ -14,13 +14,21 @@ data "terraform_remote_state" "netbird" {
   }
 }
 
-provider "kubernetes" {
-  config_path = null
-  host        = yamldecode(data.terraform_remote_state.talos.outputs.kubeconfig).clusters[0].cluster.server
+locals {
+  kubeconfig = yamldecode(data.terraform_remote_state.talos.outputs.kubeconfig)
+}
 
-  client_certificate     = base64decode(yamldecode(data.terraform_remote_state.talos.outputs.kubeconfig).users[0].user.client-certificate-data)
-  client_key             = base64decode(yamldecode(data.terraform_remote_state.talos.outputs.kubeconfig).users[0].user.client-key-data)
-  cluster_ca_certificate = base64decode(yamldecode(data.terraform_remote_state.talos.outputs.kubeconfig).clusters[0].cluster.certificate-authority-data)
+provider "kubernetes" {
+  host                   = local.kubeconfig.clusters[0].cluster.server
+  client_certificate     = base64decode(local.kubeconfig.users[0].user.client-certificate-data)
+  client_key             = base64decode(local.kubeconfig.users[0].user.client-key-data)
+  cluster_ca_certificate = base64decode(local.kubeconfig.clusters[0].cluster.certificate-authority-data)
+}
+
+resource "kubernetes_namespace" "flux_system" {
+  metadata {
+    name = "flux-system"
+  }
 }
 
 resource "kubernetes_namespace" "netbird" {
@@ -32,7 +40,7 @@ resource "kubernetes_namespace" "netbird" {
 resource "kubernetes_secret" "sops_age" {
   metadata {
     name      = "sops-age"
-    namespace = "flux-system"
+    namespace = kubernetes_namespace.flux_system.metadata[0].name
   }
 
   data = {
