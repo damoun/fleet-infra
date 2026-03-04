@@ -5,6 +5,8 @@ metadata:
   name: netbird
   namespace: netbird
 spec:
+  install:
+    createNamespace: true
   interval: 1h
   chart:
     spec:
