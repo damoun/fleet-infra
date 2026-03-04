@@ -24,15 +24,16 @@ data "talos_machine_configuration" "control_plane" {
         time = {
           servers = ["ntp1.hetzner.de", "ntp2.hetzner.com", "ntp3.hetzner.net"]
         }
+        network = {
+          nameservers = ["185.12.64.1", "185.12.64.2"]
+          kubespan = {
+            enabled = false
+          }
+        }
         features = {
           kubePrism = {
             enabled = true
             port    = 7445
-          }
-        }
-        network = {
-          kubespan = {
-            enabled = false
           }
         }
         kubelet = {
@@ -66,15 +67,16 @@ data "talos_machine_configuration" "worker" {
         time = {
           servers = ["ntp1.hetzner.de", "ntp2.hetzner.com", "ntp3.hetzner.net"]
         }
+        network = {
+          nameservers = ["185.12.64.1", "185.12.64.2"]
+          kubespan = {
+            enabled = false
+          }
+        }
         features = {
           kubePrism = {
             enabled = true
             port    = 7445
-          }
-        }
-        network = {
-          kubespan = {
-            enabled = false
           }
         }
         kubelet = {
