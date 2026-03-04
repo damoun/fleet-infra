@@ -23,6 +23,11 @@ variable "talos_version" {
   default = "v1.12.4"
 }
 
+variable "kubernetes_version" {
+  type    = string
+  default = "1.35.0"
+}
+
 variable "server_type" {
   type    = string
   default = "cx23"

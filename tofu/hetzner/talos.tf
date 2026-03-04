@@ -1,10 +1,11 @@
 resource "talos_machine_secrets" "this" {}
 
 data "talos_machine_configuration" "control_plane" {
-  cluster_name     = var.cluster_name
-  machine_type     = "controlplane"
-  cluster_endpoint = "https://${hcloud_load_balancer.api.ipv4}:6443"
-  machine_secrets  = talos_machine_secrets.this.machine_secrets
+  cluster_name       = var.cluster_name
+  machine_type       = "controlplane"
+  cluster_endpoint   = "https://${hcloud_load_balancer.api.ipv4}:6443"
+  machine_secrets    = talos_machine_secrets.this.machine_secrets
+  kubernetes_version = var.kubernetes_version
 
   config_patches = [
     yamlencode({
@@ -29,10 +30,11 @@ data "talos_machine_configuration" "control_plane" {
 }
 
 data "talos_machine_configuration" "worker" {
-  cluster_name     = var.cluster_name
-  machine_type     = "worker"
-  cluster_endpoint = "https://${hcloud_load_balancer.api.ipv4}:6443"
-  machine_secrets  = talos_machine_secrets.this.machine_secrets
+  cluster_name       = var.cluster_name
+  machine_type       = "worker"
+  cluster_endpoint   = "https://${hcloud_load_balancer.api.ipv4}:6443"
+  machine_secrets    = talos_machine_secrets.this.machine_secrets
+  kubernetes_version = var.kubernetes_version
 
   config_patches = [
     yamlencode({
