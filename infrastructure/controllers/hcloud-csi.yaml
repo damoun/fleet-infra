@@ -1,0 +1,16 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: hcloud-csi
+  namespace: kube-system
+spec:
+  interval: 1h
+  chart:
+    spec:
+      chart: hcloud-csi
+      version: "2.x"
+      sourceRef:
+        kind: HelmRepository
+        name: hcloud
+        namespace: flux-system

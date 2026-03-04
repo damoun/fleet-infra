@@ -5,3 +5,4 @@ resources:
   - helm-cilium.yaml
   - helm-tofu-controller.yaml
   - helm-netbird.yaml
+  - helm-hcloud.yaml

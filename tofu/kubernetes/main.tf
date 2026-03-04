@@ -52,6 +52,17 @@ resource "kubernetes_secret" "sops_age" {
   }
 }
 
+resource "kubernetes_secret" "hcloud" {
+  metadata {
+    name      = "hcloud"
+    namespace = "kube-system"
+  }
+
+  data = {
+    token = var.hcloud_token
+  }
+}
+
 resource "kubernetes_secret" "netbird_setup_key" {
   metadata {
     name      = "netbird-setup-key"
