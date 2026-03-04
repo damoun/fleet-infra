@@ -5,3 +5,4 @@ resources:
   - cilium.yaml
   - tofu-controller.yaml
   - netbird.yaml
+  - hcloud-csi.yaml
