@@ -1,9 +1,23 @@
----
 apiVersion: v1
 kind: Secret
 metadata:
-  name: netbird-api-token
-  namespace: netbird
+    name: netbird-api-token
+    namespace: netbird
 type: Opaque
 stringData:
-  NB_API_KEY: REPLACE_ME_THEN_SOPS_ENCRYPT
+    NB_API_KEY: ENC[AES256_GCM,data:fc40+0bwxOpF0by3y5Z1NKbGrWkSmWKaBpKPyB70WdCq0tsaUS/+Cw==,iv:ivtRnd3WbzHh3xq0L3Bd+C04MlIm0P/EhUOcQNGkAmA=,tag:3ALQo0RpsbJHbeOIRfjNiw==,type:str]
+sops:
+    age:
+        - recipient: age12lruudqcn688pr9njrldp6haehncnuw7e2fdk84j3csqder0auhqqdcgkm
+          enc: |
+            -----BEGIN AGE ENCRYPTED FILE-----
+            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBNbUoyWENuYTRraWZLQXZ0
+            ajFweXRtblRicnpRTytnS1A2RjFGOFh5ZFJVCmdDQXVkWUYwK0dGU20wOGhoTUV6
+            WWpHZHFLTUEvR1V5Rm1mamtZQ3piOE0KLS0tIDVlTU9acm5qOFFUN3dkcnJtTTB1
+            WGYyeE84QTNMMXgxNDZ4Rk45T3U5VjAK35ufzu4WG7ZmraT5+UBtRmeX0mQxFsFt
+            HcOOaj8fmzqiel4HcWuYDSp3agN0ZaMN55LyZeY16D9+4cCDz4TfBw==
+            -----END AGE ENCRYPTED FILE-----
+    lastmodified: "2026-03-04T20:16:37Z"
+    mac: ENC[AES256_GCM,data:MP2TBJbCumPcSU54e9+SXECHTdW9wMSH7dqzGfwWYgHvHqygvQ+vIOCz2UO9Dsd9UOErtYpOuKxb/N0bLhVQ6Q7pa/oNqzXC6dc6s+sbK1OEiYa13+liJ2Y0kuTpH1+dsqxUQvyr6JsdIPvlJxivhyw0KGSF5PzDX+lkyiUpbSY=,iv:o2XDvLErazVzmNFQknx4XGHSi/fqNp/SQirj6/92pjQ=,tag:BtWFcqMSK9gcBdU93x6w1Q==,type:str]
+    encrypted_regex: ^(data|stringData)$
+    version: 3.12.1
