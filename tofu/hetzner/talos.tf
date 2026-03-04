@@ -21,6 +21,9 @@ data "talos_machine_configuration" "control_plane" {
         }
       }
       machine = {
+        time = {
+          servers = ["ntp1.hetzner.de", "ntp2.hetzner.com", "ntp3.hetzner.net"]
+        }
         features = {
           kubePrism = {
             enabled = true
@@ -60,6 +63,9 @@ data "talos_machine_configuration" "worker" {
         proxy = { disabled = true }
       }
       machine = {
+        time = {
+          servers = ["ntp1.hetzner.de", "ntp2.hetzner.com", "ntp3.hetzner.net"]
+        }
         features = {
           kubePrism = {
             enabled = true
