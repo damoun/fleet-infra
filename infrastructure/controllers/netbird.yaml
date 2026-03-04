@@ -16,6 +16,8 @@ spec:
         namespace: flux-system
   values:
     managementURL: https://api.netbird.io
+    relay:
+      enabled: false
   valuesFrom:
     - kind: Secret
       name: netbird-setup-key
