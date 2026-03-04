@@ -82,10 +82,6 @@ data "talos_cluster_kubeconfig" "this" {
   node                 = hcloud_server.control_plane[0].ipv4_address
 
   depends_on = [talos_machine_bootstrap.this]
-
-  timeouts {
-    read = "10m"
-  }
 }
 
 data "talos_client_configuration" "this" {
