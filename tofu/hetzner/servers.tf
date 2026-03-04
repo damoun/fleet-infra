@@ -23,6 +23,10 @@ resource "hcloud_server" "control_plane" {
     cluster = var.cluster_name
     role    = "control-plane"
   }
+
+  lifecycle {
+    ignore_changes = [network]
+  }
 }
 
 resource "hcloud_server" "worker" {
@@ -43,5 +47,9 @@ resource "hcloud_server" "worker" {
   labels = {
     cluster = var.cluster_name
     role    = "worker"
+  }
+
+  lifecycle {
+    ignore_changes = [network]
   }
 }
