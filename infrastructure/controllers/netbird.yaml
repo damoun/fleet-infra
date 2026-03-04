@@ -1,0 +1,23 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: netbird
+  namespace: netbird
+spec:
+  interval: 1h
+  chart:
+    spec:
+      chart: netbird
+      version: "0.x"
+      sourceRef:
+        kind: HelmRepository
+        name: netbird
+        namespace: flux-system
+  values:
+    managementURL: https://api.netbird.io
+  valuesFrom:
+    - kind: Secret
+      name: netbird-setup-key
+      valuesKey: setupKey
+      targetPath: setupKey

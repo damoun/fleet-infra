@@ -1,5 +1,17 @@
-clusterconfig
-.terraform
-terraform.tfstate*
-*.tfvars
-*.lock.hcl
+# Packer
+packer/hetzner-talos/variables.pkrvars.hcl
+packer/hetzner-talos/.packer_cache/
+
+# OpenTofu / Terraform
+tofu/**/.terraform/
+tofu/**/*.tfstate
+tofu/**/*.tfstate.backup
+tofu/**/*.tfplan
+tofu/**/*.auto.tfvars
+tofu/**/.terraform.lock.hcl
+
+# SOPS
+*.decrypted.yaml
+
+# Misc
+.DS_Store

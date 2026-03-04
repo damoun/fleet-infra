@@ -1,18 +1,41 @@
 version: '3'
 
-tasks:
-  apply-config:
-    dir: infrastructure/talos/home
-    cmds:
-      - talhelper genconfig
-      - talosctl apply-config -n 192.168.2.141 --talosconfig ./clusterconfig/talosconfig -f ./clusterconfig/home-control-plane-vdcj.yaml
-      - talosctl apply-config -n 192.168.2.146 --talosconfig ./clusterconfig/talosconfig -f ./clusterconfig/home-control-plane-hiuw.yaml
-      - talosctl apply-config -n 192.168.2.134 --talosconfig ./clusterconfig/talosconfig -f ./clusterconfig/home-control-plane-eqwd.yaml
-      - talosctl apply-config -n 192.168.2.128 --talosconfig ./clusterconfig/talosconfig -f ./clusterconfig/home-worker-jsai.yaml
-      - talosctl apply-config -n 192.168.2.148 --talosconfig ./clusterconfig/talosconfig -f ./clusterconfig/home-worker-ajkf.yaml
-      - talosctl apply-config -n 192.168.2.126 --talosconfig ./clusterconfig/talosconfig -f ./clusterconfig/home-worker-dsfg.yaml
+vars:
+  CLUSTER: dapl-prd-htz-fsn-app
 
-  reconcile:
+tasks:
+  # Packer
+  packer:init:
+    dir: packer/hetzner-talos
+    cmds:
+      - packer init .
+
+  packer:build:
+    dir: packer/hetzner-talos
+    cmds:
+      - packer build -var-file=variables.pkrvars.hcl .
+
+  # OpenTofu
+  tofu:init:
+    dir: tofu/hetzner
+    cmds:
+      - tofu init
+
+  tofu:plan:
+    dir: tofu/hetzner
+    cmds:
+      - tofu plan
+
+  tofu:apply:
+    dir: tofu/hetzner
+    cmds:
+      - tofu apply
+
+  # Flux
+  flux:reconcile:
     cmds:
       - flux reconcile source git flux-system
+      - flux reconcile kustomization infra-sources
+      - flux reconcile kustomization infra-controllers
+      - flux reconcile kustomization infra-configs
       - flux reconcile kustomization apps
