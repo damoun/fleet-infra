@@ -12,6 +12,7 @@ tofu/**/.terraform.lock.hcl
 
 # SOPS
 *.decrypted.yaml
+age.agekey
 
 # Misc
 .DS_Store
