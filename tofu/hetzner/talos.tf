@@ -17,7 +17,7 @@ data "talos_machine_configuration" "control_plane" {
         }
         proxy = { disabled = true }
         etcd = {
-          advertisedSubnets = [var.node_subnet_cidr]
+          advertisedSubnets = [var.network_cidr]
         }
       }
       machine = {
@@ -34,7 +34,7 @@ data "talos_machine_configuration" "control_plane" {
         }
         kubelet = {
           nodeIP = {
-            validSubnets = [var.node_subnet_cidr]
+            validSubnets = [var.network_cidr]
           }
         }
       }
@@ -73,7 +73,7 @@ data "talos_machine_configuration" "worker" {
         }
         kubelet = {
           nodeIP = {
-            validSubnets = [var.node_subnet_cidr]
+            validSubnets = [var.network_cidr]
           }
         }
       }
