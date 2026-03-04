@@ -1,0 +1,9 @@
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: netbird-api-token
+  namespace: netbird
+type: Opaque
+stringData:
+  NB_API_KEY: REPLACE_ME_THEN_SOPS_ENCRYPT
