@@ -4,18 +4,18 @@
     "github>damoun/renovate-config"
   ],
   "flux": {
-    "fileMatch": [
-      ".+\\.ya?ml$"
+    "managerFilePatterns": [
+      "/.+\\.ya?ml$/"
     ]
   },
   "helm-values": {
-    "fileMatch": [
-      ".+\\.ya?ml$"
+    "managerFilePatterns": [
+      "/.+\\.ya?ml$/"
     ]
   },
   "kubernetes": {
-    "fileMatch": [
-      ".+\\.ya?ml$"
+    "managerFilePatterns": [
+      "/.+\\.ya?ml$/"
     ]
   }
 }
