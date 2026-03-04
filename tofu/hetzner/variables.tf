@@ -3,11 +3,6 @@ variable "hcloud_token" {
   sensitive = true
 }
 
-variable "state_passphrase" {
-  type      = string
-  sensitive = true
-}
-
 variable "cluster_name" {
   type    = string
   default = "dapl-prd-htz-fsn-app"
