@@ -16,12 +16,25 @@ data "talos_machine_configuration" "control_plane" {
           serviceSubnets = [var.service_cidr]
         }
         proxy = { disabled = true }
+        etcd = {
+          advertisedSubnets = [var.node_subnet_cidr]
+        }
       }
       machine = {
         features = {
           kubePrism = {
             enabled = true
             port    = 7445
+          }
+        }
+        network = {
+          kubespan = {
+            enabled = false
+          }
+        }
+        kubelet = {
+          nodeIP = {
+            validSubnets = [var.node_subnet_cidr]
           }
         }
       }
@@ -51,6 +64,16 @@ data "talos_machine_configuration" "worker" {
           kubePrism = {
             enabled = true
             port    = 7445
+          }
+        }
+        network = {
+          kubespan = {
+            enabled = false
+          }
+        }
+        kubelet = {
+          nodeIP = {
+            validSubnets = [var.node_subnet_cidr]
           }
         }
       }
