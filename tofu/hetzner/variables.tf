@@ -3,11 +3,6 @@ variable "hcloud_token" {
   sensitive = true
 }
 
-variable "state_passphrase" {
-  type      = string
-  sensitive = true
-}
-
 variable "cluster_name" {
   type    = string
   default = "dapl-prd-htz-fsn-app"
@@ -21,11 +16,6 @@ variable "location" {
 variable "talos_version" {
   type    = string
   default = "v1.12.4"
-}
-
-variable "kubernetes_version" {
-  type    = string
-  default = "1.35.0"
 }
 
 variable "server_type" {

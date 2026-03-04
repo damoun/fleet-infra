@@ -5,13 +5,14 @@ packer/hetzner-talos/.packer_cache/
 # OpenTofu / Terraform
 tofu/**/.terraform/
 tofu/**/*.tfstate
-tofu/**/*.tfstate.backup
+tofu/**/*.tfstate.*
 tofu/**/*.tfplan
 tofu/**/*.auto.tfvars
 tofu/**/.terraform.lock.hcl
 
 # SOPS
 *.decrypted.yaml
+age.agekey
 
 # Misc
 .DS_Store
