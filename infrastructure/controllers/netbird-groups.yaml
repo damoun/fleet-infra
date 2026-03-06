@@ -1,0 +1,8 @@
+---
+apiVersion: netbird.io/v1
+kind: NBGroup
+metadata:
+  name: admins
+  namespace: netbird
+spec:
+  name: admins

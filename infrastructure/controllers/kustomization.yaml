@@ -8,4 +8,6 @@ resources:
   - namespace-netbird.yaml
   - netbird-api-token.yaml
   - netbird.yaml
+  - netbird-groups.yaml
+  - netbird-kube-api-svc.yaml
   - hcloud-csi.yaml

@@ -25,5 +25,10 @@ spec:
       keyFromSecret:
         name: netbird-api-token
         key: NB_API_KEY
+    ingress:
+      enabled: true
+      router:
+        enabled: true
+      allowAutomaticPolicyCreation: true
     cluster:
       name: dapl-prd-htz-fsn-app

@@ -7,7 +7,6 @@ data "terraform_remote_state" "hetzner" {
 }
 
 locals {
-  load_balancer_ip  = data.terraform_remote_state.hetzner.outputs.load_balancer_ip
   control_plane_ips = data.terraform_remote_state.hetzner.outputs.control_plane_ips
   worker_ips        = data.terraform_remote_state.hetzner.outputs.worker_ips
 }
@@ -44,7 +43,7 @@ locals {
 data "talos_machine_configuration" "control_plane" {
   cluster_name       = var.cluster_name
   machine_type       = "controlplane"
-  cluster_endpoint   = "https://${local.load_balancer_ip}:6443"
+  cluster_endpoint   = "https://${local.control_plane_ips[0]}:6443"
   machine_secrets    = talos_machine_secrets.this.machine_secrets
   kubernetes_version = var.kubernetes_version
 
@@ -61,7 +60,7 @@ data "talos_machine_configuration" "control_plane" {
 data "talos_machine_configuration" "worker" {
   cluster_name       = var.cluster_name
   machine_type       = "worker"
-  cluster_endpoint   = "https://${local.load_balancer_ip}:6443"
+  cluster_endpoint   = "https://${local.control_plane_ips[0]}:6443"
   machine_secrets    = talos_machine_secrets.this.machine_secrets
   kubernetes_version = var.kubernetes_version
 
