@@ -1,7 +1,7 @@
 output "control_plane_ips" {
-  value = [for s in hcloud_server.control_plane : s.ipv4_address]
+  value = module.hetzner.control_plane_ips
 }
 
 output "worker_ips" {
-  value = [for s in hcloud_server.worker : s.ipv4_address]
+  value = module.hetzner.worker_ips
 }
