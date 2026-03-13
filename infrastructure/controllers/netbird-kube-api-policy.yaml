@@ -1,0 +1,16 @@
+---
+apiVersion: netbird.io/v1
+kind: NBPolicy
+metadata:
+  name: admins-to-kube-api
+spec:
+  name: Admins to Kube API
+  sourceGroups:
+    - admins
+  destinationGroups:
+    - admins
+  bidirectional: false
+  protocols:
+    - tcp
+  ports:
+    - 6443
