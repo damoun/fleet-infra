@@ -6,6 +6,7 @@ metadata:
   namespace: netbird
 spec:
   name: kubernetes
+  networkID: d6l9ef2fadhs73ak68a0
   address: kubernetes.default
   groups:
     - admins
