@@ -5,7 +5,7 @@ metadata:
   name: kube-api
   namespace: netbird
 spec:
-  name: kube.htz.prd.dapleo.internal
+  name: kube.app.fsn.damoun.internal
   address: 172.16.16.7/32
   groups:
     - admins
