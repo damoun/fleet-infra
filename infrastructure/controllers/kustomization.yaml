@@ -9,6 +9,6 @@ resources:
   - netbird-api-token.yaml
   - netbird.yaml
   - netbird-groups.yaml
-  - netbird-kube-api-resource.yaml
+  - netbird-kubernetes-resource.yaml
   - netbird-kube-api-policy.yaml
   - hcloud-csi.yaml
