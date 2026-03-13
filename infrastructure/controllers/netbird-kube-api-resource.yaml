@@ -2,7 +2,7 @@
 apiVersion: netbird.io/v1
 kind: NBResource
 metadata:
-  name: kube-api
+  name: kubernetes
   namespace: netbird
 spec:
   name: kubernetes
