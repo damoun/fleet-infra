@@ -5,7 +5,7 @@ metadata:
   name: kube-api
   namespace: netbird
 spec:
-  name: kube.app.fsn.damoun.internal
+  name: kubernetes
   address: kubernetes.default
   groups:
     - admins
