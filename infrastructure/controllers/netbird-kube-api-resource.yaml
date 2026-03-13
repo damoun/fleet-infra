@@ -6,6 +6,6 @@ metadata:
   namespace: netbird
 spec:
   name: kube.app.fsn.damoun.internal
-  address: 172.16.16.7/32
+  address: kubernetes.default
   groups:
     - admins
