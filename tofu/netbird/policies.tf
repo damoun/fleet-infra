@@ -1,6 +1,7 @@
-resource "netbird_policy" "kubernetes_admin" {
-  name    = "kubernetes.admin"
-  enabled = true
+resource "netbird_policy" "admin_to_kubernetes" {
+  name        = "Admin to Kubernetes"
+  description = "Managed by OpenTofu"
+  enabled     = true
 
   rule {
     name          = "Allow TCP 6443"
@@ -9,7 +10,7 @@ resource "netbird_policy" "kubernetes_admin" {
     protocol      = "tcp"
     ports         = ["6443"]
     sources       = [netbird_group.admin.id]
-    destinations  = [netbird_group.kubernetes_admin.id]
+    destinations  = [netbird_group.kubernetes.id]
     bidirectional = false
   }
 }
