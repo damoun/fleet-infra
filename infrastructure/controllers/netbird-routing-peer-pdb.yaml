@@ -2,7 +2,7 @@
 apiVersion: policy/v1
 kind: PodDisruptionBudget
 metadata:
-  name: netbird-router
+  name: netbird-routing-peer
   namespace: netbird
 spec:
   minAvailable: 1
