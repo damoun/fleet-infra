@@ -12,6 +12,6 @@ resources:
   - netbird-kubernetes-resources.yaml
   - netbird-routing-peer.yaml
   - netbird-routing-peer-pdb.yaml
-  - netbird-kubernetes-policy.yaml
+  - netbird-kubernetes-policies.yaml
   - descheduler.yaml
   - hcloud-csi.yaml
