@@ -12,5 +12,7 @@ resources:
   - netbird-kubernetes-resource-0.yaml
   - netbird-kubernetes-resource-1.yaml
   - netbird-kubernetes-resource-2.yaml
-  - netbird-kube-api-policy.yaml
+  - netbird-kube-api-policy-0.yaml
+  - netbird-kube-api-policy-1.yaml
+  - netbird-kube-api-policy-2.yaml
   - hcloud-csi.yaml
