@@ -1,0 +1,15 @@
+---
+apiVersion: netbird.io/v1
+kind: NBResource
+metadata:
+  name: kubernetes-2
+  namespace: netbird
+  finalizers:
+    - netbird.io/cleanup
+spec:
+  name: kubernetes-2
+  address: 172.16.16.7/32
+  tcpPorts:
+    - 6443
+  groups:
+    - admins
