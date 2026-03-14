@@ -1,5 +1,5 @@
-resource "netbird_policy" "admin_to_kubernetes" {
-  name    = "Admin to Kubernetes"
+resource "netbird_policy" "kubernetes_admin" {
+  name    = "kubernetes.admin"
   enabled = true
 
   rule {
@@ -8,7 +8,7 @@ resource "netbird_policy" "admin_to_kubernetes" {
     action        = "accept"
     protocol      = "tcp"
     ports         = ["6443"]
-    sources       = [netbird_group.admins.id]
+    sources       = [netbird_group.admin.id]
     destinations  = [netbird_group.kubernetes_admin.id]
     bidirectional = false
   }

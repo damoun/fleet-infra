@@ -1,5 +1,5 @@
-resource "netbird_group" "admins" {
-  name = "admins"
+resource "netbird_group" "admin" {
+  name = "admin"
 }
 
 resource "netbird_group" "kubernetes_admin" {

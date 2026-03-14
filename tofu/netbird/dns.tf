@@ -7,7 +7,7 @@ resource "netbird_dns_zone" "tools_fsn_damoun_internal" {
   domain               = "tools.fsn.damoun.internal"
   enabled              = true
   enable_search_domain = true
-  distribution_groups  = [netbird_group.admins.id]
+  distribution_groups  = [netbird_group.admin.id]
 }
 
 resource "netbird_dns_record" "kube_tools_fsn" {
