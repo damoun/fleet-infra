@@ -1,3 +1,7 @@
+data "netbird_group" "all" {
+  name = "All"
+}
+
 locals {
   control_plane_ips = ["172.16.16.5", "172.16.16.6", "172.16.16.7"]
 }
@@ -7,7 +11,7 @@ resource "netbird_dns_zone" "tools_fsn_damoun_internal" {
   domain               = "tools.fsn.damoun.internal"
   enabled              = true
   enable_search_domain = true
-  distribution_groups  = [netbird_group.admin.id]
+  distribution_groups  = [data.netbird_group.all.id]
 }
 
 resource "netbird_dns_record" "kube_tools_fsn" {
