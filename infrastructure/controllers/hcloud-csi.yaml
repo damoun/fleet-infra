@@ -16,3 +16,8 @@ spec:
         kind: HelmRepository
         name: hcloud
         namespace: flux-system
+  values:
+    controller:
+      priorityClassName: critical
+    node:
+      priorityClassName: critical

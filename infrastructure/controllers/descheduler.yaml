@@ -17,6 +17,7 @@ spec:
         name: descheduler
         namespace: flux-system
   values:
+    priorityClassName: medium
     schedule: "*/10 * * * *"
     resources:
       requests:

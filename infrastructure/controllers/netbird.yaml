@@ -20,6 +20,15 @@ spec:
         kind: HelmRepository
         name: netbird
         namespace: flux-system
+  postRenderers:
+    - kustomize:
+        patches:
+          - target:
+              kind: Deployment
+            patch: |
+              - op: add
+                path: /spec/template/spec/priorityClassName
+                value: high
   values:
     netbirdAPI:
       keyFromSecret:
