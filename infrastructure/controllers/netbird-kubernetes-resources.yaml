@@ -1,0 +1,48 @@
+---
+apiVersion: netbird.io/v1
+kind: NBResource
+metadata:
+  name: kubernetes-0
+  namespace: netbird
+  finalizers:
+    - netbird.io/cleanup
+spec:
+  name: kubernetes-0
+  networkID: d6qsb42fadhs73cqhoi0
+  address: 172.16.16.5/32
+  tcpPorts:
+    - 6443
+  groups:
+    - admins
+---
+apiVersion: netbird.io/v1
+kind: NBResource
+metadata:
+  name: kubernetes-1
+  namespace: netbird
+  finalizers:
+    - netbird.io/cleanup
+spec:
+  name: kubernetes-1
+  networkID: d6qsb42fadhs73cqhoi0
+  address: 172.16.16.6/32
+  tcpPorts:
+    - 6443
+  groups:
+    - admins
+---
+apiVersion: netbird.io/v1
+kind: NBResource
+metadata:
+  name: kubernetes-2
+  namespace: netbird
+  finalizers:
+    - netbird.io/cleanup
+spec:
+  name: kubernetes-2
+  networkID: d6qsb42fadhs73cqhoi0
+  address: 172.16.16.7/32
+  tcpPorts:
+    - 6443
+  groups:
+    - admins
