@@ -1,8 +1,9 @@
-data "terraform_remote_state" "hetzner" {
-  backend = "local"
-  config = {
-    path = "../hetzner/terraform.tfstate"
-  }
+data "netbird_group" "admins" {
+  name = "admins"
+}
+
+locals {
+  control_plane_ips = ["172.16.16.5", "172.16.16.6", "172.16.16.7"]
 }
 
 resource "netbird_dns_zone" "tools_fsn_damoun_internal" {
@@ -10,13 +11,14 @@ resource "netbird_dns_zone" "tools_fsn_damoun_internal" {
   domain               = "tools.fsn.damoun.internal"
   enabled              = true
   enable_search_domain = true
+  distribution_groups  = [data.netbird_group.admins.id]
 }
 
 resource "netbird_dns_record" "kube_tools_fsn" {
-  count   = length(data.terraform_remote_state.hetzner.outputs.control_plane_internal_ips)
+  count   = length(local.control_plane_ips)
   zone_id = netbird_dns_zone.tools_fsn_damoun_internal.id
   name    = "kube.tools.fsn.damoun.internal"
   type    = "A"
-  content = data.terraform_remote_state.hetzner.outputs.control_plane_internal_ips[count.index]
+  content = local.control_plane_ips[count.index]
   ttl     = 300
 }

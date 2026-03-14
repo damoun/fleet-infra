@@ -7,4 +7,6 @@ terraform {
   }
 }
 
-provider "netbird" {}
+provider "netbird" {
+  token = var.netbird_token
+}

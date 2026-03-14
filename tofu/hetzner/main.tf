@@ -1,7 +1,6 @@
 module "hetzner" {
-  source = "git::https://github.com/damoun/terraform-hcloud-talos.git?ref=feat/add-load-balancer"
+  source = "git::https://github.com/damoun/terraform-hcloud-talos.git"
 
-  hcloud_token         = var.hcloud_token
   cluster_name         = var.cluster_name
   location             = var.location
   talos_version        = var.talos_version
