@@ -8,7 +8,7 @@ spec:
   sourceGroups:
     - admins
   destinationGroups:
-    - admins
+    - dmn-fsn-tools
   bidirectional: false
   protocols:
     - tcp
