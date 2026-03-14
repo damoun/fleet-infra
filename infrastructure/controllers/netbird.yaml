@@ -31,4 +31,4 @@ spec:
         enabled: true
       allowAutomaticPolicyCreation: true
     cluster:
-      name: dapl-prd-htz-fsn-app
+      name: dmn-fsn-tools
