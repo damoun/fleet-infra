@@ -2,7 +2,7 @@
 apiVersion: netbird.io/v1
 kind: NBPolicy
 metadata:
-  name: admins-to-kube-api-2
+  name: kubernetes-policy-2
   namespace: netbird
 spec:
   name: Admins to Kube API 2
