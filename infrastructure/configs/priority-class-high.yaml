@@ -6,4 +6,4 @@ metadata:
 value: 100000
 globalDefault: false
 preemptionPolicy: PreemptLowerPriority
-description: "High priority infrastructure (cert-manager, tofu-controller)"
+description: "High priority infrastructure (cert-manager, tofu-controller, netbird)"

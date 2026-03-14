@@ -6,4 +6,4 @@ metadata:
 value: 10000
 globalDefault: false
 preemptionPolicy: PreemptLowerPriority
-description: "Medium priority infrastructure (descheduler, netbird)"
+description: "Medium priority infrastructure (descheduler)"
