@@ -2,9 +2,9 @@
 apiVersion: netbird.io/v1
 kind: NBPolicy
 metadata:
-  name: admins-to-kubernetes
+  name: admins-to-dmn-fsn-tools
 spec:
-  name: Admins to Kubernetes
+  name: Admins to dmn-fsn-tools
   sourceGroups:
     - admins
   destinationGroups:
