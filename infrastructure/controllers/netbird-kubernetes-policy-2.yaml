@@ -1,0 +1,17 @@
+---
+apiVersion: netbird.io/v1
+kind: NBPolicy
+metadata:
+  name: kubernetes-policy-2
+  namespace: netbird
+spec:
+  name: Admins to Kube API 2
+  sourceGroups:
+    - admins
+  destinationResource:
+    name: kubernetes-2
+  bidirectional: false
+  protocols:
+    - tcp
+  ports:
+    - 6443
