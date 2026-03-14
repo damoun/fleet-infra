@@ -2,14 +2,14 @@
 apiVersion: netbird.io/v1
 kind: NBPolicy
 metadata:
-  name: kubernetes-policy-1
+  name: kubernetes-policy
   namespace: netbird
 spec:
-  name: Admins to Kube API 1
+  name: Admins to Kube API
   sourceGroups:
     - admins
-  destinationResource:
-    name: kubernetes-1
+  destinationGroups:
+    - dmn-fsn-tools
   bidirectional: false
   protocols:
     - tcp
