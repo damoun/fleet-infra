@@ -3,7 +3,6 @@ apiVersion: netbird.io/v1
 kind: NBPolicy
 metadata:
   name: admins-to-kubernetes
-  namespace: netbird
 spec:
   name: Admins to Kubernetes
   sourceGroups:
@@ -13,5 +12,3 @@ spec:
   bidirectional: false
   protocols:
     - tcp
-  ports:
-    - 6443
