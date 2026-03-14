@@ -2,7 +2,7 @@
 apiVersion: netbird.io/v1
 kind: NBRoutingPeer
 metadata:
-  name: routing-peer
+  name: router
   namespace: netbird
 spec:
   replicas: 2
