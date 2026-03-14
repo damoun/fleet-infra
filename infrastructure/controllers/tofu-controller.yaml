@@ -14,3 +14,5 @@ spec:
         kind: HelmRepository
         name: tofu-controller
         namespace: flux-system
+  values:
+    priorityClassName: high
