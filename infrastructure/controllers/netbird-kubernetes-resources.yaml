@@ -14,7 +14,7 @@ spec:
   tcpPorts:
     - 6443
   groups:
-    - admins
+    - kubernetes.admin
 ---
 apiVersion: netbird.io/v1
 kind: NBResource
@@ -31,7 +31,7 @@ spec:
   tcpPorts:
     - 6443
   groups:
-    - admins
+    - kubernetes.admin
 ---
 apiVersion: netbird.io/v1
 kind: NBResource
@@ -48,4 +48,4 @@ spec:
   tcpPorts:
     - 6443
   groups:
-    - admins
+    - kubernetes.admin
