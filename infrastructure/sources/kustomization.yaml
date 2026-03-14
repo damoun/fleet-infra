@@ -6,4 +6,5 @@ resources:
   - helm-cilium.yaml
   - helm-tofu-controller.yaml
   - helm-netbird.yaml
+  - helm-descheduler.yaml
   - helm-hcloud.yaml
