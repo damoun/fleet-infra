@@ -8,7 +8,7 @@ metadata:
     - netbird.io/cleanup
 spec:
   name: kubernetes-0
-  networkID: d6l9ef2fadhs73ak68a0
+  networkID: d6qsb42fadhs73cqhoi0
   address: 172.16.16.5/32
   tcpPorts:
     - 6443
