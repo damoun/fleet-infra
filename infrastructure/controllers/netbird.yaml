@@ -37,7 +37,7 @@ spec:
     ingress:
       enabled: true
       router:
-        enabled: true
-      allowAutomaticPolicyCreation: true
+        enabled: false
+      allowAutomaticPolicyCreation: false
     cluster:
       name: dmn-fsn-tools
