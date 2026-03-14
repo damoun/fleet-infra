@@ -1,0 +1,14 @@
+---
+apiVersion: netbird.io/v1
+kind: NBRoutingPeer
+metadata:
+  name: routing-peer
+  namespace: netbird
+spec:
+  replicas: 2
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      memory: 256Mi
