@@ -1,5 +1,5 @@
 module "hetzner" {
-  source = "git::https://github.com/damoun/terraform-hcloud-talos.git"
+  source = "git::https://github.com/damoun/terraform-hcloud-talos.git?ref=v1.0.0"
 
   cluster_name         = var.cluster_name
   location             = var.location
