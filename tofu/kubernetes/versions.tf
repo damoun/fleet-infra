@@ -4,7 +4,7 @@ terraform {
   required_providers {
     kubernetes = {
       source  = "registry.opentofu.org/hashicorp/kubernetes"
-      version = "v2.38.0"
+      version = "v3.1.0"
     }
   }
 }
