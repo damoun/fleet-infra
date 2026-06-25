@@ -4,7 +4,7 @@ terraform {
   required_providers {
     hcloud = {
       source  = "registry.opentofu.org/hetznercloud/hcloud"
-      version = "1.62.0"
+      version = "1.66.0"
     }
   }
 }
