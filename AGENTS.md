@@ -12,8 +12,8 @@
 - **FluxCD (v2)**: Continuously reconciles in-cluster Kubernetes platform components, operators, ingress, network resources, and application workloads.
 
 ### Primary Cluster Specification
-- **Cluster Name**: `dapl-prd-htz-fsn-app`
-- **Location**: Hetzner Falkenstein (`fsn1`) datacenter
+- **Cluster Name**: `dapl-prd-hom-ams-core` (Target baremetal homelab cluster; formerly `dapl-prd-htz-fsn-app` in Hetzner which is decommissioned)
+- **Environment**: Homelab / Baremetal (Amsterdam location)
 - **OS**: [Talos Linux](https://www.talos.dev/) (immutable, API-managed Linux)
 - **CNI**: [Cilium](https://cilium.io/) (eBPF-based networking and kube-proxy replacement)
 - **Overlay VPN**: [NetBird](https://netbird.io/) (WireGuard mesh network with custom internal DNS)
@@ -63,7 +63,7 @@ asdf install
 │   ├── netbird/                # NetBird DNS zones, records, policies, groups
 │   └── kubernetes/             # Bootstrap secrets (sops-age, hcloud token)
 ├── clusters/
-│   └── dapl-prd-htz-fsn-app/   # Flux cluster entrypoint & Kustomization roots
+│   └── dapl-prd-htz-fsn-app/   # Flux cluster entrypoint & Kustomization roots (legacy root transitioning to dapl-prd-hom-ams-core)
 │       ├── flux-system/        # Flux GOTK sync components & GitRepository
 │       ├── infrastructure.yaml # Kustomizations: infra-sources -> configs -> controllers
 │       └── apps.yaml           # Kustomization for application workloads
