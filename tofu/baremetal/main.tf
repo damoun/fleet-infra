@@ -14,8 +14,17 @@ locals {
     features = {
       kubePrism = { enabled = true, port = 7445 }
     }
+    sysctls = {
+      "fs.inotify.max_user_watches"   = "1048576"
+      "fs.inotify.max_user_instances" = "8192"
+      "vm.max_map_count"              = "524288"
+    }
     kubelet = {
       nodeIP = { validSubnets = [var.vlan_cidr] }
+      extraConfig = {
+        shutdownGracePeriod         = "30s"
+        shutdownGracePeriodCritical = "10s"
+      }
     }
     install = {
       diskSelector = {
