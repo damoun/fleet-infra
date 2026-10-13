@@ -36,8 +36,8 @@ locals {
         provider = "luks2"
         keys = [
           {
-            nodeID = {}
-            slot   = 0
+            slot = 0
+            tpm  = {}
           }
         ]
       }
@@ -45,8 +45,8 @@ locals {
         provider = "luks2"
         keys = [
           {
-            nodeID = {}
-            slot   = 0
+            slot = 0
+            tpm  = {}
           }
         ]
       }
