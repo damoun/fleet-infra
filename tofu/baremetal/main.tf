@@ -22,6 +22,26 @@ locals {
         type = "ssd"
       }
     }
+    systemDiskEncryption = {
+      state = {
+        provider = "luks2"
+        keys = [
+          {
+            nodeID = {}
+            slot   = 0
+          }
+        ]
+      }
+      ephemeral = {
+        provider = "luks2"
+        keys = [
+          {
+            nodeID = {}
+            slot   = 0
+          }
+        ]
+      }
+    }
   }
 
   common_cluster_patch = {
