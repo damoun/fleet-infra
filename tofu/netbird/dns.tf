@@ -3,7 +3,10 @@ data "netbird_group" "all" {
 }
 
 locals {
-  control_plane_ips = ["172.16.16.5", "172.16.16.6", "172.16.16.7"]
+  # Control plane Layer-2 virtual IP — the Kubernetes API endpoint, matching
+  # var.cluster_vip in tofu/baremetal. The VIP moves between control plane nodes
+  # on its own, so a single stable record is preferred over one per node.
+  cluster_vip = "192.168.40.10"
 }
 
 resource "netbird_dns_zone" "damoun_internal" {
@@ -14,11 +17,10 @@ resource "netbird_dns_zone" "damoun_internal" {
   distribution_groups  = [data.netbird_group.all.id]
 }
 
-resource "netbird_dns_record" "kube_tools_fsn" {
-  count   = length(local.control_plane_ips)
+resource "netbird_dns_record" "kube_core_ams" {
   zone_id = netbird_dns_zone.damoun_internal.id
-  name    = "kube.tools.fsn.damoun.internal"
+  name    = "kube.core.ams.damoun.internal"
   type    = "A"
-  content = local.control_plane_ips[count.index]
+  content = local.cluster_vip
   ttl     = 300
 }

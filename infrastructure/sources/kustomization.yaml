@@ -7,4 +7,3 @@ resources:
   - helm-tofu-controller.yaml
   - helm-netbird.yaml
   - helm-descheduler.yaml
-  - helm-hcloud.yaml
