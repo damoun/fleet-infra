@@ -16,3 +16,9 @@ age.agekey
 
 # Misc
 .DS_Store
+.aider*
+
+# Cluster client configs (contain credentials, never commit)
+tofu/**/talosconfig
+tofu/**/talosconfig.yaml
+tofu/**/kubeconfig
