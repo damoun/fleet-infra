@@ -1,13 +1,13 @@
-data "terraform_remote_state" "talos" {
+data "terraform_remote_state" "baremetal" {
   backend = "local"
 
   config = {
-    path = "../talos/terraform.tfstate"
+    path = "../baremetal/terraform.tfstate"
   }
 }
 
 locals {
-  kubeconfig = yamldecode(data.terraform_remote_state.talos.outputs.kubeconfig)
+  kubeconfig = yamldecode(data.terraform_remote_state.baremetal.outputs.kubeconfig)
 }
 
 provider "kubernetes" {
@@ -41,16 +41,5 @@ resource "kubernetes_secret" "sops_age" {
 
   data = {
     "age.agekey" = var.sops_age_key
-  }
-}
-
-resource "kubernetes_secret" "hcloud" {
-  metadata {
-    name      = "hcloud"
-    namespace = "kube-system"
-  }
-
-  data = {
-    token = var.hcloud_token
   }
 }

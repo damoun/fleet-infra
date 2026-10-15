@@ -1,10 +1,10 @@
 terraform {
-  required_version = "1.15.9"
+  required_version = ">= 1.8.0"
 
   required_providers {
     kubernetes = {
       source  = "registry.opentofu.org/hashicorp/kubernetes"
-      version = "v2.38.0"
+      version = "2.38.0"
     }
   }
 }
