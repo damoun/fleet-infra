@@ -27,13 +27,13 @@ variable "control_plane_nodes" {
       ip       = "192.168.40.11"
       hostname = "cp-vdcj"
     }
-    "cp-node2" = {
+    "cp-eqwd" = {
       ip       = "192.168.40.12"
-      hostname = "cp-node2"
+      hostname = "cp-eqwd"
     }
-    "cp-node3" = {
+    "cp-hiuw" = {
       ip       = "192.168.40.13"
-      hostname = "cp-node3"
+      hostname = "cp-hiuw"
     }
   }
 }
@@ -45,17 +45,17 @@ variable "worker_nodes" {
   }))
   description = "Map of worker nodes with their static Omada DHCP IPs and hostnames (w-<4char> pattern)"
   default = {
-    "w-node1" = {
+    "w-ofph" = {
       ip       = "192.168.40.21"
-      hostname = "w-node1"
+      hostname = "w-ofph"
     }
-    "w-node2" = {
+    "w-jsai" = {
       ip       = "192.168.40.22"
-      hostname = "w-node2"
+      hostname = "w-jsai"
     }
-    "w-node3" = {
+    "w-jzax" = {
       ip       = "192.168.40.23"
-      hostname = "w-node3"
+      hostname = "w-jzax"
     }
   }
 }
@@ -111,5 +111,32 @@ variable "kubernetes_version" {
 variable "talos_version" {
   type        = string
   description = "Talos Linux machine configuration version"
-  default     = "v1.12.4"
+  default     = "v1.14.2"
+}
+
+variable "talos_installer_image" {
+  type        = string
+  description = "Talos Image Factory SecureBoot installer (i915, ucode, storage extensions; enrollKeys: force)"
+  default     = "factory.talos.dev/metal-installer-secureboot/7c67ed0c9d9cd774e2164b84cd41733c8b3432f83e44a7dc3cc23062bc4f89e2:v1.14.2"
+}
+
+variable "nodeid_encryption_nodes" {
+  type        = list(string)
+  description = <<-EOT
+    Node keys (as used in control_plane_nodes / worker_nodes) that must encrypt their
+    system volumes with the nodeID provider instead of TPM 2.0.
+
+    Use this for HP EliteDesk 800 G2 units whose Infineon TPM is stuck in 1.2 mode:
+    Talos only supports TPM 2.0, and HP's 1.2->2.0 conversion tool is Windows-only.
+    nodeID derives the LUKS key from the motherboard UUID and needs no TPM.
+
+    This can be reversed later without reinstalling - Talos reconciles encryption keys
+    and adds a missing key slot to the existing LUKS container.
+  EOT
+  # Units confirmed to have a TPM 1.2-only Infineon chip:
+  #   w-ofph  - tpm_version_major=1, no /dev/tpmrm0
+  #   w-jsai  - dmesg "tpm_tis 00:06: 1.2 TPM", "TPM device is not a TPM 2.0"
+  # CP nodes cp-vdcj/cp-eqwd/cp-hiuw report tpm_version_major=2 and keep the TPM path.
+  # Add further worker names here as they are checked (talosctl read /sys/class/tpm/tpm0/tpm_version_major).
+  default = ["w-ofph", "w-jsai"]
 }
