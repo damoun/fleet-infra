@@ -3,7 +3,8 @@ data "netbird_group" "all" {
 }
 
 locals {
-  control_plane_ips = ["172.16.16.5", "172.16.16.6", "172.16.16.7"]
+  # Control plane node IPs on VLAN 40 — see tofu/baremetal/variables.tf
+  control_plane_ips = ["192.168.40.11", "192.168.40.12", "192.168.40.13"]
 }
 
 resource "netbird_dns_zone" "damoun_internal" {
@@ -14,10 +15,10 @@ resource "netbird_dns_zone" "damoun_internal" {
   distribution_groups  = [data.netbird_group.all.id]
 }
 
-resource "netbird_dns_record" "kube_tools_fsn" {
+resource "netbird_dns_record" "kube_core_ams" {
   count   = length(local.control_plane_ips)
   zone_id = netbird_dns_zone.damoun_internal.id
-  name    = "kube.tools.fsn.damoun.internal"
+  name    = "kube.core.ams.damoun.internal"
   type    = "A"
   content = local.control_plane_ips[count.index]
   ttl     = 300

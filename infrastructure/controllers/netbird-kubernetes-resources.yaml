@@ -9,7 +9,7 @@ metadata:
 spec:
   name: kubernetes-0
   networkID: d6qsb42fadhs73cqhoi0
-  address: 172.16.16.5/32
+  address: 192.168.40.11/32
   policyName: Admin to Kubernetes
   tcpPorts:
     - 6443
@@ -26,7 +26,7 @@ metadata:
 spec:
   name: kubernetes-1
   networkID: d6qsb42fadhs73cqhoi0
-  address: 172.16.16.6/32
+  address: 192.168.40.12/32
   policyName: Admin to Kubernetes
   tcpPorts:
     - 6443
@@ -43,7 +43,7 @@ metadata:
 spec:
   name: kubernetes-2
   networkID: d6qsb42fadhs73cqhoi0
-  address: 172.16.16.7/32
+  address: 192.168.40.13/32
   policyName: Admin to Kubernetes
   tcpPorts:
     - 6443
