@@ -20,7 +20,7 @@ metadata:
   namespace: flux-system
 spec:
   interval: 10m0s
-  path: ./clusters/dapl-prd-htz-fsn-app
+  path: ./clusters/dapl-prd-hom-ams-core
   prune: true
   sourceRef:
     kind: GitRepository
