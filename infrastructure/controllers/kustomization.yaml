@@ -12,4 +12,3 @@ resources:
   - netbird-routing-peer.yaml
   - netbird-routing-peer-pdb.yaml
   - descheduler.yaml
-  - hcloud-csi.yaml
