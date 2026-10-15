@@ -40,4 +40,4 @@ spec:
         enabled: false
       allowAutomaticPolicyCreation: false
     cluster:
-      name: dmn-fsn-tools
+      name: dmn-hom-ams-core
