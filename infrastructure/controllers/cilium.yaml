@@ -22,7 +22,7 @@ spec:
       mode: kubernetes
     cluster:
       id: 1
-      name: dapl-prd-htz-fsn-app
+      name: dapl-prd-hom-ams-core
     kubeProxyReplacement: true
     k8sServiceHost: localhost
     k8sServicePort: 7445

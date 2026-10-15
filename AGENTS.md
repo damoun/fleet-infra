@@ -41,7 +41,6 @@ asdf install
 - `kubectl` & `kustomize`: Inspecting and validating Kubernetes manifests.
 - `flux`: FluxCD CLI for reconciliation and debugging.
 - `sops`: Secret encryption and decryption.
-- `task`: [Taskfile](https://taskfile.dev/) runner for standardized operations.
 - `gh`: GitHub CLI for pull requests and repository operations.
 
 ---
@@ -53,13 +52,13 @@ asdf install
 ├── .github/workflows/          # CI/CD workflows (security scans)
 ├── .sops.yaml                  # SOPS encryption rules (age recipient & regex)
 ├── .tool-versions              # CLI tool versions for mise / asdf
-├── taskfile.yml                # Task runner definitions for Tofu, SOPS, and Flux
 ├── docs/
 │   ├── adr/                    # Architecture Decision Records (ADR-001 to ADR-006)
 │   └── netbird-dns.md          # Internal NetBird DNS architecture & naming scheme
 ├── tofu/                       # OpenTofu root modules (ADR-003)
-│   ├── hetzner/                # Hetzner Cloud VMs, network, firewall, LB
-│   ├── talos/                  # Talos machine configs, patches, cluster bootstrap
+│   ├── baremetal/              # Baremetal Talos configs, patches, cluster bootstrap (ams)
+│   ├── hetzner/                # Hetzner Cloud VMs, network, firewall, LB (legacy)
+│   ├── talos/                  # Talos machine configs, patches (legacy fsn)
 │   ├── netbird/                # NetBird DNS zones, records, policies, groups
 │   └── kubernetes/             # Bootstrap secrets (sops-age, hcloud token)
 ├── clusters/
@@ -175,18 +174,6 @@ flowchart TD
 
 SOPS is configured via [`.sops.yaml`](file:///home/damoun/Projects/github.com/damoun/fleet-infra/.sops.yaml) to encrypt fields matching `^(data|stringData)$` using the repository's age public key.
 
-```bash
-# Encrypt a secret in-place
-task sops:encrypt -- path/to/secret.yaml
-# or
-sops --encrypt --in-place path/to/secret.yaml
-
-# Decrypt for viewing/editing
-task sops:decrypt -- path/to/secret.yaml
-# or
-sops --decrypt --in-place path/to/secret.yaml
-```
-
 > [!CAUTION]
 > Never commit plaintext secrets to Git. Always ensure the YAML contains `sops:` metadata and encrypted strings (`ENC[...]`) before staging.
 
@@ -194,17 +181,39 @@ sops --decrypt --in-place path/to/secret.yaml
 
 ## 8. Common Operational Commands
 
-Operations are standardized via [`taskfile.yml`](file:///home/damoun/Projects/github.com/damoun/fleet-infra/taskfile.yml):
+Operations are executed directly using native CLI utilities:
 
-| Command | Action |
-|---|---|
-| `task tofu:hetzner:plan` | Run OpenTofu plan on Hetzner root module |
-| `task tofu:talos:plan` | Run OpenTofu plan on Talos root module |
-| `task tofu:netbird:plan` | Run OpenTofu plan on NetBird root module |
-| `task tofu:kubernetes:plan` | Run OpenTofu plan on Kubernetes root module |
-| `task sops:encrypt -- <file>` | Encrypt secret file in-place |
-| `task sops:decrypt -- <file>` | Decrypt secret file in-place |
-| `task flux:reconcile` | Force immediate reconciliation across all Flux Kustomizations |
+### OpenTofu Operations
+```bash
+# Baremetal homelab module
+tofu -chdir=tofu/baremetal init
+tofu -chdir=tofu/baremetal plan
+tofu -chdir=tofu/baremetal apply
+
+# NetBird module
+tofu -chdir=tofu/netbird init
+tofu -chdir=tofu/netbird plan
+tofu -chdir=tofu/netbird apply
+```
+
+### SOPS Secrets Operations
+```bash
+# Encrypt a secret in-place
+sops --encrypt --in-place path/to/secret.yaml
+
+# Decrypt for viewing/editing
+sops --decrypt --in-place path/to/secret.yaml
+```
+
+### FluxCD Operations
+```bash
+# Force immediate reconciliation across all Flux Kustomizations
+flux reconcile source git flux-system
+flux reconcile kustomization infra-sources
+flux reconcile kustomization infra-configs
+flux reconcile kustomization infra-controllers
+flux reconcile kustomization apps
+```
 
 ---
 
