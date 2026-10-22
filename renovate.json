@@ -18,6 +18,17 @@
       "/.+\\.ya?ml$/"
     ]
   },
+  "customManagers": [
+    {
+      "customType": "regex",
+      "managerFilePatterns": [
+        "/^infrastructure/sources/git-.+\\.ya?ml$/"
+      ],
+      "matchStrings": [
+        "# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)\\n\\s*# tag: (?<currentValue>\\S+)\\n\\s*commit: (?<currentDigest>[a-f0-9]{40})"
+      ]
+    }
+  ],
   "packageRules": [
     {
       "matchManagers": [
@@ -26,6 +37,15 @@
       ],
       "matchFileNames": [
         "**/gotk-components.yaml"
+      ],
+      "enabled": false
+    },
+    {
+      "matchManagers": [
+        "flux"
+      ],
+      "matchDepNames": [
+        "gateway-api"
       ],
       "enabled": false
     }
