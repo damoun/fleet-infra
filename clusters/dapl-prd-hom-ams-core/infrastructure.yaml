@@ -30,6 +30,7 @@ spec:
     name: gateway-api
   path: ./config/crd/standard
   prune: false
+  wait: true
 ---
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
@@ -48,6 +49,7 @@ spec:
     name: flux-system
   path: ./infrastructure/configs
   prune: true
+  wait: true
   decryption:
     provider: sops
     secretRef:
@@ -69,6 +71,7 @@ spec:
     name: flux-system
   path: ./infrastructure/controllers
   prune: true
+  wait: true
   decryption:
     provider: sops
     secretRef:
