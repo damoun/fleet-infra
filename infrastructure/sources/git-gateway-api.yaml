@@ -8,6 +8,8 @@ spec:
   interval: 24h
   url: https://github.com/kubernetes-sigs/gateway-api
   ref:
-    tag: v1.6.3
+    # renovate: datasource=git-tags depName=https://github.com/kubernetes-sigs/gateway-api
+    # tag: v1.6.3
+    commit: c0836133e24073fcdcdbb1713aba3cc73a89d0b5
   sparseCheckout:
     - config/crd/standard
