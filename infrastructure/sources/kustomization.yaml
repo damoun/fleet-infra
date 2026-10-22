@@ -5,5 +5,4 @@ resources:
   - helm-cert-manager.yaml
   - helm-cilium.yaml
   - helm-tofu-controller.yaml
-  - helm-netbird.yaml
   - helm-descheduler.yaml
