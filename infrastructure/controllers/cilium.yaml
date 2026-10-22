@@ -34,10 +34,6 @@ spec:
       type: wireguard
     l2announcements:
       enabled: true
-    # Sized for <=10 LB services: QPS = services / leaseRenewDeadline, above the 5/10 default
-    k8sClientRateLimit:
-      qps: 10
-      burst: 20
     gatewayAPI:
       enabled: true
     operator:
