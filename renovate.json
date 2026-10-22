@@ -17,5 +17,17 @@
     "managerFilePatterns": [
       "/.+\\.ya?ml$/"
     ]
-  }
+  },
+  "packageRules": [
+    {
+      "matchManagers": [
+        "helm-values",
+        "kubernetes"
+      ],
+      "matchFileNames": [
+        "**/gotk-components.yaml"
+      ],
+      "enabled": false
+    }
+  ]
 }
