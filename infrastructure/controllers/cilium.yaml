@@ -29,6 +29,9 @@ spec:
     routingMode: native
     autoDirectNodeRoutes: true
     ipv4NativeRoutingCIDR: 172.20.0.0/20
+    encryption:
+      enabled: true
+      type: wireguard
     operator:
       priorityClassName: critical
     hubble:
