@@ -27,12 +27,6 @@ resource "kubernetes_namespace_v1" "flux_system" {
   }
 }
 
-resource "kubernetes_namespace_v1" "netbird" {
-  metadata {
-    name = "netbird"
-  }
-}
-
 resource "kubernetes_secret_v1" "sops_age" {
   metadata {
     name      = "sops-age"
