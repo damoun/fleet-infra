@@ -17,7 +17,7 @@ provider "kubernetes" {
   cluster_ca_certificate = base64decode(local.kubeconfig.clusters[0].cluster.certificate-authority-data)
 }
 
-resource "kubernetes_namespace" "flux_system" {
+resource "kubernetes_namespace_v1" "flux_system" {
   metadata {
     name = "flux-system"
   }
@@ -27,16 +27,16 @@ resource "kubernetes_namespace" "flux_system" {
   }
 }
 
-resource "kubernetes_namespace" "netbird" {
+resource "kubernetes_namespace_v1" "netbird" {
   metadata {
     name = "netbird"
   }
 }
 
-resource "kubernetes_secret" "sops_age" {
+resource "kubernetes_secret_v1" "sops_age" {
   metadata {
     name      = "sops-age"
-    namespace = kubernetes_namespace.flux_system.metadata[0].name
+    namespace = kubernetes_namespace_v1.flux_system.metadata[0].name
   }
 
   data = {
