@@ -38,6 +38,8 @@ spec:
     k8sClientRateLimit:
       qps: 10
       burst: 20
+    gatewayAPI:
+      enabled: true
     operator:
       priorityClassName: critical
     hubble:
