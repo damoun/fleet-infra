@@ -8,3 +8,4 @@ resources:
   - priority-class-low.yaml
   - cilium-lb-pool.yaml
   - cilium-l2-policy.yaml
+  - ccnp-default-deny.yaml

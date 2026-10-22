@@ -2,7 +2,9 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
+  - namespace-cert-manager.yaml
   - cert-manager.yaml
+  - netpol-cert-manager.yaml
   - cilium.yaml
   - tofu-controller.yaml
   - descheduler.yaml
