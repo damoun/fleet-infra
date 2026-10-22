@@ -17,11 +17,29 @@ spec:
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
+  name: infra-crds
+  namespace: flux-system
+spec:
+  dependsOn:
+    - name: infra-sources
+  interval: 1h
+  retryInterval: 1m
+  timeout: 5m
+  sourceRef:
+    kind: GitRepository
+    name: gateway-api
+  path: ./config/crd/standard
+  prune: false
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
   name: infra-configs
   namespace: flux-system
 spec:
   dependsOn:
     - name: infra-sources
+    - name: infra-crds
   interval: 1h
   retryInterval: 1m
   timeout: 5m
