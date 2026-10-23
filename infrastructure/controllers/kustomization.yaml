@@ -8,6 +8,7 @@ resources:
   - cert-manager-webhook-bunny.yaml
   - netpol-cert-manager.yaml
   - namespace-netbird.yaml
+  - netbird-rtr-setup-key.yaml
   - netbird-rtr.yaml
   - netpol-netbird.yaml
   - cilium.yaml
