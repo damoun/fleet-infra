@@ -1,0 +1,16 @@
+---
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: OCIRepository
+metadata:
+  name: cert-manager-webhook-bunny
+  namespace: flux-system
+spec:
+  interval: 24h
+  url: oci://ghcr.io/aardbol/charts/cert-manager-webhook-bunny
+  ref:
+    tag: 1.4.2
+  verify:
+    provider: cosign
+    matchOIDCIdentity:
+      - issuer: ^https://token\.actions\.githubusercontent\.com$
+        subject: ^https://github\.com/upcloud-tools/gha-actions/\.github/workflows/release-helm-chart\.yaml@.+$
