@@ -5,7 +5,8 @@ metadata:
   name: default-deny
 spec:
   endpointSelector:
-    # Exists keeps Cilium's own health endpoint (no namespace label) out of the baseline.
+    # Exists limits the baseline to pods; NotIn alone also matches Cilium's
+    # reserved:health and reserved:ingress (Gateway API) endpoints.
     matchExpressions:
       - key: io.kubernetes.pod.namespace
         operator: Exists
