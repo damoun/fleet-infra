@@ -28,12 +28,17 @@ spec:
     matchLabels:
       app.kubernetes.io/component: controller
   egress:
-    - toEntities:
-        - world
+    - toFQDNs:
+        - matchName: acme-v02.api.letsencrypt.org
+        - matchName: acme-staging-v02.api.letsencrypt.org
       toPorts:
         - ports:
             - port: "443"
               protocol: TCP
+    - toEntities:
+        - world
+      toPorts:
+        - ports:
             - port: "53"
               protocol: UDP
             - port: "53"
