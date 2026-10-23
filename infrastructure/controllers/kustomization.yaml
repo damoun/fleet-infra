@@ -9,6 +9,7 @@ resources:
   - netpol-cert-manager.yaml
   - namespace-netbird.yaml
   - netbird-rtr.yaml
+  - netpol-netbird.yaml
   - cilium.yaml
   - tofu-controller.yaml
   - descheduler.yaml
