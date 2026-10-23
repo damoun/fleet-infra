@@ -9,6 +9,7 @@ spec:
   url: oci://ghcr.io/aardbol/charts/cert-manager-webhook-bunny
   ref:
     tag: 1.4.2
+    digest: sha256:5229bc4cbec26f7e4b339c751270bc9c00c8d2dd2ab0be9685392ee62aea8066
   verify:
     provider: cosign
     matchOIDCIdentity:

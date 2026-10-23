@@ -16,6 +16,8 @@ spec:
     namespace: flux-system
   values:
     groupName: acme.damoun.casa
+    image:
+      tag: v1.4.1@sha256:be5e446c5ed5a38150a21647752a6f9af4ea41db9dbbc27283df6e10a210cb8a
     certManager:
       namespace: cert-manager
       serviceAccountName: cert-manager
