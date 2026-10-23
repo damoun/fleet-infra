@@ -48,7 +48,7 @@ spec:
     kind: GitRepository
     name: flux-system
   path: ./infrastructure/configs
-  prune: true
+  prune: false
   wait: true
   decryption:
     provider: sops
