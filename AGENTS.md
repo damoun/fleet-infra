@@ -64,11 +64,11 @@ asdf install
 ├── clusters/
 │   └── dapl-prd-htz-fsn-app/   # Flux cluster entrypoint & Kustomization roots (legacy root transitioning to dapl-prd-hom-ams-core)
 │       ├── flux-system/        # Flux GOTK sync components & GitRepository
-│       ├── infrastructure.yaml # Kustomizations: infra-sources -> configs -> controllers
+│       ├── infrastructure.yaml # Kustomizations: infra-sources -> prereqs -> controllers
 │       └── apps.yaml           # Kustomization for application workloads
 ├── infrastructure/             # Cluster platform components
 │   ├── sources/                # HelmRepository manifests
-│   ├── configs/                # Priority classes (critical, high, medium, low)
+│   ├── prereqs/                # Priority classes, Cilium LB pool and policies
 │   └── controllers/            # HelmReleases & CRDs (Cilium, cert-manager, NetBird, etc.)
 └── apps/                       # Application workloads
     ├── base/                   # Base Kubernetes manifests
@@ -130,8 +130,8 @@ Flux reconciles the cluster according to a strict dependency graph defined in [`
 ```mermaid
 flowchart TD
     Sync[gotk-sync] --> Sources[infra-sources]
-    Sources --> Configs[infra-configs]
-    Configs --> Controllers[infra-controllers]
+    Sources --> Prereqs[infra-prereqs]
+    Prereqs --> Controllers[infra-controllers]
     Controllers --> Apps[apps]
 ```
 
@@ -145,14 +145,14 @@ flowchart TD
      secretRef:
        name: sops-age
    ```
-4. **Priority Classes**: Infrastructure controllers and critical daemons must declare appropriate priority classes from [`infrastructure/configs/`](file:///home/damoun/Projects/github.com/damoun/fleet-infra/infrastructure/configs/):
+4. **Priority Classes**: Infrastructure controllers and critical daemons must declare appropriate priority classes from [`infrastructure/prereqs/`](file:///home/damoun/Projects/github.com/damoun/fleet-infra/infrastructure/prereqs/):
    - `critical` (Cilium, Hubble relay, etc.)
    - `high` (tofu-controller, NetBird operator)
    - `medium`, `low`
 5. **Pre-flight Validation**: Always validate manifests before committing:
    ```bash
    kubectl kustomize infrastructure/sources > /dev/null
-   kubectl kustomize infrastructure/configs > /dev/null
+   kubectl kustomize infrastructure/prereqs > /dev/null
    kubectl kustomize infrastructure/controllers > /dev/null
    kubectl kustomize apps/production > /dev/null
    ```
@@ -210,7 +210,7 @@ sops --decrypt --in-place path/to/secret.yaml
 # Force immediate reconciliation across all Flux Kustomizations
 flux reconcile source git flux-system
 flux reconcile kustomization infra-sources
-flux reconcile kustomization infra-configs
+flux reconcile kustomization infra-prereqs
 flux reconcile kustomization infra-controllers
 flux reconcile kustomization apps
 ```
