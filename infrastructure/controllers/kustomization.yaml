@@ -4,6 +4,7 @@ kind: Kustomization
 resources:
   - namespace-cert-manager.yaml
   - cert-manager.yaml
+  - bunny-api-key.yaml
   - cert-manager-webhook-bunny.yaml
   - netpol-cert-manager.yaml
   - cilium.yaml

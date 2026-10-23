@@ -1,0 +1,22 @@
+apiVersion: v1
+data:
+    api-key: ENC[AES256_GCM,data:6wVUh2kfmq+sD0b7HHo1bWsPk1LOKWzpJVJJu+oZKS6Jqu3wM0cmbYFdMENS9klF,iv:YRSNWLtXOZCzdAT3cf4Mjya3GACrGolBOdbP2lv0J9s=,tag:pRJ8E8ZnY6fhGDS180/WaA==,type:str]
+kind: Secret
+metadata:
+    name: bunny-api-key
+    namespace: cert-manager
+sops:
+    age:
+        - enc: |
+            -----BEGIN AGE ENCRYPTED FILE-----
+            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSB6aEtGaGczUDlVWnJDSEdR
+            RWdyNVV2YkVVMzY3R1dvaEpTcDIzQm1ldUhNCllUbjd1cmY1Mm9DUm5rUExQNE5u
+            WW5xeHQrYlhaM3hqZ0ZwNUt4L3JReHcKLS0tIGd6VktmZnBDb2UwYWtPY3RlUTlY
+            bk8rRWl4SHFvVzlnWGsxWlRzRW9JejQKhgI2q1+Jacnn96mOeVthjNahaTSn2kwq
+            oxxJzzOnC+nhdIl6/PGpxm9TtDR8fFAkjGmJSlrHW6jBxmblOdpWbA==
+            -----END AGE ENCRYPTED FILE-----
+          recipient: age12lruudqcn688pr9njrldp6haehncnuw7e2fdk84j3csqder0auhqqdcgkm
+    encrypted_regex: ^(data|stringData)$
+    lastmodified: "2026-10-23T21:55:55Z"
+    mac: ENC[AES256_GCM,data:HD+QAKrGGR2AXH5XgRnPWULsncONmUpv1LZyHN9Hxai17ovzhcbVdRbfPA/hPeiE27F7H6j6RdhEWZF7Uj9LBWyK+xJKcdV0G07Jq/aSZOJEc7Z7lUtEYbolZk8XTLmLkVKmwpp4UcnaCEyUfpa7svhhEz98zbhaQMC9dW/Ofpo=,iv:fD+9kwYAkYceW4P22uqZTkOV63wqL4NwUNMdrXORuKk=,tag:8MdKM/uJa4qeqCb6wYDBZQ==,type:str]
+    version: 3.13.3
