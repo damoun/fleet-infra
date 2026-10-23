@@ -7,6 +7,8 @@ resources:
   - bunny-api-key.yaml
   - cert-manager-webhook-bunny.yaml
   - netpol-cert-manager.yaml
+  - namespace-netbird.yaml
+  - netbird-rtr.yaml
   - cilium.yaml
   - tofu-controller.yaml
   - descheduler.yaml
