@@ -1,0 +1,25 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: cert-manager-webhook-bunny
+  namespace: flux-system
+spec:
+  targetNamespace: cert-manager
+  releaseName: cert-manager-webhook-bunny
+  interval: 1h
+  dependsOn:
+    - name: cert-manager
+  chartRef:
+    kind: OCIRepository
+    name: cert-manager-webhook-bunny
+    namespace: flux-system
+  values:
+    groupName: acme.damoun.casa
+    certManager:
+      namespace: cert-manager
+      serviceAccountName: cert-manager
+    secretAccess:
+      namespace: cert-manager
+      names:
+        - bunny-api-key
