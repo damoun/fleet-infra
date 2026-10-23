@@ -7,3 +7,9 @@ spec:
   interfaces:
     - ^eno1$
   loadBalancerIPs: true
+  serviceSelector:
+    matchExpressions:
+      - key: lb.damoun.casa/pool
+        operator: NotIn
+        values:
+          - priv
