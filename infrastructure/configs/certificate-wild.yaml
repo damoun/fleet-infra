@@ -1,0 +1,13 @@
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: wild
+  namespace: edge
+spec:
+  secretName: wild
+  dnsNames:
+    - "*.core.ams.damoun.casa"
+  issuerRef:
+    kind: ClusterIssuer
+    name: letsencrypt
