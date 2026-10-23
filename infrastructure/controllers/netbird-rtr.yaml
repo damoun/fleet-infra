@@ -17,7 +17,8 @@ spec:
       labels:
         app.kubernetes.io/name: rtr
         app.kubernetes.io/part-of: netbird
-    spec:
+    # NetBird needs root: Kubernetes only makes added capabilities effective for UID 0.
+    spec: # nosemgrep: yaml.kubernetes.security.run-as-non-root.run-as-non-root
       priorityClassName: high
       topologySpreadConstraints:
         - maxSkew: 1
