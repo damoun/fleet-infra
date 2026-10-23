@@ -1,0 +1,26 @@
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: gw
+  namespace: edge
+spec:
+  gatewayClassName: cilium
+  addresses:
+    - type: IPAddress
+      value: 172.28.0.10
+  infrastructure:
+    labels:
+      lb.damoun.casa/pool: priv
+  listeners:
+    - name: https
+      protocol: HTTPS
+      port: 443
+      hostname: "*.core.ams.damoun.casa"
+      tls:
+        mode: Terminate
+        certificateRefs:
+          - name: wild
+      allowedRoutes:
+        namespaces:
+          from: All
