@@ -1,0 +1,22 @@
+apiVersion: v1
+data:
+    setup-key: ENC[AES256_GCM,data:yblbzJsRLcm1oSLMPeWfQVuaMyGr8z1PhStE/RQEV0ezegDkmF95jbQHxM1vMGla,iv:J6Xi6u2jtEyAEcfER9yre6Ebm8701jFR5OjYpBBnoDo=,tag:n4j3ponBjrQVAqnyNqZLJg==,type:str]
+kind: Secret
+metadata:
+    name: rtr-setup-key
+    namespace: netbird
+sops:
+    age:
+        - enc: |
+            -----BEGIN AGE ENCRYPTED FILE-----
+            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBsWHlFM2ZnTmo1R1hndnpp
+            aEVoSFEyVStjNk1xSitXR2dhOEVZS1loRWhvCmNyNnBNa0I1cHJ3N2hTVkZHemta
+            aEs0TmY1QkhrZW9mcGV4ZjdTVkxOYWMKLS0tIDhaV05IVGZyOHgrUXlobC9Vbi82
+            aFBlMGxGekZVMGdZNGUxTWlUS1ZqaTgKNrhflscqbWrK0amPze+Z0Nm0jS44xEOY
+            SFhigVrS7Fqp3m/Hl5FcPw70PgbXMWpfmg/b2Ob8j+QDryNyfX49fQ==
+            -----END AGE ENCRYPTED FILE-----
+          recipient: age12lruudqcn688pr9njrldp6haehncnuw7e2fdk84j3csqder0auhqqdcgkm
+    encrypted_regex: ^(data|stringData)$
+    lastmodified: "2026-10-23T22:32:40Z"
+    mac: ENC[AES256_GCM,data:gZiYvRF4dY+jckoRwGDTsOf8+CfAVRDSioSVWWlmStwmJjCXqCfnYFhOo2g9KOpHmu0uPqdKx/hf5uOQyfh8b4CwR9n3pah3ofhQeAVSB6NhZ8guc4E3X9pBE5sLIVz6egMIP42FK1oOjkFUr1QZX5rRmPtsQWmpW3tNf4hOzsA=,iv:k4svAdI9Lhzi5ydPKXa+Vigb24AvsyPO5fi40D1wYZk=,tag:e0RXfvAtSnTbBy0/vNmApg==,type:str]
+    version: 3.13.3
