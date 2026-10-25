@@ -1,0 +1,268 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: vm
+  namespace: flux-system
+spec:
+  targetNamespace: o11y
+  releaseName: vm
+  interval: 1h
+  # The operator's webhook certificate comes from cert-manager.
+  dependsOn:
+    - name: cert-manager
+  chartRef:
+    kind: OCIRepository
+    name: victoria-metrics-k8s-stack
+    namespace: flux-system
+  install:
+    crds: CreateReplace
+  upgrade:
+    crds: CreateReplace
+  values:
+    fullnameOverride: vm
+    victoria-metrics-operator:
+      image:
+        repository: victoriametrics/operator
+        tag: v0.75.1@sha256:97162bf8320b296f0361099f0290b9e035a3369e4022c5c42ca4a8146deca981
+      configReloader:
+        image:
+          repository: victoriametrics/operator
+          tag: config-reloader-v0.75.1@sha256:72d129e6a95edd3ee233cf11680c394baa2f75835f8cb978d3748dfb5eac87f2
+      # Restricted-compatible securityContext on every pod the operator creates.
+      env:
+        - name: VM_ENABLESTRICTSECURITY
+          value: "true"
+      podSecurityContext:
+        seccompProfile:
+          type: RuntimeDefault
+      priorityClassName: medium
+      resources:
+        requests:
+          cpu: 20m
+          memory: 64Mi
+        limits:
+          memory: 160Mi
+      admissionWebhooks:
+        certManager:
+          enabled: true
+      crds:
+        cleanup:
+          enabled: false
+    syncJob:
+      image:
+        repository: ghcr.io/victoriametrics/sync-job
+        tag: v0.0.17@sha256:b6f233532a85cda65e645264d24f995e5ee97f88b60610643f01f170516f444b
+      podSecurityContext:
+        runAsNonRoot: true
+        runAsUser: 65534
+        runAsGroup: 65534
+        seccompProfile:
+          type: RuntimeDefault
+      containerSecurityContext:
+        allowPrivilegeEscalation: false
+        readOnlyRootFilesystem: true
+        capabilities:
+          drop:
+            - ALL
+      resources:
+        requests:
+          cpu: 10m
+          memory: 32Mi
+        limits:
+          memory: 128Mi
+    # The sync-job fetches these at install time; pin each to an immutable commit.
+    defaultDashboards:
+      sources:
+        victoriametrics-single-node:
+          url: https://raw.githubusercontent.com/VictoriaMetrics/VictoriaMetrics/64c2e75fe7dc4f16fe73ba060ea383c73b1a8628/dashboards/victoriametrics.json
+        victoriametrics-vmagent:
+          url: https://raw.githubusercontent.com/VictoriaMetrics/VictoriaMetrics/64c2e75fe7dc4f16fe73ba060ea383c73b1a8628/dashboards/vmagent.json
+        victoriametrics-vmalert:
+          url: https://raw.githubusercontent.com/VictoriaMetrics/VictoriaMetrics/64c2e75fe7dc4f16fe73ba060ea383c73b1a8628/dashboards/vmalert.json
+        victoriametrics-operator:
+          url: https://raw.githubusercontent.com/VictoriaMetrics/VictoriaMetrics/64c2e75fe7dc4f16fe73ba060ea383c73b1a8628/dashboards/operator.json
+        kubernetes-views-global:
+          url: https://raw.githubusercontent.com/dotdc/grafana-dashboards-kubernetes/e4faf59e017a18e1b06fa64f11623bef15ce7507/dashboards/k8s-views-global.json
+        kubernetes-views-namespaces:
+          url: https://raw.githubusercontent.com/dotdc/grafana-dashboards-kubernetes/e4faf59e017a18e1b06fa64f11623bef15ce7507/dashboards/k8s-views-namespaces.json
+        kubernetes-views-pods:
+          url: https://raw.githubusercontent.com/dotdc/grafana-dashboards-kubernetes/e4faf59e017a18e1b06fa64f11623bef15ce7507/dashboards/k8s-views-pods.json
+        kubernetes-views-nodes:
+          url: https://raw.githubusercontent.com/dotdc/grafana-dashboards-kubernetes/e4faf59e017a18e1b06fa64f11623bef15ce7507/dashboards/k8s-views-nodes.json
+        kubernetes-system-api-server:
+          url: https://raw.githubusercontent.com/dotdc/grafana-dashboards-kubernetes/e4faf59e017a18e1b06fa64f11623bef15ce7507/dashboards/k8s-system-api-server.json
+        kubernetes-system-coredns:
+          url: https://raw.githubusercontent.com/dotdc/grafana-dashboards-kubernetes/e4faf59e017a18e1b06fa64f11623bef15ce7507/dashboards/k8s-system-coredns.json
+        node-exporter-full:
+          url: https://raw.githubusercontent.com/rfmoz/grafana-dashboards/8b2b6e2b8b9ad6e146e2f2eeb303e9d04d0f815e/prometheus/node-exporter-full.json
+        # Overlaps the dotdc views above.
+        kube-prometheus:
+          enabled: false
+    defaultRules:
+      sources:
+        alertmanager:
+          url: https://raw.githubusercontent.com/prometheus-operator/kube-prometheus/799f3d73b5adf5758c3119c9201d9f417accb6d0/manifests/alertmanager-prometheusRule.yaml
+        kubernetes-control-plane:
+          url: https://raw.githubusercontent.com/prometheus-operator/kube-prometheus/799f3d73b5adf5758c3119c9201d9f417accb6d0/manifests/kubernetesControlPlane-prometheusRule.yaml
+        kubernetes:
+          url: https://raw.githubusercontent.com/prometheus-operator/kube-prometheus/799f3d73b5adf5758c3119c9201d9f417accb6d0/manifests/kubePrometheus-prometheusRule.yaml
+        kube-state-metrics:
+          url: https://raw.githubusercontent.com/prometheus-operator/kube-prometheus/799f3d73b5adf5758c3119c9201d9f417accb6d0/manifests/kubeStateMetrics-prometheusRule.yaml
+        node-exporter:
+          url: https://raw.githubusercontent.com/prometheus-operator/kube-prometheus/799f3d73b5adf5758c3119c9201d9f417accb6d0/manifests/nodeExporter-prometheusRule.yaml
+        vmhealth:
+          url: https://raw.githubusercontent.com/VictoriaMetrics/VictoriaMetrics/64c2e75fe7dc4f16fe73ba060ea383c73b1a8628/deployment/docker/rules/alerts-health.yml
+        vmagent:
+          url: https://raw.githubusercontent.com/VictoriaMetrics/VictoriaMetrics/64c2e75fe7dc4f16fe73ba060ea383c73b1a8628/deployment/docker/rules/alerts-vmagent.yml
+        vmalert:
+          url: https://raw.githubusercontent.com/VictoriaMetrics/VictoriaMetrics/64c2e75fe7dc4f16fe73ba060ea383c73b1a8628/deployment/docker/rules/alerts-vmalert.yml
+        vmsingle:
+          url: https://raw.githubusercontent.com/VictoriaMetrics/VictoriaMetrics/64c2e75fe7dc4f16fe73ba060ea383c73b1a8628/deployment/docker/rules/alerts-single-node.yml
+        vmoperator:
+          url: https://raw.githubusercontent.com/VictoriaMetrics/operator/444a18fcaa03e8ac9c8f706bd1f0b53629f1fb19/config/alerting/vmoperator-rules.yaml
+    # Built-in Prometheus type only; the VictoriaMetrics plugin would be downloaded at start.
+    defaultDatasources:
+      victoriametrics:
+        datasources:
+          - name: VictoriaMetrics
+            type: prometheus
+            access: proxy
+            uid: VictoriaMetrics
+            isDefault: true
+    vmsingle:
+      spec:
+        image:
+          repository: victoriametrics/victoria-metrics
+          tag: v1.154.1@sha256:c7884f32920dd45a9d86542a717227e63af03e060e53bbf8031e6e6fd0e1e05d
+        retentionPeriod: 14d
+        priorityClassName: medium
+        storage:
+          storageClassName: local-retain
+          accessModes:
+            - ReadWriteOnce
+          resources:
+            requests:
+              storage: 20Gi
+        resources:
+          requests:
+            cpu: 100m
+            memory: 256Mi
+          limits:
+            memory: 1Gi
+    vmagent:
+      spec:
+        image:
+          repository: victoriametrics/vmagent
+          tag: v1.154.1@sha256:970ba603235839655e03501311c683d2269b882f7bcf0ac98892ae422603cb61
+        priorityClassName: medium
+        resources:
+          requests:
+            cpu: 50m
+            memory: 128Mi
+          limits:
+            memory: 512Mi
+    # Alerting comes later; Talos binds etcd, scheduler and controller-manager metrics to localhost.
+    vmalert:
+      enabled: false
+    alertmanager:
+      enabled: false
+    kubeEtcd:
+      enabled: false
+    kubeScheduler:
+      enabled: false
+    kubeControllerManager:
+      enabled: false
+    kube-state-metrics:
+      image:
+        registry: registry.k8s.io
+        repository: kube-state-metrics/kube-state-metrics
+        tag: v2.20.0@sha256:42cfe3723a5f058171c627537fb57a3ea0f26e4380fa18555a95cb1a1b4cfc5b
+      priorityClassName: medium
+      resources:
+        requests:
+          cpu: 10m
+          memory: 32Mi
+        limits:
+          memory: 128Mi
+    prometheus-node-exporter:
+      namespaceOverride: o11y-node
+      # The chart semver-checks image.tag, which fails on tag@digest; version takes precedence.
+      version: 1.12.1
+      image:
+        registry: quay.io
+        repository: prometheus/node-exporter
+        tag: v1.12.1@sha256:1b4e4438faca4dd7e001dd445d161a4a2091b0fededa84093b3a8dfeae1f1be0
+      priorityClassName: medium
+      resources:
+        requests:
+          cpu: 10m
+          memory: 24Mi
+        limits:
+          memory: 64Mi
+    grafana:
+      image:
+        registry: docker.io
+        repository: grafana/grafana
+        tag: 13.2.4-distroless@sha256:ae3d3add290adbe6a88412229f5d76fd7bb82743050881698642d3d62f277e35
+      sidecar:
+        image:
+          registry: quay.io
+          repository: kiwigrid/k8s-sidecar
+          tag: 2.14.1@sha256:092dbe0c335fba9af414a27630ca68f34df6185784fa847d9954187e69dbfdd7
+        resources:
+          requests:
+            cpu: 10m
+            memory: 48Mi
+          limits:
+            memory: 128Mi
+      testFramework:
+        enabled: false
+      priorityClassName: medium
+      resources:
+        requests:
+          cpu: 50m
+          memory: 128Mi
+        limits:
+          memory: 384Mi
+      podLabels:
+        edge.damoun.casa/exposed: "true"
+      # The OIDC issuer only resolves in NetBird DNS; reach it through the
+      # private Gateway VIP so the issuer URL matches what browsers use.
+      hostAliases:
+        - ip: 172.28.0.10
+          hostnames:
+            - id.core.ams.damoun.casa
+      envFromSecret: grafana-oidc
+      grafana.ini:
+        server:
+          root_url: https://graf.core.ams.damoun.casa
+        analytics:
+          reporting_enabled: false
+          check_for_updates: false
+          check_for_plugin_updates: false
+        news:
+          news_feed_enabled: false
+        auth:
+          disable_login_form: true
+        auth.basic:
+          enabled: false
+        auth.generic_oauth:
+          enabled: true
+          name: Pocket ID
+          auto_login: true
+          scopes: openid email profile groups
+          auth_url: https://id.core.ams.damoun.casa/authorize
+          token_url: https://id.core.ams.damoun.casa/api/oidc/token
+          api_url: https://id.core.ams.damoun.casa/api/oidc/userinfo
+          use_pkce: true
+          role_attribute_path: contains(groups[*], 'grafana_admins') && 'Admin'
+          role_attribute_strict: true
+      route:
+        main:
+          enabled: true
+          parentRefs:
+            - name: gw
+              namespace: edge
+          hostnames:
+            - graf.core.ams.damoun.casa
