@@ -1,0 +1,26 @@
+---
+# Primary + one replica on different workers: failover without a third copy.
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: id-db
+  namespace: id
+spec:
+  instances: 2
+  storage:
+    storageClass: local
+    size: 2Gi
+  bootstrap:
+    initdb:
+      database: pocketid
+      owner: pocketid
+  affinity:
+    enablePodAntiAffinity: true
+    podAntiAffinityType: required
+    topologyKey: kubernetes.io/hostname
+  resources:
+    requests:
+      cpu: 50m
+      memory: 128Mi
+    limits:
+      memory: 512Mi
