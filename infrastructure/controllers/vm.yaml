@@ -224,6 +224,9 @@ spec:
         datasources:
           searchNamespace: o11y
           resource: configmap
+          # Write datasources before Grafana starts; the sidecar's reload call races startup.
+          # Init-only: a datasource change needs a Grafana rollout restart.
+          initDatasources: true
         image:
           registry: quay.io
           repository: kiwigrid/k8s-sidecar
@@ -237,12 +240,13 @@ spec:
       testFramework:
         enabled: false
       priorityClassName: medium
+      # ~230Mi idle; dashboard loads went past 384Mi.
       resources:
         requests:
           cpu: 50m
-          memory: 128Mi
+          memory: 256Mi
         limits:
-          memory: 384Mi
+          memory: 768Mi
       podLabels:
         edge.damoun.casa/exposed: "true"
       # The OIDC issuer only resolves in NetBird DNS; reach it through the
@@ -261,6 +265,9 @@ spec:
           check_for_plugin_updates: false
         news:
           news_feed_enabled: false
+        # Grafana installs default app plugins from grafana.com in the background.
+        plugins:
+          preinstall_disabled: true
         auth:
           disable_login_form: true
         auth.generic_oauth:
