@@ -30,6 +30,10 @@ spec:
               protocol: TCP
             - port: "8429"
               protocol: TCP
+            - port: "9428"
+              protocol: TCP
+            - port: "9429"
+              protocol: TCP
             - port: "9187"
               protocol: TCP
             - port: "9402"
@@ -58,6 +62,10 @@ spec:
             - port: "8428"
               protocol: TCP
             - port: "8429"
+              protocol: TCP
+            - port: "9428"
+              protocol: TCP
+            - port: "9429"
               protocol: TCP
             - port: "9187"
               protocol: TCP
@@ -107,6 +115,47 @@ spec:
 apiVersion: cilium.io/v2
 kind: CiliumNetworkPolicy
 metadata:
+  name: vlsingle
+  namespace: o11y
+spec:
+  endpointSelector:
+    matchLabels:
+      app.kubernetes.io/name: vlsingle
+  # VMAgent's scrape on 9428 is allowed by allow-vmagent-scrape.
+  ingress:
+    - fromEndpoints:
+        - matchLabels:
+            app.kubernetes.io/name: grafana
+        - matchLabels:
+            io.kubernetes.pod.namespace: o11y-node
+            app.kubernetes.io/name: vlagent
+      toPorts:
+        - ports:
+            - port: "9428"
+              protocol: TCP
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: vlagent
+  namespace: o11y-node
+spec:
+  endpointSelector:
+    matchLabels:
+      app.kubernetes.io/name: vlagent
+  egress:
+    - toEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: o11y
+            app.kubernetes.io/name: vlsingle
+      toPorts:
+        - ports:
+            - port: "9428"
+              protocol: TCP
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
   name: victoria-metrics-operator
   namespace: o11y
 spec:
@@ -146,6 +195,21 @@ spec:
       toPorts:
         - ports:
             - port: "8428"
+              protocol: TCP
+    - toEndpoints:
+        - matchLabels:
+            app.kubernetes.io/name: vlsingle
+      toPorts:
+        - ports:
+            - port: "9428"
+              protocol: TCP
+    # Plugin install (init container): grafana.com API, download redirects to GCS.
+    - toFQDNs:
+        - matchName: grafana.com
+        - matchName: storage.googleapis.com
+      toPorts:
+        - ports:
+            - port: "443"
               protocol: TCP
     # Token exchange with Pocket ID goes through the Gateway, and Cilium's Envoy
     # checks the client's egress against the backend pod.
