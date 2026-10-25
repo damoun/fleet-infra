@@ -17,4 +17,7 @@ resources:
   - namespace-cnpg-system.yaml
   - cloudnative-pg.yaml
   - netpol-cnpg.yaml
+  - flux-web-config.yaml
   - flux-operator.yaml
+  - flux-web-rbac.yaml
+  - netpol-flux-web.yaml

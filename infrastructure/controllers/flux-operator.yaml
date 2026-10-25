@@ -17,4 +17,30 @@ spec:
       tag: v0.61.0@sha256:71041d9fff7f7b05f1a8123ebe73c73b7b156f4aacfe1e8e19b5aa953a98892c
     priorityClassName: high
     web:
-      enabled: false
+      enabled: true
+      configSecretName: flux-web-config
+      httpRoute:
+        enabled: true
+        parentRefs:
+          - name: gw
+            namespace: edge
+        hostnames:
+          - flux.core.ams.damoun.casa
+  postRenderers:
+    - kustomize:
+        patches:
+          - target:
+              kind: Deployment
+              name: flux-operator
+            patch: |
+              - op: add
+                path: /spec/template/metadata/labels/edge.damoun.casa~1exposed
+                value: "true"
+              # The OIDC issuer only resolves in NetBird DNS; reach it through the
+              # private Gateway VIP so the issuer URL matches what browsers use.
+              - op: add
+                path: /spec/template/spec/hostAliases
+                value:
+                  - ip: 172.28.0.10
+                    hostnames:
+                      - id.core.ams.damoun.casa
