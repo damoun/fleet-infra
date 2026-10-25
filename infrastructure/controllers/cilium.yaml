@@ -39,9 +39,18 @@ spec:
       enabled: true
     gatewayAPI:
       enabled: true
+    # Agent metrics; dashboards land in o11y for the Grafana sidecar.
+    prometheus:
+      enabled: true
+    dashboards:
+      enabled: true
+      namespace: o11y
     operator:
       priorityClassName: critical
       rollOutPods: true
+      dashboards:
+        enabled: true
+        namespace: o11y
     envoy:
       rollOutPods: true
     hubble:
@@ -49,6 +58,14 @@ spec:
       relay:
         enabled: true
         priorityClassName: critical
+      metrics:
+        enabled:
+          - dns
+          - drop
+          - policy
+        dashboards:
+          enabled: true
+          namespace: o11y
     securityContext:
       capabilities:
         ciliumAgent:
