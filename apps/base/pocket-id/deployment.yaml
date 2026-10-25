@@ -15,6 +15,7 @@ spec:
     metadata:
       labels:
         app.kubernetes.io/name: pocket-id
+        edge.damoun.casa/exposed: "true"
     spec:
       securityContext:
         runAsNonRoot: true

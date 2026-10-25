@@ -36,4 +36,6 @@ NetBird client ── NetBird DNS (A records) ── WireGuard ── rtr pods (
 
 ## Adding a service
 
-Attach an `HTTPRoute` to `gw` (namespace `edge`) with a hostname under `*.core.ams.damoun.casa`. No DNS change is needed. Once default-deny is enforced, the backend also needs an ingress allow from entity `ingress`.
+Attach an `HTTPRoute` to `gw` (namespace `edge`) with a hostname under `*.core.ams.damoun.casa`. No DNS change is needed.
+
+Label the backend pods `edge.damoun.casa/exposed: "true"`. Cilium's Gateway Envoy checks the client's egress policy against the backend pod and port it picks, and enforces that even in policy audit mode; the NetBird routers may only reach pods carrying that label. The backend also needs an ingress allow from entity `ingress` on its port.

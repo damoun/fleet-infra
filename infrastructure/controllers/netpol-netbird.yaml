@@ -46,12 +46,14 @@ spec:
             - port: "1"
               endPort: 65535
               protocol: UDP
-    - toEntities:
-        - ingress
-      toPorts:
-        - ports:
-            - port: "443"
-              protocol: TCP
+    # Gateway traffic: Cilium's Envoy checks the client's egress against the backend
+    # pod and port it picked (even in audit mode), so allow the opted-in backends.
+    - toEndpoints:
+        - matchLabels:
+            edge.damoun.casa/exposed: "true"
+          matchExpressions:
+            - key: io.kubernetes.pod.namespace
+              operator: Exists
     - toEntities:
         - kube-apiserver
       toPorts:

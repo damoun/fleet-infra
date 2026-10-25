@@ -43,21 +43,25 @@ spec:
         - ports:
             - port: "5432"
               protocol: TCP
-    # The operator polls each instance manager's status endpoint.
+    # The operator and the other instance poll each instance manager's status endpoint.
     - fromEndpoints:
         - matchLabels:
             io.kubernetes.pod.namespace: cnpg-system
             app.kubernetes.io/name: cloudnative-pg
+        - matchLabels:
+            cnpg.io/cluster: id-db
       toPorts:
         - ports:
             - port: "8000"
               protocol: TCP
   egress:
-    # Streaming replication between the instances.
+    # Streaming replication and status polling between the instances.
     - toEndpoints:
         - matchLabels:
             cnpg.io/cluster: id-db
       toPorts:
         - ports:
             - port: "5432"
+              protocol: TCP
+            - port: "8000"
               protocol: TCP
