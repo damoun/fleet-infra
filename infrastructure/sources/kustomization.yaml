@@ -8,3 +8,4 @@ resources:
   - helm-tofu-controller.yaml
   - helm-descheduler.yaml
   - oci-cert-manager-webhook-bunny.yaml
+  - oci-cloudnative-pg.yaml
