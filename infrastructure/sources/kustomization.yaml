@@ -9,6 +9,7 @@ resources:
   - helm-cilium.yaml
   - helm-tofu-controller.yaml
   - helm-descheduler.yaml
+  - helm-metrics-server.yaml
   - oci-cert-manager-webhook-bunny.yaml
   - oci-cloudnative-pg.yaml
   - oci-flux-operator.yaml
