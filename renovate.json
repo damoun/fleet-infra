@@ -37,6 +37,15 @@
         "# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)\\n\\s*version: \"(?<currentValue>[^\"]+)\""
       ],
       "extractVersionTemplate": "^v(?<version>.+)$"
+    },
+    {
+      "customType": "regex",
+      "managerFilePatterns": [
+        "/^infrastructure/controllers/vm\\.yaml$/"
+      ],
+      "matchStrings": [
+        "# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+) tag=(?<currentValue>\\S+)( versioning=(?<versioning>\\S+))?\\n\\s*url: https://raw\\.githubusercontent\\.com/[^/]+/[^/]+/(?<currentDigest>[a-f0-9]{40})/"
+      ]
     }
   ],
   "packageRules": [
@@ -48,6 +57,28 @@
         "gateway-api"
       ],
       "enabled": false
+    },
+    {
+      "matchDepNames": [
+        "victoriametrics/operator"
+      ],
+      "matchCurrentValue": "/^config-reloader-/",
+      "versioning": "regex:^config-reloader-v(?<major>\\d+)\\.(?<minor>\\d+)\\.(?<patch>\\d+)$"
+    },
+    {
+      "groupName": "VictoriaMetrics",
+      "matchDepNames": [
+        "victoriametrics/victoria-metrics",
+        "victoriametrics/vmagent",
+        "VictoriaMetrics/VictoriaMetrics"
+      ]
+    },
+    {
+      "groupName": "VictoriaMetrics operator",
+      "matchDepNames": [
+        "victoriametrics/operator",
+        "VictoriaMetrics/operator"
+      ]
     }
   ]
 }
