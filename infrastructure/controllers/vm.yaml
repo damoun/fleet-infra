@@ -227,6 +227,8 @@ spec:
           # Write datasources before Grafana starts; the sidecar's reload call races startup.
           # Init-only: a datasource change needs a Grafana rollout restart.
           initDatasources: true
+          # The init container uses watchMethod too; WATCH never exits.
+          watchMethod: LIST
         image:
           registry: quay.io
           repository: kiwigrid/k8s-sidecar
