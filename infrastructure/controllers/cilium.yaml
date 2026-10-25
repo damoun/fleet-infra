@@ -20,6 +20,7 @@ spec:
   values:
     priorityClassName: critical
     policyAuditMode: false
+    rollOutCiliumPods: true
     ipam:
       mode: kubernetes
     cluster:
@@ -40,6 +41,9 @@ spec:
       enabled: true
     operator:
       priorityClassName: critical
+      rollOutPods: true
+    envoy:
+      rollOutPods: true
     hubble:
       enabled: true
       relay:
