@@ -14,3 +14,6 @@ resources:
   - cilium.yaml
   - tofu-controller.yaml
   - descheduler.yaml
+  - namespace-cnpg-system.yaml
+  - cloudnative-pg.yaml
+  - netpol-cnpg.yaml
