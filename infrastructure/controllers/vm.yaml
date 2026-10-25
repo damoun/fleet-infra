@@ -19,6 +19,17 @@ spec:
     crds: CreateReplace
   upgrade:
     crds: CreateReplace
+  # The stack copies the raw image tag into this label on VLSingle and VLAgent,
+  # and tag@digest is not a valid label value.
+  postRenderers:
+    - kustomize:
+        patches:
+          - target:
+              group: operator.victoriametrics.com
+              kind: (VLSingle|VLAgent)
+            patch: |
+              - op: remove
+                path: /metadata/labels/app.kubernetes.io~1version
   values:
     fullnameOverride: vm
     victoria-metrics-operator:
