@@ -60,7 +60,7 @@ asdf install
 │   └── kubernetes/             # Bootstrap secret (sops-age)
 ├── clusters/
 │   └── dapl-prd-hom-ams-core/  # Flux cluster entrypoint & Kustomization roots
-│       ├── infrastructure.yaml # Kustomizations: infra-sources -> crds -> prereqs -> storage, controllers -> configs
+│       ├── infrastructure.yaml # Kustomizations: infra-sources -> crds -> prereqs -> storage, csr, controllers -> configs
 │       └── apps.yaml           # Kustomization for application workloads
 ├── infrastructure/             # Cluster platform components
 │   ├── sources/                # HelmRepository, OCIRepository and GitRepository sources
@@ -128,6 +128,7 @@ flowchart TD
     Sources --> CRDs[infra-crds]
     CRDs --> Prereqs[infra-prereqs]
     Prereqs --> Storage[infra-storage]
+    Prereqs --> CSR[infra-csr]
     Prereqs --> Controllers[infra-controllers]
     Controllers --> Configs[infra-configs]
     Configs --> Apps[apps]
@@ -207,6 +208,7 @@ flux reconcile kustomization infra-sources
 flux reconcile kustomization infra-crds
 flux reconcile kustomization infra-prereqs
 flux reconcile kustomization infra-storage
+flux reconcile kustomization infra-csr
 flux reconcile kustomization infra-controllers
 flux reconcile kustomization infra-configs
 flux reconcile kustomization apps
