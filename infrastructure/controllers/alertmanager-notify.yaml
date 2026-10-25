@@ -1,0 +1,25 @@
+apiVersion: v1
+kind: Secret
+metadata:
+    name: alertmanager-notify
+    namespace: o11y
+type: Opaque
+stringData:
+    pushover-token: ENC[AES256_GCM,data:j/JZ1FpPKycAktbjpQccfVo4R8wv+5f0ak3OJkTF,iv:kDC0zR+1tjBJiq0Lxa2P9ls1omSZ/9u+Udt8/5VDe/I=,tag:IhgK7l6/5/+dTaBg1MAtyQ==,type:str]
+    pushover-user: ENC[AES256_GCM,data:rJb1wUdxUqOpFpRp1cSq2Um57UGkWFSECwjPR4GM,iv:fEp3kA3AX9Uv9wRxdwEANNwXVmY0QaHLsaQ104P06Go=,tag:4iTLqYEnidNtciDw56rHJQ==,type:str]
+    hc-ping-url: ENC[AES256_GCM,data:xf/UZZ6TAqnktMsIJgbd2lD4CWIsYMwEwb+W70AwmqaETiL2TFBIPnNjLATo8uK2VGkaDzRZRkc=,iv:16b0vAm/O6+ohrsNieQTxy3B29BV247tkcSD8pe/nXs=,tag:CCcZZX8V5pXZ8MIVbhgQ1g==,type:str]
+sops:
+    age:
+        - enc: |
+            -----BEGIN AGE ENCRYPTED FILE-----
+            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBqdXhBblpMa3pFNFNNNGI3
+            S2dwdmZHZ0hIVEozVTJqUm9VQWNOU3NPb0RzCk1yb3N5NitOMVJzVllFOENNeVVq
+            clhmQTU5SjNMVCswSzlZbmlRYlFhRWcKLS0tIDEwMTFHZ2RXengweXRoL2RDMExk
+            Ky9mRzdoSnRmeDJjVFZ0eEZHSmVhaDgKnkpAzpvenBtDYiRb2mDdaGd7QdobbFrp
+            dLSoqzDo3VvVdz7sYHSEvGW95htftf3DtNKczCc3lfQixJzaVc/PYQ==
+            -----END AGE ENCRYPTED FILE-----
+          recipient: age12lruudqcn688pr9njrldp6haehncnuw7e2fdk84j3csqder0auhqqdcgkm
+    encrypted_regex: ^(data|stringData)$
+    lastmodified: "2026-10-25T23:24:46Z"
+    mac: ENC[AES256_GCM,data:5afhCv9eTi6kk5p64nnskfvk7KBvcoiUU4acR4JCcb+vHecWofyhRDR4GJy+QHy91DcN9xSXgGnnnH1azfJh1NVI5k8bW4ilPRXM+J+4z6is07NHVxMSHLBLNkhmHZo8rBMdo/MIEnSds2bbB82wtTms5MnwO8qD2D14RHbOiHU=,iv:YV0FZdZu4vju9ttXWMMMc5YF7IzF4USICgkhawm8WmI=,tag:updeuHKm0yQ0XAYexAXRbA==,type:str]
+    version: 3.13.3
