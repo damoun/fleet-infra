@@ -8,11 +8,11 @@
 
 `fleet-infra` is a monorepo managing personal homelab and cloud infrastructure. It implements a decoupled Infrastructure-as-Code (IaC) and GitOps model:
 
-- **OpenTofu**: Provisions cloud infrastructure (VMs, VPC, firewall, load balancer), machine operating systems (Talos Linux), overlay network access (NetBird), and Day-0 bootstrap secrets.
+- **OpenTofu**: Provisions the machine operating system (Talos Linux) on the baremetal nodes and the Day-0 bootstrap secret.
 - **FluxCD (v2)**: Continuously reconciles in-cluster Kubernetes platform components, operators, ingress, network resources, and application workloads.
 
 ### Primary Cluster Specification
-- **Cluster Name**: `dapl-prd-hom-ams-core` (Target baremetal homelab cluster; formerly `dapl-prd-htz-fsn-app` in Hetzner which is decommissioned)
+- **Cluster Name**: `dapl-prd-hom-ams-core`
 - **Environment**: Homelab / Baremetal (Amsterdam location)
 - **OS**: [Talos Linux](https://www.talos.dev/) (immutable, API-managed Linux)
 - **CNI**: [Cilium](https://cilium.io/) (eBPF-based networking and kube-proxy replacement)
@@ -56,16 +56,14 @@ asdf install
 │   ├── adr/                    # Architecture Decision Records (ADR-001 to ADR-006)
 │   └── netbird-dns.md          # NetBird private access: naming, DNS, routing
 ├── tofu/                       # OpenTofu root modules (ADR-003)
-│   ├── baremetal/              # Baremetal Talos configs, patches, cluster bootstrap (ams)
-│   ├── hetzner/                # Hetzner Cloud VMs, network, firewall, LB (legacy)
-│   ├── talos/                  # Talos machine configs, patches (legacy fsn)
-│   └── kubernetes/             # Bootstrap secrets (sops-age, hcloud token)
+│   ├── baremetal/              # Talos machine configs, patches, cluster bootstrap
+│   └── kubernetes/             # Bootstrap secret (sops-age)
 ├── clusters/
-│   └── dapl-prd-htz-fsn-app/   # Flux cluster entrypoint & Kustomization roots (legacy root transitioning to dapl-prd-hom-ams-core)
-│       ├── infrastructure.yaml # Kustomizations: infra-sources -> prereqs -> controllers -> configs
+│   └── dapl-prd-hom-ams-core/  # Flux cluster entrypoint & Kustomization roots
+│       ├── infrastructure.yaml # Kustomizations: infra-sources -> crds -> prereqs -> storage, controllers -> configs
 │       └── apps.yaml           # Kustomization for application workloads
 ├── infrastructure/             # Cluster platform components
-│   ├── sources/                # HelmRepository manifests
+│   ├── sources/                # HelmRepository, OCIRepository and GitRepository sources
 │   ├── prereqs/                # Priority classes, Cilium LB pool and policies
 │   ├── controllers/            # HelmReleases & CRDs (Cilium, cert-manager, NetBird, etc.)
 │   └── configs/                # Custom resources of the controllers (ClusterIssuers)
@@ -82,10 +80,11 @@ Always adhere to accepted ADRs located in [`docs/adr/`](file:///home/damoun/Proj
 
 ### ADR-001: CIDR Allocation Strategy
 Cluster networks strictly use subnets within `172.16.0.0/12` to prevent collisions with corporate VPNs (`10.0.0.0/8`), Docker bridge defaults (`172.17.0.0/16`), and home LANs (`192.168.0.0/16`):
-- **Hetzner VPC Subnet**: `172.16.16.0/20`
-- **Node Subnet**: `172.16.16.0/24` (Control plane: `172.16.16.5-7`, Workers: `172.16.16.8+`)
-- **Pod CIDR**: `172.20.0.0/16`
+- **Pod CIDR**: `172.20.0.0/20`
 - **Service CIDR**: `172.24.0.0/16`
+- **LB pool `priv`**: `172.28.0.0/28` (never announced, reached through NetBird)
+
+The nodes are the exception: they sit on the home VLAN `192.168.40.0/24` (control planes `.11-.13`, workers `.21-.23`, API VIP `.10`).
 > [!WARNING]
 > Pod and Service CIDRs are immutable after bootstrap. Changing them requires rebuilding the cluster.
 
@@ -96,24 +95,21 @@ Talos Linux ships without a CNI.
 
 ### ADR-003: Separate OpenTofu Root Modules
 Providers must never be combined into a single monolithic root module. Each module in `tofu/` has independent state:
-1. `tofu/hetzner/` (Provider: `hcloud`)
-2. `tofu/talos/` (Provider: `talos`) — reads `hetzner` state via `terraform_remote_state`
-3. `tofu/kubernetes/` (Provider: `kubernetes`) — reads `talos` state via `terraform_remote_state`
+1. `tofu/baremetal/` (Provider: `talos`)
+2. `tofu/kubernetes/` (Provider: `kubernetes`) — reads `baremetal` state via `terraform_remote_state`
 > [!IMPORTANT]
-> Apply order is strictly: `hetzner` -> `talos` -> `kubernetes`.
+> Apply order is strictly: `baremetal` -> `kubernetes`.
 
 NetBird is configured outside this repo, in `damoun/terraform` `stacks/netbird` (Spacelift).
 
 ### ADR-004 & ADR-005: Secrets Management & Ownership Boundary
 - **Encryption Standard**: Only `age` keys (`age1...`) are used for SOPS encryption. Never use PGP.
 - **Ownership Boundary**:
-  - If a secret is required **before** Flux's first reconciliation, **OpenTofu owns it** in [`tofu/kubernetes/`](file:///home/damoun/Projects/github.com/damoun/fleet-infra/tofu/kubernetes/main.tf) (`sops-age` in `flux-system`, `hcloud` token in `kube-system`).
+  - If a secret is required **before** Flux's first reconciliation, **OpenTofu owns it** in [`tofu/kubernetes/`](file:///home/damoun/Projects/github.com/damoun/fleet-infra/tofu/kubernetes/main.tf) (`sops-age` in `flux-system`).
   - All other secrets (tokens, credentials, database passwords) belong in **SOPS-encrypted manifests committed to Git** managed by FluxCD.
 
 ### ADR-006: Hetzner-Native NTP & DNS
-Talos nodes must use Hetzner datacenter services for lower latency and zero external dependency:
-- **NTP**: `ntp1.hetzner.de`, `ntp2.hetzner.com`, `ntp3.hetzner.net`
-- **DNS Resolvers**: `185.12.64.1`, `185.12.64.2`
+Applied to the decommissioned Hetzner cluster only. The baremetal nodes use NL/EU `pool.ntp.org` servers and resolve through the home gateway `192.168.40.1` with Quad9 as fallback (`tofu/baremetal/variables.tf`).
 
 ### NetBird Private Access
 Per [`docs/netbird-dns.md`](file:///home/damoun/Projects/github.com/damoun/fleet-infra/docs/netbird-dns.md):
@@ -124,19 +120,21 @@ Per [`docs/netbird-dns.md`](file:///home/damoun/Projects/github.com/damoun/fleet
 
 ## 5. FluxCD & GitOps Best Practices
 
-Flux reconciles the cluster according to a strict dependency graph defined in [`clusters/dapl-prd-htz-fsn-app/infrastructure.yaml`](file:///home/damoun/Projects/github.com/damoun/fleet-infra/clusters/dapl-prd-htz-fsn-app/infrastructure.yaml) and [`apps.yaml`](file:///home/damoun/Projects/github.com/damoun/fleet-infra/clusters/dapl-prd-htz-fsn-app/apps.yaml):
+Flux reconciles the cluster according to a strict dependency graph defined in [`clusters/dapl-prd-hom-ams-core/infrastructure.yaml`](file:///home/damoun/Projects/github.com/damoun/fleet-infra/clusters/dapl-prd-hom-ams-core/infrastructure.yaml) and [`apps.yaml`](file:///home/damoun/Projects/github.com/damoun/fleet-infra/clusters/dapl-prd-hom-ams-core/apps.yaml):
 
 ```mermaid
 flowchart TD
     Sync[FluxInstance sync] --> Sources[infra-sources]
-    Sources --> Prereqs[infra-prereqs]
+    Sources --> CRDs[infra-crds]
+    CRDs --> Prereqs[infra-prereqs]
+    Prereqs --> Storage[infra-storage]
     Prereqs --> Controllers[infra-controllers]
     Controllers --> Configs[infra-configs]
     Configs --> Apps[apps]
 ```
 
 ### GitOps Rules for Changes:
-1. **Source References**: Every `HelmRelease` in `infrastructure/controllers/` must point to a corresponding `HelmRepository` in `infrastructure/sources/`.
+1. **Source References**: Every `HelmRelease` in `infrastructure/controllers/` must point to a corresponding `HelmRepository` or `OCIRepository` in `infrastructure/sources/`. Pin OCI charts and images by tag and digest, and keep an image `repository` next to its `tag` in HelmRelease values so Renovate tracks it.
 2. **Kustomization Registration**: Any new YAML file must be declared in its directory's `kustomization.yaml`.
 3. **Decryption Provider**: Kustomizations containing encrypted secrets must specify:
    ```yaml
@@ -206,7 +204,9 @@ sops --decrypt --in-place path/to/secret.yaml
 # Force immediate reconciliation across all Flux Kustomizations
 flux reconcile source git flux-system
 flux reconcile kustomization infra-sources
+flux reconcile kustomization infra-crds
 flux reconcile kustomization infra-prereqs
+flux reconcile kustomization infra-storage
 flux reconcile kustomization infra-controllers
 flux reconcile kustomization infra-configs
 flux reconcile kustomization apps
