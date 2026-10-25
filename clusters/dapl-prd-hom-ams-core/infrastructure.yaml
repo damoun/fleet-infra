@@ -119,17 +119,26 @@ spec:
               - name: helper-pod
                 image: docker.io/library/busybox:1.37.0@sha256:bdf57e528e45e4433820e045b29b4597825a1c9e38353532d90a01445013f82e
                 imagePullPolicy: IfNotPresent
-                # Root is needed for rm -rf of files owned by the workload's UID; keep only the
-                # capabilities teardown uses and nothing the image could write to.
+                # Root is needed for rm -rf of files owned by the workload's UID. The provisioner
+                # rejects capabilities.add, so drop every containerd default except DAC_OVERRIDE
+                # and FOWNER, which teardown uses.
                 securityContext:
                   allowPrivilegeEscalation: false
                   readOnlyRootFilesystem: true
                   capabilities:
                     drop:
-                      - ALL
-                    add:
-                      - DAC_OVERRIDE
-                      - FOWNER
+                      - CHOWN
+                      - FSETID
+                      - MKNOD
+                      - NET_RAW
+                      - SETGID
+                      - SETUID
+                      - SETFCAP
+                      - SETPCAP
+                      - NET_BIND_SERVICE
+                      - SYS_CHROOT
+                      - KILL
+                      - AUDIT_WRITE
                   seccompProfile:
                     type: RuntimeDefault
     - target:
