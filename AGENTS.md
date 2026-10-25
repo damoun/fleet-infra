@@ -54,12 +54,11 @@ asdf install
 ├── .tool-versions              # CLI tool versions for mise / asdf
 ├── docs/
 │   ├── adr/                    # Architecture Decision Records (ADR-001 to ADR-006)
-│   └── netbird-dns.md          # Internal NetBird DNS architecture & naming scheme
+│   └── netbird-dns.md          # NetBird private access: naming, DNS, routing
 ├── tofu/                       # OpenTofu root modules (ADR-003)
 │   ├── baremetal/              # Baremetal Talos configs, patches, cluster bootstrap (ams)
 │   ├── hetzner/                # Hetzner Cloud VMs, network, firewall, LB (legacy)
 │   ├── talos/                  # Talos machine configs, patches (legacy fsn)
-│   ├── netbird/                # NetBird DNS zones, records, policies, groups
 │   └── kubernetes/             # Bootstrap secrets (sops-age, hcloud token)
 ├── clusters/
 │   └── dapl-prd-htz-fsn-app/   # Flux cluster entrypoint & Kustomization roots (legacy root transitioning to dapl-prd-hom-ams-core)
@@ -100,10 +99,11 @@ Talos Linux ships without a CNI.
 Providers must never be combined into a single monolithic root module. Each module in `tofu/` has independent state:
 1. `tofu/hetzner/` (Provider: `hcloud`)
 2. `tofu/talos/` (Provider: `talos`) — reads `hetzner` state via `terraform_remote_state`
-3. `tofu/netbird/` (Provider: `netbird`)
-4. `tofu/kubernetes/` (Provider: `kubernetes`) — reads `talos` state via `terraform_remote_state`
+3. `tofu/kubernetes/` (Provider: `kubernetes`) — reads `talos` state via `terraform_remote_state`
 > [!IMPORTANT]
-> Apply order is strictly: `hetzner` -> `talos` -> `netbird` -> `kubernetes`.
+> Apply order is strictly: `hetzner` -> `talos` -> `kubernetes`.
+
+NetBird is configured outside this repo, in `damoun/terraform` `stacks/netbird` (Spacelift).
 
 ### ADR-004 & ADR-005: Secrets Management & Ownership Boundary
 - **Encryption Standard**: Only `age` keys (`age1...`) are used for SOPS encryption. Never use PGP.
@@ -116,11 +116,10 @@ Talos nodes must use Hetzner datacenter services for lower latency and zero exte
 - **NTP**: `ntp1.hetzner.de`, `ntp2.hetzner.com`, `ntp3.hetzner.net`
 - **DNS Resolvers**: `185.12.64.1`, `185.12.64.2`
 
-### NetBird DNS & Kubernetes Operator Pattern
+### NetBird Private Access
 Per [`docs/netbird-dns.md`](file:///home/damoun/Projects/github.com/damoun/fleet-infra/docs/netbird-dns.md):
-- Naming format: `<service>.<cluster>.<location>.damoun.internal` (e.g., `kube.tools.fsn.damoun.internal`).
-- CRD `NBResource` uses direct static IPs (`172.16.16.5/32`, etc.) rather than `.local` domains to bypass macOS mDNS interception.
-- DNS A records for control plane endpoints are managed in [`tofu/netbird/dns.tf`](file:///home/damoun/Projects/github.com/damoun/fleet-infra/tofu/netbird/dns.tf).
+- All ingress goes through NetBird. Services are `*.core.ams.damoun.casa` behind Gateway `gw` (namespace `edge`, VIP `172.28.0.10` from the never-announced LB pool `priv`); the kube API is `kube.core.ams.damoun.internal:443`.
+- NetBird groups, policies, network, DNS zones and setup key live in `damoun/terraform` `stacks/netbird`; the in-cluster routing peers are the `rtr` Deployment in `infrastructure/controllers/`.
 
 ---
 
@@ -149,7 +148,7 @@ flowchart TD
    ```
 4. **Priority Classes**: Infrastructure controllers and critical daemons must declare appropriate priority classes from [`infrastructure/prereqs/`](file:///home/damoun/Projects/github.com/damoun/fleet-infra/infrastructure/prereqs/):
    - `critical` (Cilium, Hubble relay, etc.)
-   - `high` (tofu-controller, NetBird operator)
+   - `high` (tofu-controller, NetBird routers)
    - `medium`, `low`
 5. **Pre-flight Validation**: Always validate manifests before committing:
    ```bash
@@ -192,11 +191,6 @@ Operations are executed directly using native CLI utilities:
 tofu -chdir=tofu/baremetal init
 tofu -chdir=tofu/baremetal plan
 tofu -chdir=tofu/baremetal apply
-
-# NetBird module
-tofu -chdir=tofu/netbird init
-tofu -chdir=tofu/netbird plan
-tofu -chdir=tofu/netbird apply
 ```
 
 ### SOPS Secrets Operations
