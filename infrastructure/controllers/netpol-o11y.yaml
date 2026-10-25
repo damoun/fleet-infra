@@ -38,6 +38,9 @@ spec:
               protocol: TCP
             - port: "8427"
               protocol: TCP
+            # Config-reloader sidecars the operator adds to VMAlert, Alertmanager and VMAuth.
+            - port: "8435"
+              protocol: TCP
             - port: "9187"
               protocol: TCP
             - port: "9402"
@@ -74,6 +77,9 @@ spec:
             - port: "9093"
               protocol: TCP
             - port: "8427"
+              protocol: TCP
+            # Config-reloader sidecars the operator adds to VMAlert, Alertmanager and VMAuth.
+            - port: "8435"
               protocol: TCP
             - port: "9187"
               protocol: TCP
