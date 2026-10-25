@@ -7,6 +7,10 @@ metadata:
 spec:
   interval: 24h
   url: oci://ghcr.io/cloudnative-pg/charts/cloudnative-pg
+  # The artifact's first layer is the Helm provenance file, not the chart.
+  layerSelector:
+    mediaType: application/vnd.cncf.helm.chart.content.v1.tar+gzip
+    operation: copy
   ref:
     tag: 0.29.1
     digest: sha256:3245fa051bb21d0dd9246272f57a2760b4234817a164a3167d2a1e7fb9f63fd9
