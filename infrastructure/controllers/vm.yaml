@@ -268,6 +268,21 @@ spec:
             memory: 32Mi
           limits:
             memory: 128Mi
+    # The stack routes VMAlert queries through this proxy (LogsQL to VictoriaLogs,
+    # the rest to VMSingle) whenever VMAlert, VMSingle and VLSingle all exist.
+    internal:
+      vmauth:
+        spec:
+          image:
+            repository: victoriametrics/vmauth
+            tag: v1.154.1@sha256:d8c65a73b8a30a0777417d43a13fbfaea1da1aa4ec4cd68905baf996072376bf
+          priorityClassName: medium
+          resources:
+            requests:
+              cpu: 10m
+              memory: 32Mi
+            limits:
+              memory: 128Mi
     vmalert:
       spec:
         image:

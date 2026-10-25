@@ -36,6 +36,8 @@ spec:
               protocol: TCP
             - port: "9093"
               protocol: TCP
+            - port: "8427"
+              protocol: TCP
             - port: "9187"
               protocol: TCP
             - port: "9402"
@@ -70,6 +72,8 @@ spec:
             - port: "9429"
               protocol: TCP
             - port: "9093"
+              protocol: TCP
+            - port: "8427"
               protocol: TCP
             - port: "9187"
               protocol: TCP
@@ -113,6 +117,8 @@ spec:
             app.kubernetes.io/name: grafana
         - matchLabels:
             app.kubernetes.io/name: vmalert
+        - matchLabels:
+            app.kubernetes.io/name: vmauth
       toPorts:
         - ports:
             - port: "8428"
@@ -135,6 +141,8 @@ spec:
         - matchLabels:
             io.kubernetes.pod.namespace: o11y-node
             app.kubernetes.io/name: vlagent
+        - matchLabels:
+            app.kubernetes.io/name: vmauth
       toPorts:
         - ports:
             - port: "9428"
@@ -263,7 +271,15 @@ spec:
     matchLabels:
       app.kubernetes.io/name: vmalert
   egress:
-    # Rule queries and alert state remote-write.
+    # Rule queries through the stack's internal VMAuth.
+    - toEndpoints:
+        - matchLabels:
+            app.kubernetes.io/name: vmauth
+      toPorts:
+        - ports:
+            - port: "8427"
+              protocol: TCP
+    # Alert state remote-write and restore.
     - toEndpoints:
         - matchLabels:
             app.kubernetes.io/name: vmsingle
@@ -307,4 +323,38 @@ spec:
       toPorts:
         - ports:
             - port: "443"
+              protocol: TCP
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: vmauth
+  namespace: o11y
+spec:
+  endpointSelector:
+    matchLabels:
+      app.kubernetes.io/name: vmauth
+  # VMAgent's scrape on 8427 is allowed by allow-vmagent-scrape.
+  ingress:
+    - fromEndpoints:
+        - matchLabels:
+            app.kubernetes.io/name: vmalert
+      toPorts:
+        - ports:
+            - port: "8427"
+              protocol: TCP
+  egress:
+    - toEndpoints:
+        - matchLabels:
+            app.kubernetes.io/name: vmsingle
+      toPorts:
+        - ports:
+            - port: "8428"
+              protocol: TCP
+    - toEndpoints:
+        - matchLabels:
+            app.kubernetes.io/name: vlsingle
+      toPorts:
+        - ports:
+            - port: "9428"
               protocol: TCP
