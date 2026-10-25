@@ -77,6 +77,7 @@ spec:
   endpointSelector:
     matchLabels:
       app.kubernetes.io/name: vmsingle
+  # VMAgent's remote-write on 8428 is allowed by allow-vmagent-scrape.
   ingress:
     - fromEndpoints:
         - matchLabels:
