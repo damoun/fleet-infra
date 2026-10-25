@@ -72,60 +72,85 @@ spec:
         limits:
           memory: 128Mi
     # The sync-job fetches these at install time; pin each to an immutable commit.
+    # Renovate bumps tag and commit together (customManagers in renovate.json).
     defaultDashboards:
       sources:
         victoriametrics-single-node:
+          # renovate: datasource=github-tags depName=VictoriaMetrics/VictoriaMetrics tag=v1.154.1
           url: https://raw.githubusercontent.com/VictoriaMetrics/VictoriaMetrics/64c2e75fe7dc4f16fe73ba060ea383c73b1a8628/dashboards/victoriametrics.json
         victoriametrics-vmagent:
+          # renovate: datasource=github-tags depName=VictoriaMetrics/VictoriaMetrics tag=v1.154.1
           url: https://raw.githubusercontent.com/VictoriaMetrics/VictoriaMetrics/64c2e75fe7dc4f16fe73ba060ea383c73b1a8628/dashboards/vmagent.json
         victoriametrics-vmalert:
+          # renovate: datasource=github-tags depName=VictoriaMetrics/VictoriaMetrics tag=v1.154.1
           url: https://raw.githubusercontent.com/VictoriaMetrics/VictoriaMetrics/64c2e75fe7dc4f16fe73ba060ea383c73b1a8628/dashboards/vmalert.json
         victoriametrics-operator:
+          # renovate: datasource=github-tags depName=VictoriaMetrics/VictoriaMetrics tag=v1.154.1
           url: https://raw.githubusercontent.com/VictoriaMetrics/VictoriaMetrics/64c2e75fe7dc4f16fe73ba060ea383c73b1a8628/dashboards/operator.json
         kubernetes-views-global:
+          # renovate: datasource=github-tags depName=dotdc/grafana-dashboards-kubernetes tag=v3.0.8
           url: https://raw.githubusercontent.com/dotdc/grafana-dashboards-kubernetes/e4faf59e017a18e1b06fa64f11623bef15ce7507/dashboards/k8s-views-global.json
         kubernetes-views-namespaces:
+          # renovate: datasource=github-tags depName=dotdc/grafana-dashboards-kubernetes tag=v3.0.8
           url: https://raw.githubusercontent.com/dotdc/grafana-dashboards-kubernetes/e4faf59e017a18e1b06fa64f11623bef15ce7507/dashboards/k8s-views-namespaces.json
         kubernetes-views-pods:
+          # renovate: datasource=github-tags depName=dotdc/grafana-dashboards-kubernetes tag=v3.0.8
           url: https://raw.githubusercontent.com/dotdc/grafana-dashboards-kubernetes/e4faf59e017a18e1b06fa64f11623bef15ce7507/dashboards/k8s-views-pods.json
         kubernetes-views-nodes:
+          # renovate: datasource=github-tags depName=dotdc/grafana-dashboards-kubernetes tag=v3.0.8
           url: https://raw.githubusercontent.com/dotdc/grafana-dashboards-kubernetes/e4faf59e017a18e1b06fa64f11623bef15ce7507/dashboards/k8s-views-nodes.json
         kubernetes-system-api-server:
+          # renovate: datasource=github-tags depName=dotdc/grafana-dashboards-kubernetes tag=v3.0.8
           url: https://raw.githubusercontent.com/dotdc/grafana-dashboards-kubernetes/e4faf59e017a18e1b06fa64f11623bef15ce7507/dashboards/k8s-system-api-server.json
         kubernetes-system-coredns:
+          # renovate: datasource=github-tags depName=dotdc/grafana-dashboards-kubernetes tag=v3.0.8
           url: https://raw.githubusercontent.com/dotdc/grafana-dashboards-kubernetes/e4faf59e017a18e1b06fa64f11623bef15ce7507/dashboards/k8s-system-coredns.json
         node-exporter-full:
+          # renovate: datasource=git-refs depName=https://github.com/rfmoz/grafana-dashboards tag=master
           url: https://raw.githubusercontent.com/rfmoz/grafana-dashboards/8b2b6e2b8b9ad6e146e2f2eeb303e9d04d0f815e/prometheus/node-exporter-full.json
         # Overlaps the dotdc views above.
         kube-prometheus:
           enabled: false
         flux-performance:
+          # renovate: datasource=github-tags depName=controlplaneio-fluxcd/flux-operator tag=v0.61.0
           url: https://raw.githubusercontent.com/controlplaneio-fluxcd/flux-operator/8e761853ba15347181cee6cb23e7c9e622e2a93d/config/monitoring/dashboards/flux-performance.json
         flux-k8s-api-performance:
+          # renovate: datasource=github-tags depName=controlplaneio-fluxcd/flux-operator tag=v0.61.0
           url: https://raw.githubusercontent.com/controlplaneio-fluxcd/flux-operator/8e761853ba15347181cee6cb23e7c9e622e2a93d/config/monitoring/dashboards/flux-k8s-api-performance.json
         cloudnative-pg:
+          # renovate: datasource=github-tags depName=cloudnative-pg/grafana-dashboards tag=cluster-v0.0.5 versioning=regex:^cluster-v(?<major>\d+)\.(?<minor>\d+)\.(?<patch>\d+)$
           url: https://raw.githubusercontent.com/cloudnative-pg/grafana-dashboards/cececeb393fb7c5400b4fa290aca68041293a127/charts/cluster/grafana-dashboard.json
     defaultRules:
       sources:
         alertmanager:
+          # renovate: datasource=github-tags depName=prometheus-operator/kube-prometheus tag=v0.19.0
           url: https://raw.githubusercontent.com/prometheus-operator/kube-prometheus/799f3d73b5adf5758c3119c9201d9f417accb6d0/manifests/alertmanager-prometheusRule.yaml
         kubernetes-control-plane:
+          # renovate: datasource=github-tags depName=prometheus-operator/kube-prometheus tag=v0.19.0
           url: https://raw.githubusercontent.com/prometheus-operator/kube-prometheus/799f3d73b5adf5758c3119c9201d9f417accb6d0/manifests/kubernetesControlPlane-prometheusRule.yaml
         kubernetes:
+          # renovate: datasource=github-tags depName=prometheus-operator/kube-prometheus tag=v0.19.0
           url: https://raw.githubusercontent.com/prometheus-operator/kube-prometheus/799f3d73b5adf5758c3119c9201d9f417accb6d0/manifests/kubePrometheus-prometheusRule.yaml
         kube-state-metrics:
+          # renovate: datasource=github-tags depName=prometheus-operator/kube-prometheus tag=v0.19.0
           url: https://raw.githubusercontent.com/prometheus-operator/kube-prometheus/799f3d73b5adf5758c3119c9201d9f417accb6d0/manifests/kubeStateMetrics-prometheusRule.yaml
         node-exporter:
+          # renovate: datasource=github-tags depName=prometheus-operator/kube-prometheus tag=v0.19.0
           url: https://raw.githubusercontent.com/prometheus-operator/kube-prometheus/799f3d73b5adf5758c3119c9201d9f417accb6d0/manifests/nodeExporter-prometheusRule.yaml
         vmhealth:
+          # renovate: datasource=github-tags depName=VictoriaMetrics/VictoriaMetrics tag=v1.154.1
           url: https://raw.githubusercontent.com/VictoriaMetrics/VictoriaMetrics/64c2e75fe7dc4f16fe73ba060ea383c73b1a8628/deployment/docker/rules/alerts-health.yml
         vmagent:
+          # renovate: datasource=github-tags depName=VictoriaMetrics/VictoriaMetrics tag=v1.154.1
           url: https://raw.githubusercontent.com/VictoriaMetrics/VictoriaMetrics/64c2e75fe7dc4f16fe73ba060ea383c73b1a8628/deployment/docker/rules/alerts-vmagent.yml
         vmalert:
+          # renovate: datasource=github-tags depName=VictoriaMetrics/VictoriaMetrics tag=v1.154.1
           url: https://raw.githubusercontent.com/VictoriaMetrics/VictoriaMetrics/64c2e75fe7dc4f16fe73ba060ea383c73b1a8628/deployment/docker/rules/alerts-vmalert.yml
         vmsingle:
+          # renovate: datasource=github-tags depName=VictoriaMetrics/VictoriaMetrics tag=v1.154.1
           url: https://raw.githubusercontent.com/VictoriaMetrics/VictoriaMetrics/64c2e75fe7dc4f16fe73ba060ea383c73b1a8628/deployment/docker/rules/alerts-single-node.yml
         vmoperator:
+          # renovate: datasource=github-tags depName=VictoriaMetrics/operator tag=v0.75.1
           url: https://raw.githubusercontent.com/VictoriaMetrics/operator/444a18fcaa03e8ac9c8f706bd1f0b53629f1fb19/config/alerting/vmoperator-rules.yaml
     # Built-in Prometheus type only; the VictoriaMetrics plugin would be downloaded at start.
     defaultDatasources:
