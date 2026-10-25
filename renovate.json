@@ -32,16 +32,6 @@
   "packageRules": [
     {
       "matchManagers": [
-        "helm-values",
-        "kubernetes"
-      ],
-      "matchFileNames": [
-        "**/gotk-components.yaml"
-      ],
-      "enabled": false
-    },
-    {
-      "matchManagers": [
         "flux"
       ],
       "matchDepNames": [
