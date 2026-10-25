@@ -1,0 +1,22 @@
+apiVersion: v1
+data:
+    config.yaml: ENC[AES256_GCM,data:TtCjhoAG79u3MRYaIZf6XCjZeUxwPqZb/pWu4KVfcY9bkoKDpaLjR7bqApqRPG7uaE7/l1xhgyodTNArBWaRQskWcaGvtV477+RHCPbIaroIMzMFM07yIwxeka+ftX3xFgbO1deFCutVpfW36EgFC2z2vRjKOgQJpetBY7uEhAjzR8xWVmlWBmiFrC8cgfm8P1AmLI7c9K+37jDNiALvfpy5vB7WBPecj9BjLz6aXDalLsZuZIJsMXRxugr08OTh0UKVL0ry6fwlKpYc25CPXi0We/xR5XnDShOrzXULGA2zHhwNNoH/E8RfjtECq+cBvFRNtf+VYfNcOKom0AwFaLIILFKB8dzTQjF1s0zkcssbdK4qnwh3HpN/0ElUcANVcsSSi7nqNrq6kokYlbkl6K8L0SNrzYpXmqgfJyGTCWUw7ZWnjxGHnrGwoX8U/Y4QD6KXPWQslhBGLC2NdsfD4tGs5jtMzDHXkoaHEm6o1b4Sc33QfXMYicob/tjFpVVMPufdMZnzhJq0pS6lJw0OgqNlph/pU9TYSIhosgp80vhLkgkCrpTCoq6QmJngNjIcuSkSMqjBvLfqyUfscXtXvGPaBWgLo+dhgHlA4L0Dx0EH20QjpPqKqV5L3KcEYdMuDgaKFxpDO3OQujaL5fO6tEm2nX8C+c+x6j6sJhnY1dMjPeM1j3ZDPw10dgfwQo01CRLIKDKEF2J8YpBBa1wJ6HZSulgCfwej,iv:ULhSTDfSCdXDbtreUBQMJqlvlXlq5ZNzH60EVtd+xi8=,tag:qL6f2w/2Rr0kYz9EtZ5EXQ==,type:str]
+kind: Secret
+metadata:
+    name: flux-web-config
+    namespace: flux-system
+sops:
+    age:
+        - enc: |
+            -----BEGIN AGE ENCRYPTED FILE-----
+            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSAzTWdUVWRvM293QW0zRjFV
+            SVRPOGtOQ2dyUTlwMENMczF4RUZ6TFpFb2hjClF3WW4xcUZMNDVDcUdKQitScU5P
+            cUdMWU9xQnFGbmVkb3dGbTkvcTM0VWsKLS0tIHVabCsyUVFVY0JLOUVvdTZyM0xY
+            WHQ1Um5LMUdLdS9Wd25qenlFMmdMMlEKMmiePGlyGLfyxnEW805pPyD9GSMz09xc
+            ONFc7d1/SLBdILoeMd3MPK3xfGEk7NRzflZeOJlkmWJSHumLz4pIGA==
+            -----END AGE ENCRYPTED FILE-----
+          recipient: age12lruudqcn688pr9njrldp6haehncnuw7e2fdk84j3csqder0auhqqdcgkm
+    encrypted_regex: ^(data|stringData)$
+    lastmodified: "2026-10-25T19:30:33Z"
+    mac: ENC[AES256_GCM,data:jjpF5+2dWe2n3jZKERq/h+zp7Ytr+YCvw4VDfTC4ZQer/gfGn0MLMPm9V0ndvxmHvE31Vpua/v5jNF9Z2hepI6+/hOKVbtJEQFJudnn8gW1jUTgT+GM2x+FAsyaLrl4K+B4F14Jnm9qudJkKYKMSpYu1tZTyJ10GpuxV9B/4udY=,iv:7dmJ/wSMJQTznvy7ycFYRjYtY6olnosGlhGC+au0JH0=,tag:7BzXangkJdH8U+kq68hrPA==,type:str]
+    version: 3.13.3
