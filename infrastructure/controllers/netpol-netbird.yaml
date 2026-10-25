@@ -16,29 +16,14 @@ spec:
             - port: "51820"
               protocol: UDP
   egress:
-    - toFQDNs:
-        - matchName: api.netbird.io
-        - matchName: signal.netbird.io
-        - matchName: relay.netbird.io
-        - matchPattern: "*.relay.netbird.io"
+    # NetBird control plane and relays. NetBird rewrites the pod's resolv.conf and
+    # resolves relay names itself, so toFQDNs never learns the relay IPs.
+    - toEntities:
+        - world
       toPorts:
         - ports:
             - port: "443"
               protocol: TCP
-            - port: "443"
-              protocol: UDP
-    - toFQDNs:
-        - matchName: stun.netbird.io
-      toPorts:
-        - ports:
-            - port: "80"
-              protocol: UDP
-            - port: "443"
-              protocol: UDP
-            - port: "3478"
-              protocol: UDP
-            - port: "5555"
-              protocol: UDP
     - toEntities:
         - world
       toPorts:
