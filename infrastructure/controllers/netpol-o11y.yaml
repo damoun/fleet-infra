@@ -30,6 +30,10 @@ spec:
               protocol: TCP
             - port: "8429"
               protocol: TCP
+            - port: "9187"
+              protocol: TCP
+            - port: "9402"
+              protocol: TCP
 ---
 apiVersion: cilium.io/v2
 kind: CiliumNetworkPolicy
@@ -55,9 +59,14 @@ spec:
               protocol: TCP
             - port: "8429"
               protocol: TCP
+            - port: "9187"
+              protocol: TCP
+            - port: "9402"
+              protocol: TCP
             - port: "9153"
               protocol: TCP
-    # Kubelet (cAdvisor, probes, resources) and node-exporter on the host network.
+    # Host network: kubelet (cAdvisor, probes, resources), node-exporter,
+    # Cilium agent, operator, Envoy and Hubble.
     - toEntities:
         - host
         - remote-node
@@ -66,6 +75,14 @@ spec:
             - port: "10250"
               protocol: TCP
             - port: "9100"
+              protocol: TCP
+            - port: "9962"
+              protocol: TCP
+            - port: "9963"
+              protocol: TCP
+            - port: "9964"
+              protocol: TCP
+            - port: "9965"
               protocol: TCP
 ---
 apiVersion: cilium.io/v2
