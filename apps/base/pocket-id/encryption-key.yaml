@@ -1,0 +1,22 @@
+apiVersion: v1
+data:
+    key: ENC[AES256_GCM,data:Wx+TfTHEactFmYxafpZttcAol7oxfLIoQscWkkabadJU7rc+PB7MPb+5yQwp1BN7DeVhA1KdT5ER7I9a,iv:9yZmrT+9DvP5yGSAx6GK/d0ASNnQWe5OLzJQ3LCXdGI=,tag:TyOXVebw5S+9lBQruGwhNQ==,type:str]
+kind: Secret
+metadata:
+    name: pocket-id-encryption
+    namespace: id
+sops:
+    age:
+        - enc: |
+            -----BEGIN AGE ENCRYPTED FILE-----
+            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBBWW0yS0lzcHFXRk1KbVVq
+            ank1R0ZaeUp1enNuc1hZcUE2d1lGSVcwUTBZCk0yUXFQUzNuc2lvdi9xSVluT3Iz
+            TlhYdDVpSlY2K2NoV2kwTGl4WEpQMzQKLS0tIDFmcngzVlpaN2o3RDdKVHhiRTI0
+            VG9WdHZUVmhQcWFvWmFENjFDSHp5aXMKECXiQU3Fy9epMcQz2Ml6lCPE5upTBSgj
+            PTAfYg1e23Ilkqg8KX9I4k9Iqq5gp487KZQ181pRZHEs0Ie5YiHfqg==
+            -----END AGE ENCRYPTED FILE-----
+          recipient: age12lruudqcn688pr9njrldp6haehncnuw7e2fdk84j3csqder0auhqqdcgkm
+    encrypted_regex: ^(data|stringData)$
+    lastmodified: "2026-10-25T18:59:54Z"
+    mac: ENC[AES256_GCM,data:j9FV99aQ8RDrkNx8pJMtXNWxN0+4ecJE6vwLrBA68sKnSM8KvcpW/1GcNy4F4cRo8JrFgNCoKcktcfb3OH0pOm9+Xuc7bH7RrrK60A2/0Ek9yCI5bf4Pl4VMjBo/uPHBtf1C8f1J6JlqW6eQsLxwQQet5MicG+yPJFq04p3dAH4=,iv:sZka+41XxxAyTolBoxlrNMDQvByNPkITq6ndOIpsdjk=,tag:rHxsDERwHa83bux/30eYOQ==,type:str]
+    version: 3.13.3
