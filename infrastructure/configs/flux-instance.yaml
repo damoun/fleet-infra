@@ -27,3 +27,14 @@ spec:
     ref: refs/heads/main
     path: clusters/dapl-prd-hom-ams-core
     pullSecret: flux-system
+  # Re-check a dependency that is still reconciling after 5s instead of 30s, so a
+  # merge walks the layer chain without stalling on each dependsOn.
+  kustomize:
+    patches:
+      - target:
+          kind: Deployment
+          name: (kustomize-controller|helm-controller)
+        patch: |
+          - op: add
+            path: /spec/template/spec/containers/0/args/-
+            value: --requeue-dependency=5s
