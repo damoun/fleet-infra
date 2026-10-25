@@ -204,13 +204,15 @@ locals {
         validSubnets = [var.vlan_cidr]
       }
     }),
-    # Document: KubeletConfig - Graceful shutdown
+    # Document: KubeletConfig - Graceful shutdown, serving cert signed by the cluster CA
+    # (CSRs approved by kubelet-serving-cert-approver, infra-csr).
     yamlencode({
       apiVersion = "v1alpha1"
       kind       = "KubeletConfig"
       config = {
         shutdownGracePeriod             = "30s"
         shutdownGracePeriodCriticalPods = "10s"
+        serverTLSBootstrap              = true
       }
     }),
     # Document: KubeNetworkConfig - Pod and Service CIDRs
