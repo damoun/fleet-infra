@@ -82,7 +82,9 @@ locals {
 
   # Encrypted user volume "data" on the worker NVMe, for a local-path StorageClass.
   # The key scheme mirrors the system volumes so each node keeps one unlock mechanism
-  # (TPM, or nodeID for var.nodeid_encryption_nodes).
+  # (TPM, or nodeID for var.nodeid_encryption_nodes), plus lockToState as Talos recommends
+  # for non-STATE volumes: a replaced STATE makes the data unrecoverable, which DB-level
+  # replication covers.
   # minSize keeps a small or wrong NVMe from being claimed silently; no maxSize, so the
   # volume takes the whole disk.
   data_volume_patches_tpm = [
@@ -102,7 +104,7 @@ locals {
       }
       encryption = {
         provider = "luks2"
-        keys     = [local.system_volume_tpm_key]
+        keys     = [merge(local.system_volume_tpm_key, { lockToState = true })]
       }
     }),
   ]
@@ -124,7 +126,7 @@ locals {
       }
       encryption = {
         provider = "luks2"
-        keys     = [{ slot = 0, nodeID = {} }]
+        keys     = [{ slot = 0, nodeID = {}, lockToState = true }]
       }
     }),
   ]
