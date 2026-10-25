@@ -10,3 +10,4 @@ resources:
   - helm-descheduler.yaml
   - oci-cert-manager-webhook-bunny.yaml
   - oci-cloudnative-pg.yaml
+  - oci-flux-operator.yaml
