@@ -263,6 +263,9 @@ spec:
           check_for_plugin_updates: false
         news:
           news_feed_enabled: false
+        # Grafana installs default app plugins from grafana.com in the background.
+        plugins:
+          preinstall_disabled: true
         auth:
           disable_login_form: true
         auth.generic_oauth:
