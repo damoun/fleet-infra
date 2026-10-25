@@ -268,11 +268,81 @@ spec:
             memory: 32Mi
           limits:
             memory: 128Mi
-    # Alerting comes later; Talos binds etcd, scheduler and controller-manager metrics to localhost.
     vmalert:
-      enabled: false
+      spec:
+        image:
+          repository: victoriametrics/vmalert
+          tag: v1.154.1@sha256:aafb962b5a5713c71f0d697d629416f9cccf23aecb74f0ec5e829ddbf3f221f2
+        priorityClassName: medium
+        resources:
+          requests:
+            cpu: 20m
+            memory: 64Mi
+          limits:
+            memory: 256Mi
     alertmanager:
-      enabled: false
+      spec:
+        image:
+          repository: quay.io/prometheus/alertmanager
+          tag: v0.34.1@sha256:e9733bafb1bdef9b00e25a21f8f99dc26a22224bf16641ad754d1649f4c3357a
+        # Credentials only, mounted at /etc/vm/secrets/alertmanager-notify/.
+        secrets:
+          - alertmanager-notify
+        priorityClassName: medium
+        resources:
+          requests:
+            cpu: 10m
+            memory: 48Mi
+          limits:
+            memory: 128Mi
+      config:
+        route:
+          receiver: pushover
+          group_by: [alertname, namespace]
+          group_wait: 30s
+          group_interval: 5m
+          repeat_interval: 4h
+          routes:
+            # Dead-man's switch: Watchdog always fires, healthchecks.io pages when the pings stop.
+            - matchers: ['alertname = "Watchdog"']
+              receiver: healthchecks
+              group_wait: 0s
+              group_interval: 1m
+              repeat_interval: 5m
+            - matchers: ['alertname = "InfoInhibitor"']
+              receiver: blackhole
+            - matchers: ['severity = "info"']
+              receiver: blackhole
+            - matchers: ['severity = "critical"']
+              receiver: pushover-critical
+        inhibit_rules:
+          - source_matchers: ['severity = "critical"']
+            target_matchers: ['severity =~ "warning|info"']
+            equal: [alertname, namespace]
+          - source_matchers: ['alertname = "InfoInhibitor"']
+            target_matchers: ['severity = "info"']
+            equal: [namespace]
+        receivers:
+          - name: blackhole
+          - name: healthchecks
+            webhook_configs:
+              - url_file: /etc/vm/secrets/alertmanager-notify/hc-ping-url
+                send_resolved: false
+          - name: pushover
+            pushover_configs:
+              - user_key_file: /etc/vm/secrets/alertmanager-notify/pushover-user
+                token_file: /etc/vm/secrets/alertmanager-notify/pushover-token
+                priority: "0"
+                url: https://graf.core.ams.damoun.casa/alerting/list
+                url_title: Grafana
+          - name: pushover-critical
+            pushover_configs:
+              - user_key_file: /etc/vm/secrets/alertmanager-notify/pushover-user
+                token_file: /etc/vm/secrets/alertmanager-notify/pushover-token
+                priority: "1"
+                url: https://graf.core.ams.damoun.casa/alerting/list
+                url_title: Grafana
+    # Talos binds etcd, scheduler and controller-manager metrics to localhost.
     kubeEtcd:
       enabled: false
     kubeScheduler:

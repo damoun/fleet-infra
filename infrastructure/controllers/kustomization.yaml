@@ -24,5 +24,6 @@ resources:
   - netpol-flux-web.yaml
   - namespace-o11y.yaml
   - grafana-oidc.yaml
+  - alertmanager-notify.yaml
   - vm.yaml
   - netpol-o11y.yaml
