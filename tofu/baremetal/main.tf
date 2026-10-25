@@ -85,6 +85,8 @@ locals {
   # (TPM, or nodeID for var.nodeid_encryption_nodes), plus lockToState as Talos recommends
   # for non-STATE volumes: a replaced STATE makes the data unrecoverable, which DB-level
   # replication covers.
+  # A TPM-keyed volume added to a running node stays unprovisioned ("failed to lock PCR 11")
+  # until the node reboots: PCR 11 has already moved past its early-boot value.
   # minSize keeps a small or wrong NVMe from being claimed silently; no maxSize, so the
   # volume takes the whole disk.
   data_volume_patches_tpm = [
