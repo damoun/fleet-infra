@@ -104,6 +104,21 @@ spec:
                 }
               ]
             }
+          helperPod.yaml: |-
+            apiVersion: v1
+            kind: Pod
+            metadata:
+              name: helper-pod
+            spec:
+              priorityClassName: system-node-critical
+              tolerations:
+                - key: node.kubernetes.io/disk-pressure
+                  operator: Exists
+                  effect: NoSchedule
+              containers:
+              - name: helper-pod
+                image: docker.io/library/busybox:1.37.0@sha256:bdf57e528e45e4433820e045b29b4597825a1c9e38353532d90a01445013f82e
+                imagePullPolicy: IfNotPresent
     - target:
         kind: Deployment
         name: local-path-provisioner
