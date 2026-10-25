@@ -240,12 +240,13 @@ spec:
       testFramework:
         enabled: false
       priorityClassName: medium
+      # ~230Mi idle; dashboard loads went past 384Mi.
       resources:
         requests:
           cpu: 50m
-          memory: 128Mi
+          memory: 256Mi
         limits:
-          memory: 384Mi
+          memory: 768Mi
       podLabels:
         edge.damoun.casa/exposed: "true"
       # The OIDC issuer only resolves in NetBird DNS; reach it through the
