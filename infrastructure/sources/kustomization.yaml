@@ -13,3 +13,4 @@ resources:
   - oci-cert-manager-webhook-bunny.yaml
   - oci-cloudnative-pg.yaml
   - oci-flux-operator.yaml
+  - oci-victoria-metrics-k8s-stack.yaml

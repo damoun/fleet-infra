@@ -1,0 +1,24 @@
+apiVersion: v1
+kind: Secret
+metadata:
+    name: grafana-oidc
+    namespace: o11y
+type: Opaque
+stringData:
+    GF_AUTH_GENERIC_OAUTH_CLIENT_ID: ENC[AES256_GCM,data:LiB+InEWTin1/jnQtS+aM7iN4ls9FTKGaRKdmukJteAF2LJ+,iv:AKLuD/zEr4NohWLZn8ZYOIOpddRicD3AQeDoeQHHlmk=,tag:SWyVM7hqhVwdkjye0GIlUQ==,type:str]
+    GF_AUTH_GENERIC_OAUTH_CLIENT_SECRET: ENC[AES256_GCM,data:9fzD9Q2yn+VXOYDSi79CgE4CzOWH7RXED7vEYSomzko=,iv:em58BPEMHhqtCg6aQpyQn/IzmwMJa3nDuZDDDtcwFtg=,tag:QzzX+1vMqJSXoFMV3Ftjmg==,type:str]
+sops:
+    age:
+        - enc: |
+            -----BEGIN AGE ENCRYPTED FILE-----
+            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBVcytXdVpPWU42ZVdpY3pq
+            Z1JQYlJtWS9xNDJ6cmVKa0RMRzdSR2hrd0FrCkVvK3JObFhkZWJlbUhPSG1uaVM3
+            cXpoTVhYMkFKOWI0V1llV3BJZjdEUE0KLS0tIG9DRnQ2NTVVbDhUUkpOVFQ1WUNN
+            UWVDM1haQ2tJRVdIbHNSZE5XZlczMVEKFtKbc1beOwh+HvzFd0s9nDfS5+Eq57bG
+            bUBabl94Er88DMvTecY0Xovq6PfqKiVxi3u4MOW6d16hL1szZg7Dyw==
+            -----END AGE ENCRYPTED FILE-----
+          recipient: age12lruudqcn688pr9njrldp6haehncnuw7e2fdk84j3csqder0auhqqdcgkm
+    encrypted_regex: ^(data|stringData)$
+    lastmodified: "2026-10-25T21:51:53Z"
+    mac: ENC[AES256_GCM,data:niBULYlBRj99HPNYsA/OKxOmyJ16iIF4FC3cj8rKCglek5W9DM8+C+zr40Am1WbXH4BObO1MC+QvctiEorHigNiGiYYvRpa3IH3V9MxmUn5dSr1nC20l27ZHE0Hi7kJ9/TIj3RUbAOm+fjtWkR50VFeDj6MheJFpo8ixYASaXxE=,iv:P3oOFsHBOMoqOFlSYfBE/k07SMroTc4AZ6KmCSfDTNU=,tag:n2FHdR2X2QeQGSk41wJtRg==,type:str]
+    version: 3.13.3

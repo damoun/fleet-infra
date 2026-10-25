@@ -22,3 +22,7 @@ resources:
   - flux-operator.yaml
   - flux-web-rbac.yaml
   - netpol-flux-web.yaml
+  - namespace-o11y.yaml
+  - grafana-oidc.yaml
+  - vm.yaml
+  - netpol-o11y.yaml
