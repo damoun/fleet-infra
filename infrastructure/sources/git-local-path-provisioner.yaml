@@ -1,0 +1,15 @@
+---
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: GitRepository
+metadata:
+  name: local-path-provisioner
+  namespace: flux-system
+spec:
+  interval: 24h
+  url: https://github.com/rancher/local-path-provisioner
+  ref:
+    # renovate: datasource=git-tags depName=https://github.com/rancher/local-path-provisioner
+    # tag: v0.0.37
+    commit: 49b2be8e26d6d34c9afaa21fa33108d2e82f8955
+  sparseCheckout:
+    - deploy
