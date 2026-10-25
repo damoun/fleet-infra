@@ -1,8 +1,53 @@
 ---
+# Pods that annotate themselves with prometheus.io/scrape: Flux, Flux Operator,
+# cert-manager, Cilium agent and operator. Their ports still need to be in the
+# allow-vmagent-scrape policy.
+apiVersion: operator.victoriametrics.com/v1beta1
+kind: VMScrapeConfig
+metadata:
+  name: annotated-pods
+  namespace: o11y
+spec:
+  kubernetesSDConfigs:
+    - role: pod
+  relabelConfigs:
+    - action: keep
+      sourceLabels: [__meta_kubernetes_pod_annotation_prometheus_io_scrape]
+      regex: "true"
+    - action: drop
+      sourceLabels: [__meta_kubernetes_pod_phase]
+      regex: Pending|Succeeded|Failed
+    # Discovery yields one target per container port; keep the annotated one.
+    - action: keep_if_equal
+      sourceLabels:
+        - __meta_kubernetes_pod_container_port_number
+        - __meta_kubernetes_pod_annotation_prometheus_io_port
+    - sourceLabels: [__meta_kubernetes_pod_annotation_prometheus_io_path]
+      regex: (.+)
+      targetLabel: __metrics_path__
+    - sourceLabels: [__meta_kubernetes_namespace]
+      targetLabel: namespace
+    - sourceLabels: [__meta_kubernetes_pod_name]
+      targetLabel: pod
+    - sourceLabels: [__meta_kubernetes_pod_container_name]
+      targetLabel: container
+    # Labels the Cilium dashboards filter on.
+    - sourceLabels: [__meta_kubernetes_pod_label_k8s_app]
+      targetLabel: k8s_app
+    - sourceLabels: [__meta_kubernetes_pod_label_io_cilium_app]
+      targetLabel: io_cilium_app
+    - sourceLabels:
+        - __meta_kubernetes_pod_label_app_kubernetes_io_name
+        - __meta_kubernetes_pod_label_k8s_app
+        - __meta_kubernetes_pod_label_app
+      regex: ;*([^;]+).*
+      targetLabel: job
+---
+# Hubble and Envoy annotate their Services, not their pods.
 apiVersion: operator.victoriametrics.com/v1beta1
 kind: VMPodScrape
 metadata:
-  name: cilium-agent
+  name: hubble
   namespace: o11y
 spec:
   namespaceSelector:
@@ -11,8 +56,9 @@ spec:
   selector:
     matchLabels:
       k8s-app: cilium
+  podTargetLabels:
+    - k8s-app
   podMetricsEndpoints:
-    - port: prometheus
     - port: hubble-metrics
 ---
 apiVersion: operator.victoriametrics.com/v1beta1
@@ -27,54 +73,12 @@ spec:
   selector:
     matchLabels:
       k8s-app: cilium-envoy
+  podTargetLabels:
+    - k8s-app
   podMetricsEndpoints:
     - port: envoy-metrics
 ---
-apiVersion: operator.victoriametrics.com/v1beta1
-kind: VMPodScrape
-metadata:
-  name: cilium-operator
-  namespace: o11y
-spec:
-  namespaceSelector:
-    matchNames:
-      - kube-system
-  selector:
-    matchLabels:
-      io.cilium/app: operator
-  podMetricsEndpoints:
-    - port: prometheus
----
-apiVersion: operator.victoriametrics.com/v1beta1
-kind: VMPodScrape
-metadata:
-  name: flux-controllers
-  namespace: o11y
-spec:
-  namespaceSelector:
-    matchNames:
-      - flux-system
-  selector:
-    matchLabels:
-      app.kubernetes.io/part-of: flux
-  podMetricsEndpoints:
-    - port: http-prom
----
-apiVersion: operator.victoriametrics.com/v1beta1
-kind: VMPodScrape
-metadata:
-  name: flux-operator
-  namespace: o11y
-spec:
-  namespaceSelector:
-    matchNames:
-      - flux-system
-  selector:
-    matchLabels:
-      app.kubernetes.io/name: flux-operator
-  podMetricsEndpoints:
-    - port: http-metrics
----
+# CloudNativePG doesn't annotate its pods.
 apiVersion: operator.victoriametrics.com/v1beta1
 kind: VMPodScrape
 metadata:
@@ -103,18 +107,3 @@ spec:
       cnpg.io/podRole: instance
   podMetricsEndpoints:
     - port: metrics
----
-apiVersion: operator.victoriametrics.com/v1beta1
-kind: VMPodScrape
-metadata:
-  name: cert-manager
-  namespace: o11y
-spec:
-  namespaceSelector:
-    matchNames:
-      - cert-manager
-  selector:
-    matchLabels:
-      app.kubernetes.io/instance: cert-manager
-  podMetricsEndpoints:
-    - port: http-metrics
