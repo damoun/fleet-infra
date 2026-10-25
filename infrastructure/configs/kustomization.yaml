@@ -7,3 +7,4 @@ resources:
   - certificate-wild.yaml
   - gateway-gw.yaml
   - storageclasses.yaml
+  - flux-instance.yaml

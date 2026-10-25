@@ -1,0 +1,28 @@
+---
+apiVersion: fluxcd.controlplane.io/v1
+kind: FluxInstance
+metadata:
+  name: flux
+  namespace: flux-system
+spec:
+  distribution:
+    # Exact version while clusters/.../flux-system/ still applies the same controllers;
+    # widen to 2.9.x once those bootstrap manifests are removed.
+    version: "2.9.6"
+    registry: ghcr.io/fluxcd
+  components:
+    - source-controller
+    - kustomize-controller
+    - helm-controller
+    - notification-controller
+  cluster:
+    type: kubernetes
+    multitenant: false
+    networkPolicy: true
+    domain: cluster.local
+  sync:
+    kind: GitRepository
+    url: ssh://git@github.com/damoun/fleet-infra
+    ref: refs/heads/main
+    path: clusters/dapl-prd-hom-ams-core
+    pullSecret: flux-system
