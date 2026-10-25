@@ -1,48 +1,39 @@
-# NetBird Internal DNS
+# NetBird Private Access
+
+Every ingress to `dapl-prd-hom-ams-core` goes through NetBird, including from the home LAN. Private names exist only in NetBird DNS; public DNS has nothing for them.
 
 ## Naming Convention
 
-Pattern: `<service>.<cluster>.<location>.damoun.internal`
+Pattern: `<service>.<cluster>.<location>.<domain>`, every label we choose at most 4 characters.
 
-| Segment    | Description                            | Examples                |
-| ---------- | -------------------------------------- | ----------------------- |
-| `service`  | Service name                           | `kube`, `api`, `db`     |
-| `cluster`  | Cluster role                           | `tools`, `data`, `mgmt` |
-| `location` | Site identifier (city/datacenter code) | `fsn`, `nbg`, `ams`     |
+| Name                            | Resolves to   | Target                                          |
+| ------------------------------- | ------------- | ----------------------------------------------- |
+| `*.core.ams.damoun.casa`        | `172.28.0.10` | Cilium Gateway `gw` (namespace `edge`)          |
+| `kube.core.ams.damoun.internal` | `172.24.0.1`  | `kubernetes` Service (kube-apiserver), port 443 |
 
-### Examples
-
-| FQDN                             | Description                          |
-| -------------------------------- | ------------------------------------ |
-| `kube.tools.fsn.damoun.internal` | Kube API, tools cluster, Falkenstein |
-| `kube.data.nbg.damoun.internal`  | Kube API, data cluster, Nuremberg    |
-| `kube.tools.ams.damoun.internal` | Kube API, tools cluster, Amsterdam   |
+`damoun.casa` is a public domain, so services get Let's Encrypt certificates (DNS-01 through Bunny, wildcard `*.core.ams.damoun.casa`). The kube API keeps `damoun.internal`, which is in the Talos certSANs.
 
 ## Architecture
 
-### DNS Zone
+```
+NetBird client ── NetBird DNS (A records) ── WireGuard ── rtr pods (netbird ns) ── 172.28.0.10:443 → Gateway gw → HTTPRoutes
+                                                                                └─ 172.24.0.1:443  → kube-apiserver
+```
 
-A NetBird Custom DNS Zone (`tools.fsn.damoun.internal`) is configured via Terraform in `tofu/netbird/`.
-DNS records within this zone resolve through the NetBird network for all peers in the distribution groups.
+- `172.28.0.10` comes from the Cilium LB pool `priv` (`172.28.0.0/28`), selected by the label `lb.damoun.casa/pool: priv`. The LAN pool and the L2 announcement policy exclude that label, so the VIP is never announced on VLAN 40 and only in-cluster clients (the routers) reach it.
+- Routing peers are plain NetBird clients (Deployment `rtr`, 2 replicas) joining with a reusable, ephemeral setup key. Each pod is a new peer; dead ones drop out on their own.
 
-### IaC Mapping
+## IaC Mapping
 
-| Resource    | Managed By                       | Location                      |
-| ----------- | -------------------------------- | ----------------------------- |
-| NBResource  | Kubernetes CRD                   | `infrastructure/controllers/` |
-| NBPolicy    | Kubernetes CRD                   | `infrastructure/controllers/` |
-| NBGroup     | Kubernetes CRD                   | `infrastructure/controllers/` |
-| DNS Zone    | Terraform (`netbird_dns_zone`)   | `tofu/netbird/`               |
-| DNS Records | Terraform (`netbird_dns_record`) | `tofu/netbird/`               |
+| Resource                                        | Managed By             | Location                                                              |
+| ----------------------------------------------- | ---------------------- | --------------------------------------------------------------------- |
+| Groups, policies, network, resources, setup key | OpenTofu via Spacelift | `damoun/terraform` `stacks/netbird`                                   |
+| DNS zones and records                           | OpenTofu via Spacelift | `damoun/terraform` `stacks/netbird/dns.tf`                            |
+| CAA on `damoun.casa`                            | OpenTofu via Spacelift | `damoun/terraform` `stacks/bunny-dns`                                 |
+| Routing peers, setup key Secret, network policy | Flux                   | `infrastructure/controllers/netbird-rtr*.yaml`, `netpol-netbird.yaml` |
+| LB pool `priv`, L2 policy                       | Flux                   | `infrastructure/prereqs/`                                             |
+| Gateway `gw`, wildcard Certificate              | Flux                   | `infrastructure/configs/`                                             |
 
-### Why Direct IPs in NBResource
+## Adding a service
 
-The NBResource `address` field uses direct IPs (e.g., `172.16.16.5/32`) instead of hostnames because:
-
-- macOS mDNS intercepts `.local` domains, breaking resolution of `*.svc.cluster.local` addresses
-- Direct IP routing through NetBird avoids DNS resolution entirely at the network resource level
-- DNS names (`kube.tools.fsn.damoun.internal`) are provided separately via NetBird Custom DNS Zones
-
-### Round-Robin DNS
-
-Three DNS A records point `kube.tools.fsn.damoun.internal` to the three control plane IPs (`172.16.16.5`, `172.16.16.6`, `172.16.16.7`), providing basic load distribution and redundancy.
+Attach an `HTTPRoute` to `gw` (namespace `edge`) with a hostname under `*.core.ams.damoun.casa`. No DNS change is needed. Once default-deny is enforced, the backend also needs an ingress allow from entity `ingress`.
