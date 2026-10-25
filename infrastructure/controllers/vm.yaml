@@ -187,6 +187,12 @@ spec:
           memory: 128Mi
     prometheus-node-exporter:
       namespaceOverride: o11y-node
+      # The scrape object stays in o11y and only looks in its own namespace by default.
+      vmScrape:
+        spec:
+          namespaceSelector:
+            matchNames:
+              - o11y-node
       # The chart semver-checks image.tag, which fails on tag@digest; version takes precedence.
       version: 1.12.1
       image:
