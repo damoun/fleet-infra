@@ -224,6 +224,8 @@ spec:
         datasources:
           searchNamespace: o11y
           resource: configmap
+          # Write datasources before Grafana starts; the sidecar's reload call races startup.
+          initDatasources: true
         image:
           registry: quay.io
           repository: kiwigrid/k8s-sidecar
