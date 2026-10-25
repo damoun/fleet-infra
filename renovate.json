@@ -27,6 +27,16 @@
       "matchStrings": [
         "# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)\\n\\s*# tag: (?<currentValue>\\S+)\\n\\s*commit: (?<currentDigest>[a-f0-9]{40})"
       ]
+    },
+    {
+      "customType": "regex",
+      "managerFilePatterns": [
+        "/^infrastructure/configs/flux-instance\\.yaml$/"
+      ],
+      "matchStrings": [
+        "# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)\\n\\s*version: \"(?<currentValue>[^\"]+)\""
+      ],
+      "extractVersionTemplate": "^v(?<version>.+)$"
     }
   ],
   "packageRules": [
