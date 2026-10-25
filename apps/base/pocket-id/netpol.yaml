@@ -1,0 +1,63 @@
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: pocket-id
+  namespace: id
+spec:
+  endpointSelector:
+    matchLabels:
+      app.kubernetes.io/name: pocket-id
+  ingress:
+    - fromEntities:
+        - ingress
+      toPorts:
+        - ports:
+            - port: "1411"
+              protocol: TCP
+  egress:
+    - toEndpoints:
+        - matchLabels:
+            cnpg.io/cluster: id-db
+      toPorts:
+        - ports:
+            - port: "5432"
+              protocol: TCP
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: id-db
+  namespace: id
+spec:
+  endpointSelector:
+    matchLabels:
+      cnpg.io/cluster: id-db
+  ingress:
+    - fromEndpoints:
+        - matchLabels:
+            app.kubernetes.io/name: pocket-id
+        - matchLabels:
+            cnpg.io/cluster: id-db
+      toPorts:
+        - ports:
+            - port: "5432"
+              protocol: TCP
+    # The operator polls each instance manager's status endpoint.
+    - fromEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: cnpg-system
+            app.kubernetes.io/name: cloudnative-pg
+      toPorts:
+        - ports:
+            - port: "8000"
+              protocol: TCP
+  egress:
+    # Streaming replication between the instances.
+    - toEndpoints:
+        - matchLabels:
+            cnpg.io/cluster: id-db
+      toPorts:
+        - ports:
+            - port: "5432"
+              protocol: TCP
