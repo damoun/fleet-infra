@@ -6,3 +6,4 @@ resources:
   - namespace-edge.yaml
   - certificate-wild.yaml
   - gateway-gw.yaml
+  - storageclasses.yaml
