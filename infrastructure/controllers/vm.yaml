@@ -310,6 +310,16 @@ spec:
             memory: 48Mi
           limits:
             memory: 128Mi
+      templateFiles:
+        pushover.tmpl: |-
+          {{ define "dapl.pushover.title" -}}
+          {{ if eq .Status "resolved" }}Resolved: {{ end }}{{ .CommonLabels.alertname }}{{ if gt (len .Alerts) 1 }} x{{ len .Alerts }}{{ end }}{{ with .CommonLabels.namespace }} · {{ . }}{{ end }}
+          {{- end }}
+          {{ define "dapl.pushover.message" -}}
+          {{ range $i, $a := .Alerts }}{{ if lt $i 5 -}}
+          <b>{{ or $a.Labels.pod $a.Labels.instance $a.Labels.node $a.Labels.job "cluster" }}</b> {{ or $a.Annotations.summary $a.Annotations.description $a.Annotations.message }}{{ with $a.Annotations.runbook_url }} <a href="{{ . }}">runbook</a>{{ end }}
+          {{ end }}{{ end }}{{ if gt (len .Alerts) 5 }}and more in Grafana{{ end }}
+          {{- end }}
       config:
         route:
           receiver: pushover
@@ -347,16 +357,24 @@ spec:
             pushover_configs:
               - user_key_file: /etc/vm/secrets/alertmanager-notify/pushover-user
                 token_file: /etc/vm/secrets/alertmanager-notify/pushover-token
-                priority: "0"
-                url: https://graf.core.ams.damoun.casa/alerting/list
-                url_title: Grafana
+                title: '{{ template "dapl.pushover.title" . }}'
+                message: '{{ template "dapl.pushover.message" . }}'
+                html: true
+                # Resolved notifications arrive silently.
+                priority: '{{ if eq .Status "firing" }}0{{ else }}-1{{ end }}'
+                url: https://graf.core.ams.damoun.casa/alerting/groups?alertmanager=Alertmanager
+                url_title: Open in Grafana
           - name: pushover-critical
             pushover_configs:
               - user_key_file: /etc/vm/secrets/alertmanager-notify/pushover-user
                 token_file: /etc/vm/secrets/alertmanager-notify/pushover-token
-                priority: "1"
-                url: https://graf.core.ams.damoun.casa/alerting/list
-                url_title: Grafana
+                title: '{{ template "dapl.pushover.title" . }}'
+                message: '{{ template "dapl.pushover.message" . }}'
+                html: true
+                # Resolved notifications arrive silently.
+                priority: '{{ if eq .Status "firing" }}1{{ else }}-1{{ end }}'
+                url: https://graf.core.ams.damoun.casa/alerting/groups?alertmanager=Alertmanager
+                url_title: Open in Grafana
     # Talos binds etcd, scheduler and controller-manager metrics to localhost.
     kubeEtcd:
       enabled: false
