@@ -20,6 +20,7 @@ spec:
   values:
     priorityClassName: critical
     policyAuditMode: false
+    rollOutCiliumPods: true
     ipam:
       mode: kubernetes
     cluster:
