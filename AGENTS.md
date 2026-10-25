@@ -62,7 +62,6 @@ asdf install
 │   └── kubernetes/             # Bootstrap secrets (sops-age, hcloud token)
 ├── clusters/
 │   └── dapl-prd-htz-fsn-app/   # Flux cluster entrypoint & Kustomization roots (legacy root transitioning to dapl-prd-hom-ams-core)
-│       ├── flux-system/        # Flux GOTK sync components & GitRepository
 │       ├── infrastructure.yaml # Kustomizations: infra-sources -> prereqs -> controllers -> configs
 │       └── apps.yaml           # Kustomization for application workloads
 ├── infrastructure/             # Cluster platform components
@@ -129,7 +128,7 @@ Flux reconciles the cluster according to a strict dependency graph defined in [`
 
 ```mermaid
 flowchart TD
-    Sync[gotk-sync] --> Sources[infra-sources]
+    Sync[FluxInstance sync] --> Sources[infra-sources]
     Sources --> Prereqs[infra-prereqs]
     Prereqs --> Controllers[infra-controllers]
     Controllers --> Configs[infra-configs]
