@@ -1,0 +1,15 @@
+---
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: GitRepository
+metadata:
+  name: kubelet-serving-cert-approver
+  namespace: flux-system
+spec:
+  interval: 24h
+  url: https://github.com/alex1989hu/kubelet-serving-cert-approver
+  ref:
+    # renovate: datasource=git-tags depName=https://github.com/alex1989hu/kubelet-serving-cert-approver
+    # tag: v0.12.1
+    commit: f72897c68e38185aeca848952d10a094054642ba
+  sparseCheckout:
+    - deploy
