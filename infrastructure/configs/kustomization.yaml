@@ -8,3 +8,4 @@ resources:
   - gateway-gw.yaml
   - storageclasses.yaml
   - flux-instance.yaml
+  - vmscrapes.yaml
