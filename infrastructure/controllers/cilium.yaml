@@ -88,3 +88,16 @@ spec:
       autoMount:
         enabled: false
       hostRoot: /sys/fs/cgroup
+  postRenderers:
+    - kustomize:
+        patches:
+          # Needs httpV2 metrics, which only exist for traffic behind L7 policy.
+          - target:
+              kind: ConfigMap
+              name: hubble-l7-http-metrics-by-workload
+            patch: |
+              $patch: delete
+              apiVersion: v1
+              kind: ConfigMap
+              metadata:
+                name: hubble-l7-http-metrics-by-workload

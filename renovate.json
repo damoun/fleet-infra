@@ -46,6 +46,16 @@
       "matchStrings": [
         "# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+) tag=(?<currentValue>\\S+)( versioning=(?<versioning>\\S+))?\\n\\s*url: https://raw\\.githubusercontent\\.com/[^/]+/[^/]+/(?<currentDigest>[a-f0-9]{40})/"
       ]
+    },
+    {
+      "customType": "regex",
+      "managerFilePatterns": [
+        "/^infrastructure/controllers/vm\\.yaml$/"
+      ],
+      "matchStrings": [
+        "# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)\\n\\s*- name: \\S+\\n\\s*value: \"(?<currentValue>[^\"]+)\""
+      ],
+      "extractVersionTemplate": "^v(?<version>.+)$"
     }
   ],
   "packageRules": [
