@@ -31,11 +31,12 @@ spec:
       targetLabel: pod
     - sourceLabels: [__meta_kubernetes_pod_container_name]
       targetLabel: container
-    # Labels the Cilium dashboards filter on.
-    - sourceLabels: [__meta_kubernetes_pod_label_k8s_app]
-      targetLabel: k8s_app
-    - sourceLabels: [__meta_kubernetes_pod_label_io_cilium_app]
-      targetLabel: io_cilium_app
+    # Pod labels onto the series (dashboards filter on them), minus the ones
+    # that change on every rollout.
+    - action: labelmap
+      regex: __meta_kubernetes_pod_label_(.+)
+    - action: labeldrop
+      regex: pod_template_hash|controller_revision_hash|pod_template_generation
     - sourceLabels:
         - __meta_kubernetes_pod_label_app_kubernetes_io_name
         - __meta_kubernetes_pod_label_k8s_app
