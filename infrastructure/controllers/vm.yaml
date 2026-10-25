@@ -174,6 +174,9 @@ spec:
     kubeControllerManager:
       enabled: false
     kube-state-metrics:
+      # Its ClusterRole would otherwise read every Secret.
+      collectorsExclude:
+        - secrets
       image:
         registry: registry.k8s.io
         repository: kube-state-metrics/kube-state-metrics
@@ -211,7 +214,16 @@ spec:
         registry: docker.io
         repository: grafana/grafana
         tag: 13.2.4-distroless@sha256:ae3d3add290adbe6a88412229f5d76fd7bb82743050881698642d3d62f277e35
+      # Sidecars watch ConfigMaps in o11y only; no cluster-wide read on Secrets.
+      rbac:
+        namespaced: true
       sidecar:
+        dashboards:
+          searchNamespace: o11y
+          resource: configmap
+        datasources:
+          searchNamespace: o11y
+          resource: configmap
         image:
           registry: quay.io
           repository: kiwigrid/k8s-sidecar
