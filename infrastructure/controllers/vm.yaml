@@ -410,6 +410,8 @@ spec:
           check_for_plugin_updates: false
         news:
           news_feed_enabled: false
+        security:
+          disable_gravatar: true
         # Grafana installs default app plugins from grafana.com in the background.
         plugins:
           preinstall_disabled: true
