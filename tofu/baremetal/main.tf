@@ -80,6 +80,60 @@ locals {
     name => contains(var.nodeid_encryption_nodes, name) ? local.system_volume_patches_nodeid : local.system_volume_patches_tpm
   }
 
+  # Encrypted user volume "data" on the worker NVMe, for a local-path StorageClass.
+  # The key scheme mirrors the system volumes so each node keeps one unlock mechanism
+  # (TPM, or nodeID for var.nodeid_encryption_nodes).
+  # minSize keeps a small or wrong NVMe from being claimed silently; no maxSize, so the
+  # volume takes the whole disk.
+  data_volume_patches_tpm = [
+    yamlencode({
+      apiVersion = "v1alpha1"
+      kind       = "UserVolumeConfig"
+      name       = "data"
+      volumeType = "partition"
+      provisioning = {
+        diskSelector = {
+          match = "disk.transport == \"nvme\""
+        }
+        minSize = "100GiB"
+      }
+      filesystem = {
+        type = "xfs"
+      }
+      encryption = {
+        provider = "luks2"
+        keys     = [local.system_volume_tpm_key]
+      }
+    }),
+  ]
+
+  data_volume_patches_nodeid = [
+    yamlencode({
+      apiVersion = "v1alpha1"
+      kind       = "UserVolumeConfig"
+      name       = "data"
+      volumeType = "partition"
+      provisioning = {
+        diskSelector = {
+          match = "disk.transport == \"nvme\""
+        }
+        minSize = "100GiB"
+      }
+      filesystem = {
+        type = "xfs"
+      }
+      encryption = {
+        provider = "luks2"
+        keys     = [{ slot = 0, nodeID = {} }]
+      }
+    }),
+  ]
+
+  data_volume_patches = {
+    for name in keys(var.worker_nodes) :
+    name => contains(var.nodeid_encryption_nodes, name) ? local.data_volume_patches_nodeid : local.data_volume_patches_tpm
+  }
+
   # Documents that Talos accepts only on control plane machines
   # (container.ControlplaneOnlyConfig). Applying any of these to a worker is a hard
   # error: "the following document kinds are only allowed on control plane machines".
@@ -247,6 +301,7 @@ data "talos_machine_configuration" "worker" {
     ],
     local.common_patches_head,
     local.system_volume_patches[each.key],
+    local.data_volume_patches[each.key],
     local.common_patches_tail
   )
 }
