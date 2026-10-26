@@ -44,6 +44,9 @@ spec:
       env:
         - name: VM_ENABLESTRICTSECURITY
           value: "true"
+        # Covers the config-reloader sidecar and the config-init init container.
+        - name: VM_CONFIG_RELOADER_LIMIT_MEMORY
+          value: 64Mi
       podSecurityContext:
         seccompProfile:
           type: RuntimeDefault

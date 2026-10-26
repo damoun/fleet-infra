@@ -20,6 +20,9 @@ spec:
     # NetBird needs root: Kubernetes only makes added capabilities effective for UID 0.
     spec: # nosemgrep: yaml.kubernetes.security.run-as-non-root.run-as-non-root
       priorityClassName: high
+      securityContext:
+        seccompProfile:
+          type: RuntimeDefault
       topologySpreadConstraints:
         - maxSkew: 1
           topologyKey: kubernetes.io/hostname
