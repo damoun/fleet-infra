@@ -56,6 +56,18 @@
         "# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)\\n\\s*- name: \\S+\\n\\s*value: \"(?<currentValue>[^\"]+)\""
       ],
       "extractVersionTemplate": "^v(?<version>.+)$"
+    },
+    {
+      "customType": "regex",
+      "description": "CloudNativePG Cluster imageName",
+      "managerFilePatterns": [
+        "/^apps/.+\\.ya?ml$/",
+        "/^infrastructure/.+\\.ya?ml$/"
+      ],
+      "matchStrings": [
+        "imageName: (?<depName>[^:\\s]+):(?<currentValue>[^@\\s]+)@(?<currentDigest>sha256:[a-f0-9]{64})"
+      ],
+      "datasourceTemplate": "docker"
     }
   ],
   "packageRules": [
@@ -76,18 +88,76 @@
       "versioning": "regex:^config-reloader-v(?<major>\\d+)\\.(?<minor>\\d+)\\.(?<patch>\\d+)$"
     },
     {
-      "groupName": "VictoriaMetrics",
+      "description": "A Postgres major upgrade needs CloudNativePG's major upgrade procedure, not an image bump.",
       "matchDepNames": [
-        "victoriametrics/victoria-metrics",
-        "victoriametrics/vmagent",
-        "VictoriaMetrics/VictoriaMetrics"
+        "ghcr.io/cloudnative-pg/postgresql"
+      ],
+      "matchUpdateTypes": [
+        "major"
+      ],
+      "enabled": false
+    },
+    {
+      "description": "Chart and images move together.",
+      "groupName": "cert-manager",
+      "matchDepNames": [
+        "cert-manager",
+        "/^quay\\.io/jetstack/cert-manager-/"
       ]
     },
     {
-      "groupName": "VictoriaMetrics operator",
+      "description": "Chart and image move together.",
+      "groupName": "descheduler",
       "matchDepNames": [
-        "victoriametrics/operator",
-        "VictoriaMetrics/operator"
+        "descheduler",
+        "registry.k8s.io/descheduler/descheduler"
+      ]
+    },
+    {
+      "description": "Chart and images move together.",
+      "groupName": "tofu-controller",
+      "matchDepNames": [
+        "tofu-controller",
+        "/^ghcr\\.io/flux-iac/"
+      ]
+    },
+    {
+      "description": "Chart, images, alert rules and dashboards from one VictoriaMetrics release move together.",
+      "groupName": "VictoriaMetrics stack",
+      "matchDepNames": [
+        "ghcr.io/victoriametrics/helm-charts/victoria-metrics-k8s-stack",
+        "/^victoriametrics\\//i",
+        "/^ghcr\\.io/victoriametrics\\//"
+      ]
+    },
+    {
+      "description": "Chart, image and dashboards move together.",
+      "groupName": "flux-operator",
+      "matchDepNames": [
+        "/controlplaneio-fluxcd/(charts/)?flux-operator$/"
+      ]
+    },
+    {
+      "description": "Chart and image move together.",
+      "groupName": "cloudnative-pg",
+      "matchDepNames": [
+        "ghcr.io/cloudnative-pg/charts/cloudnative-pg",
+        "ghcr.io/cloudnative-pg/cloudnative-pg"
+      ]
+    },
+    {
+      "description": "Chart and image move together.",
+      "groupName": "cert-manager-webhook-bunny",
+      "matchDepNames": [
+        "/^ghcr\\.io/aardbol/(charts/)?cert-manager-webhook-bunny$/"
+      ]
+    },
+    {
+      "description": "Chart and image move together.",
+      "groupName": "metrics-server",
+      "matchDepNames": [
+        "metrics-server",
+        "registry.k8s.io/metrics-server/metrics-server"
       ]
     }
   ]
