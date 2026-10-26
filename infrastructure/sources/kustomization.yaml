@@ -7,7 +7,6 @@ resources:
   - git-local-path-provisioner.yaml
   - helm-cert-manager.yaml
   - helm-cilium.yaml
-  - helm-tofu-controller.yaml
   - helm-descheduler.yaml
   - helm-metrics-server.yaml
   - oci-cert-manager-webhook-bunny.yaml

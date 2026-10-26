@@ -114,14 +114,6 @@
       ]
     },
     {
-      "description": "Chart and images move together.",
-      "groupName": "tofu-controller",
-      "matchDepNames": [
-        "tofu-controller",
-        "/^ghcr\\.io/flux-iac/"
-      ]
-    },
-    {
       "description": "Chart, images, alert rules and dashboards from one VictoriaMetrics release move together.",
       "groupName": "VictoriaMetrics stack",
       "matchDepNames": [
