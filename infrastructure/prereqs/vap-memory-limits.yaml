@@ -1,0 +1,43 @@
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicy
+metadata:
+  name: memory-limits
+spec:
+  failurePolicy: Fail
+  matchConstraints:
+    resourceRules:
+      - apiGroups: [""]
+        apiVersions: ["v1"]
+        operations: ["CREATE"]
+        resources: ["pods"]
+  variables:
+    - name: containers
+      expression: >-
+        object.spec.containers +
+        (has(object.spec.initContainers) ? object.spec.initContainers : [])
+    - name: unlimited
+      expression: >-
+        variables.containers.filter(c,
+        !has(c.resources) || !has(c.resources.limits) || !('memory' in c.resources.limits))
+  validations:
+    - expression: "size(variables.unlimited) == 0"
+      messageExpression: >-
+        'containers must set resources.limits.memory: ' +
+        variables.unlimited.map(c, c.name).join(', ')
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicyBinding
+metadata:
+  name: memory-limits
+spec:
+  policyName: memory-limits
+  # Warn and Audit until every workload passes, then Deny.
+  validationActions: [Warn, Audit]
+  matchResources:
+    namespaceSelector:
+      matchExpressions:
+        - key: kubernetes.io/metadata.name
+          operator: NotIn
+          values:
+            - kube-system
