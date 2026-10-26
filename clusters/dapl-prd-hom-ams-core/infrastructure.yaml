@@ -157,6 +157,12 @@ spec:
               containers:
                 - name: local-path-provisioner
                   image: docker.io/rancher/local-path-provisioner:v0.0.37@sha256:e757967a5ec338f6a9b371c5a9688bedaa8c3578ea3dd4db329ea0084be0a86f
+                  resources:
+                    requests:
+                      cpu: 10m
+                      memory: 16Mi
+                    limits:
+                      memory: 64Mi
     - target:
         kind: StorageClass
         name: local-path
