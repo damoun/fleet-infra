@@ -56,6 +56,18 @@
         "# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)\\n\\s*- name: \\S+\\n\\s*value: \"(?<currentValue>[^\"]+)\""
       ],
       "extractVersionTemplate": "^v(?<version>.+)$"
+    },
+    {
+      "customType": "regex",
+      "description": "CloudNativePG Cluster imageName",
+      "managerFilePatterns": [
+        "/^apps/.+\\.ya?ml$/",
+        "/^infrastructure/.+\\.ya?ml$/"
+      ],
+      "matchStrings": [
+        "imageName: (?<depName>[^:\\s]+):(?<currentValue>[^@\\s]+)@(?<currentDigest>sha256:[a-f0-9]{64})"
+      ],
+      "datasourceTemplate": "docker"
     }
   ],
   "packageRules": [
@@ -89,6 +101,16 @@
         "victoriametrics/operator",
         "VictoriaMetrics/operator"
       ]
+    },
+    {
+      "description": "A Postgres major upgrade needs CloudNativePG's major upgrade procedure, not an image bump.",
+      "matchDepNames": [
+        "ghcr.io/cloudnative-pg/postgresql"
+      ],
+      "matchUpdateTypes": [
+        "major"
+      ],
+      "enabled": false
     }
   ]
 }
