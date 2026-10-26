@@ -11,12 +11,15 @@ spec:
   chart:
     spec:
       chart: descheduler
-      version: "0.x"
+      version: "0.37.0"
       sourceRef:
         kind: HelmRepository
         name: descheduler
         namespace: flux-system
   values:
+    image:
+      repository: registry.k8s.io/descheduler/descheduler
+      tag: v0.37.0@sha256:88deef34ff5c85cb69676d7073dd641bd5c35b156bc1ef4a35ca8fbf9644da98
     priorityClassName: medium
     schedule: "*/10 * * * *"
     resources:

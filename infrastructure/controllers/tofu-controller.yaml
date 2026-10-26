@@ -9,10 +9,17 @@ spec:
   chart:
     spec:
       chart: tofu-controller
-      version: "0.x"
+      version: "0.16.5"
       sourceRef:
         kind: HelmRepository
         name: tofu-controller
         namespace: flux-system
   values:
     priorityClassName: high
+    image:
+      repository: ghcr.io/flux-iac/tofu-controller
+      tag: v0.16.5@sha256:1d6ee0e34ee56a22827541b1ef44e5a3d65ff21bdb870f79103c4c5d5e6d4cba
+    runner:
+      image:
+        repository: ghcr.io/flux-iac/tf-runner
+        tag: v0.16.5@sha256:7209171093907ec1d0559c682949fcee4b625205a6a058c16fe0ce0017af5f41
