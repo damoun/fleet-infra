@@ -16,11 +16,17 @@ spec:
       expression: >-
         object.spec.containers +
         (has(object.spec.initContainers) ? object.spec.initContainers : [])
+    # Talos runs these from its own tags, versioned by kubernetes_version in tofu/baremetal.
+    - name: unpinned
+      expression: >-
+        variables.containers.filter(c, !c.image.contains('@sha256:') &&
+        !(request.namespace == 'kube-system' &&
+        c.image.matches('^registry\\.k8s\\.io/(kube-apiserver|kube-controller-manager|kube-scheduler|coredns/coredns):[^@]+$')))
   validations:
-    - expression: "variables.containers.all(c, c.image.contains('@sha256:'))"
+    - expression: "size(variables.unpinned) == 0"
       messageExpression: >-
         'images must be pinned by digest: ' +
-        variables.containers.filter(c, !c.image.contains('@sha256:')).map(c, c.image).join(', ')
+        variables.unpinned.map(c, c.image).join(', ')
 ---
 apiVersion: admissionregistration.k8s.io/v1
 kind: ValidatingAdmissionPolicyBinding
@@ -29,10 +35,3 @@ metadata:
 spec:
   policyName: image-digest
   validationActions: [Deny, Audit]
-  matchResources:
-    namespaceSelector:
-      matchExpressions:
-        - key: kubernetes.io/metadata.name
-          operator: NotIn
-          values:
-            - kube-system
