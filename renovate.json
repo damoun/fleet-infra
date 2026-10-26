@@ -161,6 +161,13 @@
         "metrics-server",
         "registry.k8s.io/metrics-server/metrics-server"
       ]
+    },
+    {
+      "description": "Chart and image move together.",
+      "groupName": "falco",
+      "matchDepNames": [
+        "/falcosecurity\\/(charts\\/)?falco$/"
+      ]
     }
   ]
 }
