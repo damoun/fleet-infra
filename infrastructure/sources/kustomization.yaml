@@ -11,5 +11,6 @@ resources:
   - helm-metrics-server.yaml
   - oci-cert-manager-webhook-bunny.yaml
   - oci-cloudnative-pg.yaml
+  - oci-falco.yaml
   - oci-flux-operator.yaml
   - oci-victoria-metrics-k8s-stack.yaml

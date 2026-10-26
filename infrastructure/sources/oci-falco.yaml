@@ -1,0 +1,17 @@
+---
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: OCIRepository
+metadata:
+  name: falco
+  namespace: flux-system
+spec:
+  interval: 24h
+  url: oci://ghcr.io/falcosecurity/charts/falco
+  ref:
+    tag: 9.2.1
+    digest: sha256:0e1fb8c9a069659f19427ee96695416dc4152bb43c8fd5234108dd05c34ef3b1
+  verify:
+    provider: cosign
+    matchOIDCIdentity:
+      - issuer: ^https://token\.actions\.githubusercontent\.com$
+        subject: ^https://github\.com/falcosecurity/charts/\.github/workflows/release\.yml@refs/heads/master$
