@@ -28,8 +28,7 @@ metadata:
   name: image-digest
 spec:
   policyName: image-digest
-  # Warn and Audit until every workload passes, then Deny.
-  validationActions: [Warn, Audit]
+  validationActions: [Deny, Audit]
   matchResources:
     namespaceSelector:
       matchExpressions:
