@@ -14,11 +14,38 @@ spec:
     kind: OCIRepository
     name: cert-manager-webhook-bunny
     namespace: flux-system
+  # The chart exposes no securityContext values. The image already runs as 65532.
+  postRenderers:
+    - kustomize:
+        patches:
+          - target:
+              kind: Deployment
+            patch: |
+              - op: add
+                path: /spec/template/spec/securityContext
+                value:
+                  runAsNonRoot: true
+                  seccompProfile:
+                    type: RuntimeDefault
+              - op: add
+                path: /spec/template/spec/containers/0/securityContext
+                value:
+                  allowPrivilegeEscalation: false
+                  readOnlyRootFilesystem: true
+                  capabilities:
+                    drop:
+                      - ALL
   values:
     groupName: acme.damoun.casa
     image:
       repository: ghcr.io/aardbol/cert-manager-webhook-bunny
       tag: v1.4.1@sha256:be5e446c5ed5a38150a21647752a6f9af4ea41db9dbbc27283df6e10a210cb8a
+    resources:
+      requests:
+        cpu: 10m
+        memory: 32Mi
+      limits:
+        memory: 96Mi
     certManager:
       namespace: cert-manager
       serviceAccountName: cert-manager
