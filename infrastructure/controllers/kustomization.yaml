@@ -12,7 +12,6 @@ resources:
   - netbird-rtr.yaml
   - netpol-netbird.yaml
   - cilium.yaml
-  - tofu-controller.yaml
   - descheduler.yaml
   - metrics-server.yaml
   - namespace-cnpg-system.yaml
