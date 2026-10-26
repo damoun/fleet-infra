@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Prints every container image the cluster runs, one per line, derived from the repo.
 set -euo pipefail
+talos_map="$(cd "$(dirname "$0")" && pwd)/talos-images.txt"
 cd "$(git rev-parse --show-toplevel)"
 
 tmp=$(mktemp -d)
@@ -41,9 +42,9 @@ ref='[a-z0-9.-]+(/[a-z0-9._-]+)+:[A-Za-z0-9._-]+@sha256:[0-9a-f]{64}'
 		echo "registry.k8s.io/$c:$k8s"
 	done
 	echo "ghcr.io/siderolabs/kubelet:$k8s"
-	talos_images=$(awk -v v="$talos" '$1 == v { $1 = ""; print }' .github/scripts/talos-images.txt)
+	talos_images=$(awk -v v="$talos" '$1 == v { $1 = ""; print }' "$talos_map")
 	if [ -z "$talos_images" ]; then
-		echo "talos $talos missing from .github/scripts/talos-images.txt" >&2
+		echo "talos $talos missing from $talos_map" >&2
 		exit 1
 	fi
 	printf '%s\n' $talos_images
