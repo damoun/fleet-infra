@@ -111,6 +111,30 @@
         "major"
       ],
       "enabled": false
+    },
+    {
+      "description": "Chart and images move together.",
+      "groupName": "cert-manager",
+      "matchDepNames": [
+        "cert-manager",
+        "/^quay\\.io/jetstack/cert-manager-/"
+      ]
+    },
+    {
+      "description": "Chart and image move together.",
+      "groupName": "descheduler",
+      "matchDepNames": [
+        "descheduler",
+        "registry.k8s.io/descheduler/descheduler"
+      ]
+    },
+    {
+      "description": "Chart and images move together.",
+      "groupName": "tofu-controller",
+      "matchDepNames": [
+        "tofu-controller",
+        "/^ghcr\\.io/flux-iac/"
+      ]
     }
   ]
 }
