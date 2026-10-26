@@ -61,10 +61,34 @@ jobs:
             jq --arg id "trivy/$img/" '.runs[].automationDetails.id = $id' "$out" > "$out.tmp" && mv "$out.tmp" "$out"
           done < scan.txt
           sudo chown -R "$(id -u)" .trivy-cache
-      - if: hashFiles('sarif/*.sarif') != ''
+          # Code scanning accepts at most 20 runs per upload, so batch them.
+          i=0
+          for f in sarif/*.sarif; do
+            [ -e "$f" ] || break
+            mkdir -p "sarif/$((i / 20 + 1))"
+            mv "$f" "sarif/$((i / 20 + 1))/"
+            i=$((i + 1))
+          done
+          if [ "$i" -gt 80 ]; then
+            echo "$i images exceed the 4 upload batches below" >&2
+            exit 1
+          fi
+      - if: hashFiles('sarif/1/*.sarif') != ''
         uses: github/codeql-action/upload-sarif@9b3254085494b55a0f7c4c2b3d2d52cc712ce370 # v4.39.1
         with:
-          sarif_file: sarif
+          sarif_file: sarif/1
+      - if: hashFiles('sarif/2/*.sarif') != ''
+        uses: github/codeql-action/upload-sarif@9b3254085494b55a0f7c4c2b3d2d52cc712ce370 # v4.39.1
+        with:
+          sarif_file: sarif/2
+      - if: hashFiles('sarif/3/*.sarif') != ''
+        uses: github/codeql-action/upload-sarif@9b3254085494b55a0f7c4c2b3d2d52cc712ce370 # v4.39.1
+        with:
+          sarif_file: sarif/3
+      - if: hashFiles('sarif/4/*.sarif') != ''
+        uses: github/codeql-action/upload-sarif@9b3254085494b55a0f7c4c2b3d2d52cc712ce370 # v4.39.1
+        with:
+          sarif_file: sarif/4
 
   config:
     runs-on: ubuntu-latest
