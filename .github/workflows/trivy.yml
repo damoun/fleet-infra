@@ -1,0 +1,86 @@
+name: Trivy
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  schedule:
+    - cron: "17 5 * * *"
+  workflow_dispatch:
+
+permissions: {}
+
+env:
+  # renovate: datasource=docker depName=aquasec/trivy
+  TRIVY_IMAGE: aquasec/trivy:0.76.1@sha256:790fd66d1697395d8693d1acaa1ea702406a20f109b6fc7bac8db623eca6c06c
+
+jobs:
+  image:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - id: day
+        run: echo "day=$(date -u +%Y-%m-%d)" >> "$GITHUB_OUTPUT"
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: .trivy-cache
+          key: trivy-db-${{ steps.day.outputs.day }}
+          restore-keys: trivy-db-
+      - name: List images
+        env:
+          BASE_REF: ${{ github.base_ref }}
+        run: |
+          .github/scripts/images.sh > images.txt
+          # Pull requests only scan images that are new compared with the base branch.
+          if [ -n "$BASE_REF" ]; then
+            git worktree add -q ../base "origin/$BASE_REF"
+            (cd ../base && "$GITHUB_WORKSPACE/.github/scripts/images.sh") > base.txt
+            comm -13 base.txt images.txt > scan.txt
+          else
+            cp images.txt scan.txt
+          fi
+          echo "Scanning $(wc -l < scan.txt) of $(wc -l < images.txt) images"
+      - name: Scan
+        run: |
+          mkdir -p sarif
+          docker run --rm -v "$PWD/.trivy-cache:/cache" -e TRIVY_CACHE_DIR=/cache "$TRIVY_IMAGE" image --download-db-only
+          while read -r img; do
+            out="sarif/$(echo "$img" | tr -c 'A-Za-z0-9.-' '_').sarif"
+            docker run --rm -v "$PWD/.trivy-cache:/cache" -v "$PWD/sarif:/sarif" -e TRIVY_CACHE_DIR=/cache "$TRIVY_IMAGE" \
+              image --skip-db-update --skip-java-db-update --scanners vuln \
+              --severity HIGH,CRITICAL --ignore-unfixed \
+              --format sarif --output "/sarif/$(basename "$out")" "$img"
+            # One category per image, so code scanning tracks each one separately.
+            jq --arg id "trivy/$img/" '.runs[].automationDetails.id = $id' "$out" > "$out.tmp" && mv "$out.tmp" "$out"
+          done < scan.txt
+          sudo chown -R "$(id -u)" .trivy-cache
+      - if: hashFiles('sarif/*.sarif') != ''
+        uses: github/codeql-action/upload-sarif@9b3254085494b55a0f7c4c2b3d2d52cc712ce370 # v4.39.1
+        with:
+          sarif_file: sarif
+
+  config:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Scan
+        run: |
+          docker run --rm -v "$PWD:/repo" -w /repo "$TRIVY_IMAGE" \
+            config --skip-check-update --severity HIGH,CRITICAL \
+            --format sarif --output trivy-config.sarif .
+      - uses: github/codeql-action/upload-sarif@9b3254085494b55a0f7c4c2b3d2d52cc712ce370 # v4.39.1
+        with:
+          sarif_file: trivy-config.sarif
+          category: config
