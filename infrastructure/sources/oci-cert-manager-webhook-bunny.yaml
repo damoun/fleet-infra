@@ -14,4 +14,5 @@ spec:
     provider: cosign
     matchOIDCIdentity:
       - issuer: ^https://token\.actions\.githubusercontent\.com$
-        subject: ^https://github\.com/upcloud-tools/gha-actions/\.github/workflows/release-helm-chart\.yaml@.+$
+        # Signed by a shared reusable workflow, called by aardbol pinned to a commit SHA.
+        subject: ^https://github\.com/upcloud-tools/gha-actions/\.github/workflows/release-helm-chart\.yaml@[0-9a-f]{40}$
