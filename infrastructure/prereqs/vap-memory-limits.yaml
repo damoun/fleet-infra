@@ -32,8 +32,7 @@ metadata:
   name: memory-limits
 spec:
   policyName: memory-limits
-  # Warn and Audit until every workload passes, then Deny.
-  validationActions: [Warn, Audit]
+  validationActions: [Deny, Audit]
   matchResources:
     namespaceSelector:
       matchExpressions:
