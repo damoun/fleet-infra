@@ -21,6 +21,15 @@ spec:
         mode: Terminate
         certificateRefs:
           - name: wild
+      # kubernetes.io/metadata.name is set by the API server and cannot be relabelled.
       allowedRoutes:
         namespaces:
-          from: All
+          from: Selector
+          selector:
+            matchExpressions:
+              - key: kubernetes.io/metadata.name
+                operator: In
+                values:
+                  - flux-system
+                  - id
+                  - o11y
