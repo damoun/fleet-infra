@@ -18,13 +18,11 @@ spec:
       repository: falcosecurity/falco
       tag: 0.45.1@sha256:69e957f91b3a6beb5c82e2afae33ec3e4479dab2d4421475d288d0cd113cedf6
     podPriorityClassName: high
-    # Throttling Falco only drops events; an unbounded one could starve a 4-core node.
     resources:
       requests:
         cpu: 50m
         memory: 256Mi
       limits:
-        cpu: 1000m
         memory: 1Gi
     driver:
       kind: modern_ebpf
