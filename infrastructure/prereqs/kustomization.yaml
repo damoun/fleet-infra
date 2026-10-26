@@ -10,3 +10,4 @@ resources:
   - cilium-l2-policy.yaml
   - ccnp-default-deny.yaml
   - vap-image-digest.yaml
+  - vap-memory-limits.yaml
