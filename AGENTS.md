@@ -146,7 +146,7 @@ flowchart TD
    ```
 4. **Priority Classes**: Infrastructure controllers and critical daemons must declare appropriate priority classes from [`infrastructure/prereqs/`](file:///home/damoun/Projects/github.com/damoun/fleet-infra/infrastructure/prereqs/):
    - `critical` (Cilium, Hubble relay, etc.)
-   - `high` (tofu-controller, NetBird routers)
+   - `high` (cert-manager, NetBird routers)
    - `medium`, `low`
 5. **Pre-flight Validation**: Always validate manifests before committing:
    ```bash
