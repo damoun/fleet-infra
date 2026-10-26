@@ -11,3 +11,4 @@ resources:
   - ccnp-default-deny.yaml
   - vap-image-digest.yaml
   - vap-memory-limits.yaml
+  - namespace-default.yaml
