@@ -23,6 +23,13 @@ spec:
         - ports:
             - port: "5432"
               protocol: TCP
+    # Logo presets: the selfh.st icon library on jsDelivr.
+    - toFQDNs:
+        - matchName: cdn.jsdelivr.net
+      toPorts:
+        - ports:
+            - port: "443"
+              protocol: TCP
 ---
 apiVersion: cilium.io/v2
 kind: CiliumNetworkPolicy
