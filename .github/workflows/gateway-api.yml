@@ -1,0 +1,30 @@
+name: Gateway API
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - infrastructure/controllers/cilium.yaml
+      - infrastructure/sources/git-gateway-api.yaml
+      - .github/scripts/check-gateway-api.sh
+      - .github/workflows/gateway-api.yml
+  pull_request:
+    branches: [main]
+    paths:
+      - infrastructure/controllers/cilium.yaml
+      - infrastructure/sources/git-gateway-api.yaml
+      - .github/scripts/check-gateway-api.sh
+      - .github/workflows/gateway-api.yml
+
+permissions: {}
+
+jobs:
+  matches-cilium:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - run: .github/scripts/check-gateway-api.sh
