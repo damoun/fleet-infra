@@ -102,6 +102,24 @@
       "enabled": false
     },
     {
+      "description": "semver-coerced reads v1.7.0-rc.3 as 1.7.0; semver keeps release candidates out.",
+      "matchDepNames": [
+        "https://github.com/kubernetes-sigs/gateway-api"
+      ],
+      "versioning": "semver"
+    },
+    {
+      "description": "Gateway API minors follow Cilium, checked by the Gateway API workflow.",
+      "matchDepNames": [
+        "https://github.com/kubernetes-sigs/gateway-api"
+      ],
+      "matchUpdateTypes": [
+        "minor",
+        "major"
+      ],
+      "enabled": false
+    },
+    {
       "matchDepNames": [
         "victoriametrics/operator"
       ],
