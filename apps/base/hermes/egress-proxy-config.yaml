@@ -1,0 +1,25 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: egress-proxy
+data:
+  proxy.yaml: |
+    transforms:
+      - name: allowlist
+        config:
+          domains:
+            - api.deepseek.com
+      - name: secrets
+        config:
+          secrets:
+            - source:
+                type: file
+                path: /etc/iron-proxy/secrets/deepseek
+              replace:
+                proxy_value: proxy-deepseek
+                match_headers:
+                  - Authorization
+                require: true
+              rules:
+                - host: api.deepseek.com

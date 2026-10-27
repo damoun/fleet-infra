@@ -1,0 +1,11 @@
+---
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: hermes
+resources:
+  - namespace.yaml
+  - egress-proxy-config.yaml
+  - egress-proxy-secret.yaml
+  - egress-proxy-netpol.yaml
+components:
+  - ../../components/egress-proxy
