@@ -1,0 +1,17 @@
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: egress-proxy
+spec:
+  endpointSelector:
+    matchLabels:
+      app.kubernetes.io/name: egress-proxy
+  ingress:
+    - fromEndpoints:
+        - matchLabels:
+            egress.damoun.casa/client: "true"
+      toPorts:
+        - ports:
+            - port: "8080"
+              protocol: TCP
