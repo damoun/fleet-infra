@@ -112,8 +112,7 @@ variable "kubernetes_version" {
 variable "talos_version" {
   type        = string
   description = "Talos Linux machine configuration version"
-  # renovate: datasource=github-releases depName=siderolabs/talos
-  default = "v1.14.2"
+  default     = "v1.14.2"
 }
 
 variable "talos_installer_image" {
