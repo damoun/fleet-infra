@@ -132,11 +132,11 @@ spec:
         kube-prometheus:
           enabled: false
         flux-performance:
-          # renovate: datasource=github-tags depName=controlplaneio-fluxcd/flux-operator tag=v0.61.0
-          url: https://raw.githubusercontent.com/controlplaneio-fluxcd/flux-operator/8e761853ba15347181cee6cb23e7c9e622e2a93d/config/monitoring/dashboards/flux-performance.json
+          # renovate: datasource=github-tags depName=controlplaneio-fluxcd/flux-operator tag=0.62.1
+          url: https://raw.githubusercontent.com/controlplaneio-fluxcd/flux-operator/48e2cd76c475be87a1c9a8bd83fe07e064abd725/config/monitoring/dashboards/flux-performance.json
         flux-k8s-api-performance:
-          # renovate: datasource=github-tags depName=controlplaneio-fluxcd/flux-operator tag=v0.61.0
-          url: https://raw.githubusercontent.com/controlplaneio-fluxcd/flux-operator/8e761853ba15347181cee6cb23e7c9e622e2a93d/config/monitoring/dashboards/flux-k8s-api-performance.json
+          # renovate: datasource=github-tags depName=controlplaneio-fluxcd/flux-operator tag=0.62.1
+          url: https://raw.githubusercontent.com/controlplaneio-fluxcd/flux-operator/48e2cd76c475be87a1c9a8bd83fe07e064abd725/config/monitoring/dashboards/flux-k8s-api-performance.json
         cloudnative-pg:
           # renovate: datasource=github-tags depName=cloudnative-pg/grafana-dashboards tag=cluster-v0.0.5 versioning=regex:^cluster-v(?<major>\d+)\.(?<minor>\d+)\.(?<patch>\d+)$
           url: https://raw.githubusercontent.com/cloudnative-pg/grafana-dashboards/cececeb393fb7c5400b4fa290aca68041293a127/charts/cluster/grafana-dashboard.json
