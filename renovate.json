@@ -181,6 +181,13 @@
       ]
     },
     {
+      "description": "Propose Kubernetes patches on their own, since minors are disabled below.",
+      "matchDepNames": [
+        "kubernetes/kubernetes"
+      ],
+      "separateMinorPatch": true
+    },
+    {
       "description": "Kubernetes minors must fit the Talos support matrix; do them by hand.",
       "matchDepNames": [
         "kubernetes/kubernetes"
