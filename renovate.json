@@ -78,6 +78,17 @@
       "matchStrings": [
         "# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)\\n\\s*\\w+: \\S+?:(?<currentValue>[^@\\s]+)@(?<currentDigest>sha256:[a-f0-9]{64})"
       ]
+    },
+    {
+      "customType": "regex",
+      "description": "Talos and Kubernetes versions in tofu/baremetal",
+      "managerFilePatterns": [
+        "/^tofu/baremetal/variables\\.tf$/"
+      ],
+      "matchStrings": [
+        "# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)\\n\\s*default\\s*=\\s*\"(?:[^\"]*:)?v?(?<currentValue>[0-9][^\"]*)\""
+      ],
+      "extractVersionTemplate": "^v?(?<version>.+)$"
     }
   ],
   "packageRules": [
@@ -168,6 +179,24 @@
       "matchDepNames": [
         "/falcosecurity\\/(charts\\/)?falco$/"
       ]
+    },
+    {
+      "description": "Talos version and installer image move together.",
+      "groupName": "talos",
+      "matchDepNames": [
+        "siderolabs/talos"
+      ]
+    },
+    {
+      "description": "Kubernetes minors must fit the Talos support matrix; do them by hand.",
+      "matchDepNames": [
+        "kubernetes/kubernetes"
+      ],
+      "matchUpdateTypes": [
+        "minor",
+        "major"
+      ],
+      "enabled": false
     }
   ]
 }

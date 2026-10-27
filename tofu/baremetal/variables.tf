@@ -105,19 +105,22 @@ variable "service_cidr" {
 variable "kubernetes_version" {
   type        = string
   description = "Kubernetes version to bootstrap"
-  default     = "1.35.0"
+  # renovate: datasource=github-releases depName=kubernetes/kubernetes
+  default = "1.35.0"
 }
 
 variable "talos_version" {
   type        = string
   description = "Talos Linux machine configuration version"
-  default     = "v1.14.2"
+  # renovate: datasource=github-releases depName=siderolabs/talos
+  default = "v1.14.2"
 }
 
 variable "talos_installer_image" {
   type        = string
   description = "Talos Image Factory SecureBoot installer (i915, ucode, storage extensions; enrollKeys: force)"
-  default     = "factory.talos.dev/metal-installer-secureboot/7c67ed0c9d9cd774e2164b84cd41733c8b3432f83e44a7dc3cc23062bc4f89e2:v1.14.2"
+  # renovate: datasource=github-releases depName=siderolabs/talos
+  default = "factory.talos.dev/metal-installer-secureboot/7c67ed0c9d9cd774e2164b84cd41733c8b3432f83e44a7dc3cc23062bc4f89e2:v1.14.2"
 }
 
 variable "nodeid_encryption_nodes" {
