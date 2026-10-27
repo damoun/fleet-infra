@@ -37,7 +37,8 @@ ref='[a-z0-9.-]+(/[a-z0-9._-]+)+:[A-Za-z0-9._-]+@sha256:[0-9a-f]{64}'
 	# Talos runs the control plane from tags derived from tofu/baremetal.
 	vars=tofu/baremetal/variables.tf
 	k8s=v$(sed -n '/variable "kubernetes_version"/,/}/s/.*default *= *"\(.*\)"/\1/p' "$vars")
-	talos=$(sed -n '/variable "talos_version"/,/}/s/.*default *= *"\(.*\)"/\1/p' "$vars")
+	# The installed OS, not the talos_version config contract, decides these defaults.
+	talos=$(sed -n '/variable "talos_installer_image"/,/}/s/.*default *= *".*:\(v[^"]*\)"/\1/p' "$vars")
 	for c in kube-apiserver kube-controller-manager kube-scheduler; do
 		echo "registry.k8s.io/$c:$k8s"
 	done
