@@ -57,8 +57,12 @@ jobs:
               image --skip-db-update --skip-java-db-update --scanners vuln \
               --severity HIGH,CRITICAL --ignore-unfixed \
               --format sarif --output "/sarif/$(basename "$out")" "$img"
-            # One category per image, so code scanning tracks each one separately.
-            jq --arg id "trivy/$img/" '.runs[].automationDetails.id = $id' "$out" > "$out.tmp" && mv "$out.tmp" "$out"
+            # One category per image without its version, so a version bump replaces the
+            # previous analysis and closes the CVEs it fixed. A tag prefix such as
+            # "config-reloader-" is kept: it names a different image in the same repository.
+            name="${img%%@*}"
+            flavor=$(echo "${name##*:}" | sed -E 's/-?v?[0-9].*$//')
+            jq --arg id "trivy/${name%:*}${flavor:+:$flavor}/" '.runs[].automationDetails.id = $id' "$out" > "$out.tmp" && mv "$out.tmp" "$out"
           done < scan.txt
           sudo chown -R "$(id -u)" .trivy-cache
           # Code scanning accepts at most 20 runs per upload, so batch them.
