@@ -181,13 +181,6 @@
       ]
     },
     {
-      "description": "Talos version and installer image move together.",
-      "groupName": "talos",
-      "matchDepNames": [
-        "siderolabs/talos"
-      ]
-    },
-    {
       "description": "Kubernetes minors must fit the Talos support matrix; do them by hand.",
       "matchDepNames": [
         "kubernetes/kubernetes"
