@@ -10,6 +10,6 @@ spec:
   ref:
     # renovate: datasource=git-tags depName=https://github.com/alex1989hu/kubelet-serving-cert-approver
     # tag: v0.12.1
-    commit: f72897c68e38185aeca848952d10a094054642ba
+    commit: 7ff576e3f9b70fe17e57cdfc8a443e00a42de5c9
   sparseCheckout:
     - deploy
