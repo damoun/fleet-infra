@@ -10,6 +10,6 @@ spec:
   ref:
     # renovate: datasource=git-tags depName=https://github.com/rancher/local-path-provisioner
     # tag: v0.0.37
-    commit: 49b2be8e26d6d34c9afaa21fa33108d2e82f8955
+    commit: 7bd4fbad361174f7f6b82f283cd7cc57400f8bb3
   sparseCheckout:
     - deploy
