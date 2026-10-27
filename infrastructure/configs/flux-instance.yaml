@@ -9,7 +9,7 @@ spec:
     # Exact pin bumped by Renovate. The operator only installs versions from its own
     # catalog, so a new Flux minor may need a flux-operator chart bump first.
     # renovate: datasource=github-releases depName=fluxcd/flux2
-    version: "2.9.6"
+    version: "2.10.0"
     registry: ghcr.io/fluxcd
   components:
     - source-controller
