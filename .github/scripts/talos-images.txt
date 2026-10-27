@@ -2,3 +2,4 @@
 # (DefaultCoreDNSVersion and DefaultEtcdVersion in pkg/machinery/constants).
 # Append only: pull requests also resolve the base branch's Talos version.
 v1.14.2 registry.k8s.io/coredns/coredns:v1.14.7 registry.k8s.io/etcd:3.7.1
+v1.14.5 registry.k8s.io/coredns/coredns:v1.14.7 registry.k8s.io/etcd:v3.7.3

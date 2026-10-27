@@ -181,11 +181,11 @@
       ]
     },
     {
-      "description": "Talos version and installer image move together.",
-      "groupName": "talos",
+      "description": "Propose Kubernetes patches on their own, since minors are disabled below.",
       "matchDepNames": [
-        "siderolabs/talos"
-      ]
+        "kubernetes/kubernetes"
+      ],
+      "separateMinorPatch": true
     },
     {
       "description": "Kubernetes minors must fit the Talos support matrix; do them by hand.",
