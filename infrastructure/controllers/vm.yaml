@@ -121,7 +121,7 @@ spec:
           url: https://raw.githubusercontent.com/dotdc/grafana-dashboards-kubernetes/e4faf59e017a18e1b06fa64f11623bef15ce7507/dashboards/k8s-system-coredns.json
         node-exporter-full:
           # renovate: datasource=git-refs depName=https://github.com/rfmoz/grafana-dashboards tag=master
-          url: https://raw.githubusercontent.com/rfmoz/grafana-dashboards/8b2b6e2b8b9ad6e146e2f2eeb303e9d04d0f815e/prometheus/node-exporter-full.json
+          url: https://raw.githubusercontent.com/rfmoz/grafana-dashboards/6c2de7ebaea4dd1dad7089d86d75de71417a3d0b/prometheus/node-exporter-full.json
         victorialogs-single-node:
           # renovate: datasource=github-tags depName=VictoriaMetrics/VictoriaLogs tag=v1.53.0
           url: https://raw.githubusercontent.com/VictoriaMetrics/VictoriaLogs/915d91904bf7f5be66ab00f88947ae7fc1431acc/dashboards/victorialogs.json
