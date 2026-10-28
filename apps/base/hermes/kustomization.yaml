@@ -10,5 +10,8 @@ resources:
   - signal-secret.yaml
   - signal.yaml
   - browser.yaml
+  - config.yaml
+  - gateway-ssh-secret.yaml
+  - gateway.yaml
 components:
   - ../../components/egress-proxy

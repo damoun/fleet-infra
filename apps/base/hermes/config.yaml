@@ -1,0 +1,45 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: hermes-config
+data:
+  # Copied into the data volume at start; Hermes may rewrite it at runtime.
+  config.yaml: |
+    _config_version: 51
+    model:
+      provider: deepseek
+      default: deepseek-v4-pro
+    auxiliary:
+      compression:
+        provider: deepseek
+        model: deepseek-flash
+      title_generation:
+        provider: deepseek
+        model: deepseek-flash
+    # 1M context and cheap cache hits: compress late to keep the cached prefix.
+    compression:
+      threshold: 0.85
+    terminal:
+      backend: ssh
+      ssh_host: sandbox.hermes.svc.cluster.local
+      ssh_port: 2222
+      ssh_user: agent
+      ssh_key: /opt/data/.ssh/id_ed25519
+      cwd: "~"
+    approvals:
+      mode: manual
+    browser:
+      cdp_url: http://172.24.0.222:9222
+    agent:
+      disabled_toolsets:
+        - image_gen
+        - tts
+    skills:
+      write_approval: true
+    streaming:
+      enabled: false
+    security:
+      allow_lazy_installs: false
+    cron:
+      allow_agent_scheduling: true
