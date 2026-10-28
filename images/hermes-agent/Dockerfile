@@ -11,3 +11,7 @@ RUN mv /opt/hermes/manifest.json /tmp/manifest.json \
     && python3 -c 'from pm import ensure; ensure("agent-browser", explicit=True)' \
     && mv /tmp/manifest.json /opt/hermes/manifest.json \
     && chmod 0644 /opt/hermes/tools/facts.json
+
+# The pod runs Hermes directly as the image's hermes user, bypassing the s6
+# init that needs root.
+USER 10000:10000
