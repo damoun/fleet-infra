@@ -1,4 +1,6 @@
 # Unprivileged sshd: it can only log in the user it runs as.
+# Generated at start from SSH_SETENV; sessions do not inherit the container env.
+Include /run/sshd/env.conf
 Port 2222
 HostKey /run/sshd/ssh_host_ed25519_key
 PidFile none

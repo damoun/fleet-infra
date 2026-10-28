@@ -11,4 +11,20 @@ elif [ ! -f "$key" ]; then
 	ssh-keygen -q -t ed25519 -N '' -f "$key"
 fi
 
+# Hand the listed container env vars (proxy, CA, dummy tokens) to SSH sessions.
+# sshd keeps only the first SetEnv line, so all pairs go on one.
+pairs=""
+for name in ${SSH_SETENV:-}; do
+	case "$name" in *[!A-Za-z0-9_]*) continue ;; esac
+	eval "value=\${$name:-}"
+	if [ -n "$value" ]; then
+		pairs="$pairs \"$name=$value\""
+	fi
+done
+if [ -n "$pairs" ]; then
+	echo "SetEnv$pairs" >/run/sshd/env.conf
+else
+	: >/run/sshd/env.conf
+fi
+
 exec /usr/sbin/sshd -D -e -f /etc/ssh/sshd_config
