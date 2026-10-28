@@ -7,5 +7,13 @@ resources:
   - egress-proxy-config.yaml
   - egress-proxy-secret.yaml
   - egress-proxy-netpol.yaml
+  - config.yaml
+  - signal-secret.yaml
+  - gateway-ssh-secret.yaml
+  - sandbox-host-key-secret.yaml
+  - gateway.yaml
+  - sandbox.yaml
+  - browser.yaml
+  - signal.yaml
 components:
   - ../../components/egress-proxy

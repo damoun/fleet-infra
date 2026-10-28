@@ -1,0 +1,112 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: browser
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: browser
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: browser
+    spec:
+      automountServiceAccountToken: false
+      enableServiceLinks: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65534
+        runAsGroup: 65534
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: chromium
+          image: chromedp/headless-shell:157.0.8103.15@sha256:f76fce2964611eb1e25b90d906727884db12a8918a6d85a0df2619a9ef845c7c
+          # run.sh fronts Chrome's loopback-only DevTools port 9223 with socat on 9222.
+          args:
+            - --user-data-dir=/tmp/profile
+            - --disable-dev-shm-usage
+          env:
+            - name: HOME
+              value: /tmp
+          ports:
+            - name: cdp
+              containerPort: 9222
+          readinessProbe:
+            tcpSocket:
+              port: cdp
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              memory: 1Gi
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        - name: tmp
+          emptyDir:
+            sizeLimit: 1Gi
+---
+# DevTools refuses Host headers that are not an IP or localhost, so Hermes
+# reaches the browser on a fixed ClusterIP instead of the service name.
+apiVersion: v1
+kind: Service
+metadata:
+  name: browser
+spec:
+  clusterIP: 172.24.0.222
+  selector:
+    app.kubernetes.io/name: browser
+  ports:
+    - name: cdp
+      port: 9222
+      targetPort: cdp
+---
+# Holds no secrets: public internet only, never the LAN, cluster or NetBird.
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: browser
+spec:
+  endpointSelector:
+    matchLabels:
+      app.kubernetes.io/name: browser
+  # Overrides the cluster baseline's kube-apiserver allow; this pod never needs it.
+  egressDeny:
+    - toEntities:
+        - kube-apiserver
+  ingress:
+    - fromEndpoints:
+        - matchLabels:
+            app.kubernetes.io/name: hermes
+      toPorts:
+        - ports:
+            - port: "9222"
+              protocol: TCP
+  egress:
+    - toCIDRSet:
+        - cidr: 0.0.0.0/0
+          except:
+            - 0.0.0.0/8
+            - 10.0.0.0/8
+            - 100.64.0.0/10
+            - 127.0.0.0/8
+            - 169.254.0.0/16
+            - 172.16.0.0/12
+            - 192.168.0.0/16
+      toPorts:
+        - ports:
+            - port: "80"
+              protocol: TCP
+            - port: "443"
+              protocol: TCP

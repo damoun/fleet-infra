@@ -1,0 +1,128 @@
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: signal-cli-data
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: local-retain
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: signal-cli
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: signal-cli
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: signal-cli
+    spec:
+      automountServiceAccountToken: false
+      enableServiceLinks: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 999
+        runAsGroup: 999
+        fsGroup: 999
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: signal-cli
+          image: ghcr.io/asamk/signal-cli:0.14.9@sha256:a6b1fc309cd8e6bab1c239bd5afaffa978ae252921e6b529643e84e180e0c4aa
+          # Multi-account mode: no number in the manifest, and the account is
+          # registered over the same JSON-RPC API.
+          args:
+            - daemon
+            - --http
+            - 0.0.0.0:8080
+          env:
+            - name: JAVA_OPTS
+              value: -Xmx256m
+          ports:
+            - name: http
+              containerPort: 8080
+          readinessProbe:
+            httpGet:
+              path: /api/v1/check
+              port: http
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
+          resources:
+            requests:
+              cpu: 50m
+              memory: 256Mi
+            limits:
+              memory: 512Mi
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/signal-cli
+            # libsignal extracts its JNI library here.
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: signal-cli-data
+        - name: tmp
+          emptyDir:
+            sizeLimit: 256Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: signal-cli
+spec:
+  selector:
+    app.kubernetes.io/name: signal-cli
+  ports:
+    - name: http
+      port: 8080
+      targetPort: http
+---
+# Signal pins its own certificates, so signal-cli cannot use the TLS-intercepting
+# proxy; it reaches the Signal service directly. Its HTTP API has no auth.
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: signal-cli
+spec:
+  endpointSelector:
+    matchLabels:
+      app.kubernetes.io/name: signal-cli
+  # Overrides the cluster baseline's kube-apiserver allow; this pod never needs it.
+  egressDeny:
+    - toEntities:
+        - kube-apiserver
+  ingress:
+    - fromEndpoints:
+        - matchLabels:
+            app.kubernetes.io/name: hermes
+      toPorts:
+        - ports:
+            - port: "8080"
+              protocol: TCP
+  egress:
+    - toFQDNs:
+        - matchName: chat.signal.org
+        - matchName: storage.signal.org
+        - matchName: cdsi.signal.org
+        - matchName: svr2.signal.org
+        - matchPattern: cdn*.signal.org
+      toPorts:
+        - ports:
+            - port: "443"
+              protocol: TCP
