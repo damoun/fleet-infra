@@ -7,7 +7,6 @@ resources:
   - egress-proxy-config.yaml
   - egress-proxy-secret.yaml
   - egress-proxy-netpol.yaml
-  - config.yaml
   - signal-secret.yaml
   - gateway-ssh-secret.yaml
   - sandbox-host-key-secret.yaml
@@ -17,3 +16,8 @@ resources:
   - signal.yaml
 components:
   - ../../components/egress-proxy
+# Hashed name: a config change rolls the gateway, which copies it in at start.
+configMapGenerator:
+  - name: hermes-config
+    files:
+      - config.yaml=hermes-config.yaml
