@@ -1,8 +1,11 @@
 _config_version: 51
 timezone: Europe/Amsterdam
+# V4 Pro plans and talks; delegated subtasks, where most tokens go, run on Flash.
 model:
   provider: deepseek
   default: deepseek-v4-pro
+delegation:
+  model: deepseek-flash
 auxiliary:
   compression:
     provider: deepseek
@@ -40,4 +43,3 @@ security:
   allow_lazy_installs: false
 cron:
   allow_agent_scheduling: true
-
