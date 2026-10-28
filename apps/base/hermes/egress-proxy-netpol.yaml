@@ -10,6 +10,10 @@ spec:
   egress:
     - toFQDNs:
         - matchName: api.deepseek.com
+        - matchName: mcp.exa.ai
+        - matchName: search.parallel.ai
+        - matchName: api.firecrawl.dev
+        - matchName: api.keenable.ai
       toPorts:
         - ports:
             - port: "443"
