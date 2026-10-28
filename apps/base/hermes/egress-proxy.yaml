@@ -3,6 +3,11 @@ transforms:
     config:
       domains:
         - api.deepseek.com
+        # Hermes' keyless web search ring: anonymous free tiers, no credential.
+        - mcp.exa.ai
+        - search.parallel.ai
+        - api.firecrawl.dev
+        - api.keenable.ai
   - name: secrets
     config:
       secrets:
