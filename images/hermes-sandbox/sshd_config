@@ -1,0 +1,21 @@
+# Unprivileged sshd: it can only log in the user it runs as.
+# Generated at start from SSH_SETENV; sessions do not inherit the container env.
+Include /run/sshd/env.conf
+Port 2222
+HostKey /run/sshd/ssh_host_ed25519_key
+PidFile none
+AuthorizedKeysFile /etc/ssh/authorized_keys/authorized_keys
+AllowUsers agent
+PermitRootLogin no
+PasswordAuthentication no
+KbdInteractiveAuthentication no
+UsePAM no
+# Mounted keys have Kubernetes-managed ownership and modes.
+StrictModes no
+AllowTcpForwarding no
+AllowAgentForwarding no
+AllowStreamLocalForwarding no
+PermitTunnel no
+X11Forwarding no
+PrintMotd no
+Subsystem sftp internal-sftp
