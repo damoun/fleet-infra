@@ -7,6 +7,7 @@ data:
   # Copied into the data volume at start; Hermes may rewrite it at runtime.
   config.yaml: |
     _config_version: 51
+    timezone: Europe/Amsterdam
     model:
       provider: deepseek
       default: deepseek-v4-pro
