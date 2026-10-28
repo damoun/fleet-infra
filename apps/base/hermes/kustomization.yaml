@@ -7,5 +7,7 @@ resources:
   - egress-proxy-config.yaml
   - egress-proxy-secret.yaml
   - egress-proxy-netpol.yaml
+  - signal-secret.yaml
+  - signal.yaml
 components:
   - ../../components/egress-proxy
