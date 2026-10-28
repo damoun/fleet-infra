@@ -9,5 +9,6 @@ resources:
   - egress-proxy-netpol.yaml
   - signal-secret.yaml
   - signal.yaml
+  - browser.yaml
 components:
   - ../../components/egress-proxy
