@@ -31,6 +31,10 @@ data:
     approvals:
       mode: manual
     browser:
+      # The default Browser Use backend swaps the built-in tools for browser_exec,
+      # which runs model-written Python inside the gateway. Keep the built-in
+      # tools, which drive the browser pod over CDP.
+      backend: "off"
       cdp_url: http://172.24.0.222:9222
     agent:
       disabled_toolsets:
