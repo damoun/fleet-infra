@@ -1,0 +1,16 @@
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: egress-proxy-upstreams
+spec:
+  endpointSelector:
+    matchLabels:
+      app.kubernetes.io/name: egress-proxy
+  egress:
+    - toFQDNs:
+        - matchName: api.deepseek.com
+      toPorts:
+        - ports:
+            - port: "443"
+              protocol: TCP

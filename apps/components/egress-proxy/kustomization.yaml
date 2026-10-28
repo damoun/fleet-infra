@@ -1,0 +1,11 @@
+---
+# iron-proxy egress proxy for agent workloads. The including tenant sets the
+# namespace and provides the ConfigMap `egress-proxy` (proxy.yaml with the
+# allowlist and secrets transforms), the Secret `egress-proxy` (one file per
+# real credential) and a CiliumNetworkPolicy for the proxy's upstream FQDNs.
+apiVersion: kustomize.config.k8s.io/v1alpha1
+kind: Component
+resources:
+  - ca.yaml
+  - deployment.yaml
+  - netpol.yaml

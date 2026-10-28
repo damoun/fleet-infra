@@ -1,0 +1,115 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: egress-proxy
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: egress-proxy
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: egress-proxy
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65532
+        runAsGroup: 65532
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: iron-proxy
+          image: ironsh/iron-proxy:0.54.0@sha256:6d074be2de9188f88d08013788d5500fb4de8557f16c2e5b27af4d8d2cb1e3fb
+          args:
+            - -config
+            - /etc/iron-proxy/config/proxy.yaml
+          env:
+            # Clients use HTTPS_PROXY, not DNS interception.
+            - name: IRON_DNS_ENABLED
+              value: "false"
+            - name: IRON_PROXY_TUNNEL_LISTEN
+              value: ":8080"
+            # Always bound but unused; kept off privileged ports.
+            - name: IRON_PROXY_HTTP_LISTEN
+              value: ":8081"
+            - name: IRON_PROXY_HTTPS_LISTEN
+              value: ":8443"
+            - name: IRON_METRICS_LISTEN
+              value: ":9090"
+            - name: IRON_TLS_CA_CERT
+              value: /etc/iron-proxy/ca/tls.crt
+            - name: IRON_TLS_CA_KEY
+              value: /etc/iron-proxy/ca/tls.key
+            # The default only blocks IMDS and loopback; also keep the proxy off
+            # the LAN, the cluster CIDRs and the NetBird range.
+            - name: IRON_PROXY_UPSTREAM_DENY_CIDRS
+              value: "0.0.0.0/8,10.0.0.0/8,100.64.0.0/10,127.0.0.0/8,169.254.0.0/16,172.16.0.0/12,192.168.0.0/16,::1/128,fc00::/7,fe80::/10"
+            # LLM APIs can take longer than the 30s default before sending headers.
+            - name: IRON_PROXY_UPSTREAM_RESPONSE_HEADER_TIMEOUT
+              value: 5m
+          ports:
+            - name: tunnel
+              containerPort: 8080
+            - name: metrics
+              containerPort: 9090
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: metrics
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: metrics
+            periodSeconds: 30
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
+          resources:
+            requests:
+              cpu: 10m
+              memory: 32Mi
+            limits:
+              memory: 128Mi
+          volumeMounts:
+            - name: config
+              mountPath: /etc/iron-proxy/config
+              readOnly: true
+            - name: ca
+              mountPath: /etc/iron-proxy/ca
+              readOnly: true
+            - name: secrets
+              mountPath: /etc/iron-proxy/secrets
+              readOnly: true
+      volumes:
+        - name: config
+          configMap:
+            name: egress-proxy
+        - name: ca
+          secret:
+            secretName: egress-proxy-ca
+            items:
+              - key: tls.crt
+                path: tls.crt
+              - key: tls.key
+                path: tls.key
+        - name: secrets
+          secret:
+            secretName: egress-proxy
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: egress-proxy
+spec:
+  selector:
+    app.kubernetes.io/name: egress-proxy
+  ports:
+    - name: tunnel
+      port: 8080
+      targetPort: tunnel

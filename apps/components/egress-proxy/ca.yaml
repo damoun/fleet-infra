@@ -1,0 +1,25 @@
+---
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: egress-proxy-selfsigned
+spec:
+  selfSigned: {}
+---
+# MITM CA the proxy signs leaf certificates with. Clients mount only ca.crt.
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: egress-proxy-ca
+spec:
+  isCA: true
+  commonName: egress-proxy
+  secretName: egress-proxy-ca
+  duration: 87600h
+  privateKey:
+    algorithm: ECDSA
+    size: 256
+    rotationPolicy: Always
+  issuerRef:
+    name: egress-proxy-selfsigned
+    kind: Issuer
