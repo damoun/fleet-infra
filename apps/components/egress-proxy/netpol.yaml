@@ -15,3 +15,20 @@ spec:
         - ports:
             - port: "8080"
               protocol: TCP
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: egress-proxy-clients
+spec:
+  endpointSelector:
+    matchLabels:
+      egress.damoun.casa/client: "true"
+  egress:
+    - toEndpoints:
+        - matchLabels:
+            app.kubernetes.io/name: egress-proxy
+      toPorts:
+        - ports:
+            - port: "8080"
+              protocol: TCP
