@@ -116,12 +116,11 @@ spec:
             - port: "8080"
               protocol: TCP
   egress:
+    # libsignal also uses hosts beyond signal-cli's config (grpc.chat.signal.org).
+    # In Cilium patterns `*` spans one label only, so deeper names are listed.
     - toFQDNs:
-        - matchName: chat.signal.org
-        - matchName: storage.signal.org
-        - matchName: cdsi.signal.org
-        - matchName: svr2.signal.org
-        - matchPattern: cdn*.signal.org
+        - matchPattern: "*.signal.org"
+        - matchName: grpc.chat.signal.org
       toPorts:
         - ports:
             - port: "443"
