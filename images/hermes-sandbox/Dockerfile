@@ -11,9 +11,26 @@ RUN apt-get update \
         openssh-server \
         procps \
         python3 \
+        python3-pymupdf \
+        python3-pypdf \
+        python3-reportlab \
+        python3-venv \
         ripgrep \
     && rm -rf /var/lib/apt/lists/* \
     && useradd --uid 10001 --create-home --shell /bin/bash agent
+
+# Skill dependencies Debian doesn't package, hash-pinned. The venv also sees the
+# apt packages above, and the skills call `python`, so its interpreter goes on
+# the default SSH PATH through /usr/local/bin. Wrappers, not symlinks: Python
+# only detects the venv from the path it is invoked through.
+COPY requirements.txt /tmp/requirements.txt
+RUN python3 -m venv --system-site-packages /opt/venv \
+    && /opt/venv/bin/pip install --no-cache-dir --require-hashes -r /tmp/requirements.txt \
+    && rm /tmp/requirements.txt \
+    && for name in python python3; do \
+        printf '#!/bin/sh\nexec /opt/venv/bin/python "$@"\n' >/usr/local/bin/$name \
+        && chmod 0755 /usr/local/bin/$name; \
+    done
 
 COPY sshd_config /etc/ssh/sshd_config
 COPY entrypoint.sh /usr/local/bin/entrypoint.sh
