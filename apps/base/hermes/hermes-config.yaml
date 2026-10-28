@@ -31,10 +31,17 @@ browser:
   # tools, which drive the browser pod over CDP.
   backend: "off"
   cdp_url: http://172.24.0.222:9222
+# With an ssh terminal, the default (auto) places the browser's screen in the
+# sandbox and tries to start a desktop there. Run the agent-browser driver in
+# the gateway instead; it attaches to the browser pod over CDP.
+bot_desktop:
+  placement: gateway
 agent:
   disabled_toolsets:
     - image_gen
     - tts
+    # browser_exec, independent of browser.backend: resumed sessions keep their tool list.
+    - browser-use
 skills:
   write_approval: true
 streaming:
