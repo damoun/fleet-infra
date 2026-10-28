@@ -4,7 +4,6 @@ kind: Kustomization
 namespace: hermes
 resources:
   - namespace.yaml
-  - egress-proxy-config.yaml
   - egress-proxy-secret.yaml
   - egress-proxy-netpol.yaml
   - signal-secret.yaml
@@ -16,8 +15,11 @@ resources:
   - signal.yaml
 components:
   - ../../components/egress-proxy
-# Hashed name: a config change rolls the gateway, which copies it in at start.
+# Hashed names: a config change rolls the pod that reads it at start.
 configMapGenerator:
   - name: hermes-config
     files:
       - config.yaml=hermes-config.yaml
+  - name: egress-proxy
+    files:
+      - proxy.yaml=egress-proxy.yaml

@@ -1,0 +1,23 @@
+transforms:
+  - name: allowlist
+    config:
+      domains:
+        - api.deepseek.com
+  - name: secrets
+    config:
+      secrets:
+        - source:
+            type: file
+            path: /etc/iron-proxy/secrets/deepseek
+          replace:
+            proxy_value: proxy-deepseek
+            match_headers:
+              - Authorization
+            require: true
+          # The bare CONNECT carries no credential; check the requests inside the tunnel.
+          rules:
+            - host: api.deepseek.com
+              methods:
+                - GET
+                - POST
+
