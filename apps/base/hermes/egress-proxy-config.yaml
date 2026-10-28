@@ -21,5 +21,9 @@ data:
                 match_headers:
                   - Authorization
                 require: true
+              # The bare CONNECT carries no credential; check the requests inside the tunnel.
               rules:
                 - host: api.deepseek.com
+                  methods:
+                    - GET
+                    - POST
