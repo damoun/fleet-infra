@@ -51,6 +51,7 @@ jobs:
         run: |
           mkdir -p sarif
           docker run --rm -v "$PWD/.trivy-cache:/cache" -e TRIVY_CACHE_DIR=/cache "$TRIVY_IMAGE" image --download-db-only
+          docker run --rm -v "$PWD/.trivy-cache:/cache" -e TRIVY_CACHE_DIR=/cache "$TRIVY_IMAGE" image --download-java-db-only
           while read -r img; do
             out="sarif/$(echo "$img" | tr -c 'A-Za-z0-9.-' '_').sarif"
             docker run --rm -v "$PWD/.trivy-cache:/cache" -v "$PWD/sarif:/sarif" -e TRIVY_CACHE_DIR=/cache "$TRIVY_IMAGE" \
