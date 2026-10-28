@@ -1,0 +1,43 @@
+_config_version: 51
+timezone: Europe/Amsterdam
+model:
+  provider: deepseek
+  default: deepseek-v4-pro
+auxiliary:
+  compression:
+    provider: deepseek
+    model: deepseek-flash
+  title_generation:
+    provider: deepseek
+    model: deepseek-flash
+# 1M context and cheap cache hits: compress late to keep the cached prefix.
+compression:
+  threshold: 0.85
+terminal:
+  backend: ssh
+  ssh_host: sandbox.hermes.svc.cluster.local
+  ssh_port: 2222
+  ssh_user: agent
+  ssh_key: /opt/data/.ssh/id_ed25519
+  cwd: "~"
+approvals:
+  mode: manual
+browser:
+  # The default Browser Use backend swaps the built-in tools for browser_exec,
+  # which runs model-written Python inside the gateway. Keep the built-in
+  # tools, which drive the browser pod over CDP.
+  backend: "off"
+  cdp_url: http://172.24.0.222:9222
+agent:
+  disabled_toolsets:
+    - image_gen
+    - tts
+skills:
+  write_approval: true
+streaming:
+  enabled: false
+security:
+  allow_lazy_installs: false
+cron:
+  allow_agent_scheduling: true
+
