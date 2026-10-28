@@ -12,6 +12,14 @@ RUN mv /opt/hermes/manifest.json /tmp/manifest.json \
     && mv /tmp/manifest.json /opt/hermes/manifest.json \
     && chmod 0644 /opt/hermes/tools/facts.json
 
+# browser_exec runs model-written Python in the gateway through the Browser Use
+# harness. Config keeps it off; removing the harness leaves nothing to run even
+# if a stale session still dispatches it. Hermes only imports it lazily.
+RUN rm -rf /opt/hermes/.venv/lib/python3.*/site-packages/browser_harness \
+        /opt/hermes/.venv/lib/python3.*/site-packages/browser_harness-*.dist-info \
+        /opt/hermes/.venv/bin/browser-harness \
+        /opt/hermes/.venv/bin/browser-harness-mcp
+
 # The pod runs Hermes directly as the image's hermes user, bypassing the s6
 # init that needs root.
 USER 10000:10000
