@@ -8,6 +8,12 @@ transforms:
         - search.parallel.ai
         - api.firecrawl.dev
         - api.keenable.ai
+        # maps skill: OpenStreetMap community services (fair use).
+        - nominatim.openstreetmap.org
+        - overpass-api.de
+        - router.project-osrm.org
+        # youtube-content skill: transcripts.
+        - www.youtube.com
   - name: secrets
     config:
       secrets:
