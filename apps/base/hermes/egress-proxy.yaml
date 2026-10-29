@@ -3,6 +3,7 @@ transforms:
     config:
       domains:
         - api.deepseek.com
+        - generativelanguage.googleapis.com
         # Hermes' keyless web search ring: anonymous free tiers, no credential.
         - mcp.exa.ai
         - search.parallel.ai
@@ -28,6 +29,19 @@ transforms:
           # The bare CONNECT carries no credential; check the requests inside the tunnel.
           rules:
             - host: api.deepseek.com
+              methods:
+                - GET
+                - POST
+        - source:
+            type: file
+            path: /etc/iron-proxy/secrets/gemini
+          replace:
+            proxy_value: proxy-gemini
+            match_headers:
+              - x-goog-api-key
+            require: true
+          rules:
+            - host: generativelanguage.googleapis.com
               methods:
                 - GET
                 - POST
