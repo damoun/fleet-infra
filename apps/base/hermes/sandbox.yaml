@@ -30,7 +30,9 @@ spec:
           image: ghcr.io/damoun/hermes-sandbox:main@sha256:c26c0dd19a2ebbed0209d5c676ddd0044549540b905b2f35842eaed5d74f2e8d
           env:
             - name: SSH_SETENV
-              value: HTTPS_PROXY HTTP_PROXY NO_PROXY SSL_CERT_FILE CURL_CA_BUNDLE REQUESTS_CA_BUNDLE NODE_EXTRA_CA_CERTS
+              value: HTTPS_PROXY HTTP_PROXY NO_PROXY SSL_CERT_FILE CURL_CA_BUNDLE REQUESTS_CA_BUNDLE NODE_EXTRA_CA_CERTS OBSIDIAN_VAULT_PATH
+            - name: OBSIDIAN_VAULT_PATH
+              value: /vault
             - name: HTTPS_PROXY
               value: http://egress-proxy.hermes.svc.cluster.local:8080
             - name: HTTP_PROXY
@@ -66,6 +68,10 @@ spec:
           volumeMounts:
             - name: home
               mountPath: /home/agent
+            # Outside /home/agent so the idle wipe leaves it alone.
+            - name: vault
+              mountPath: /vault
+              subPath: vault
             - name: tmp
               mountPath: /tmp
             - name: run
@@ -84,6 +90,10 @@ spec:
         - name: home
           emptyDir:
             sizeLimit: 4Gi
+        # Synced by the obsidian Deployment.
+        - name: vault
+          persistentVolumeClaim:
+            claimName: obsidian
         - name: tmp
           emptyDir:
             sizeLimit: 1Gi
