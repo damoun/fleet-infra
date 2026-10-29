@@ -34,6 +34,7 @@ RUN python3 -m venv --system-site-packages /opt/venv \
 
 COPY sshd_config /etc/ssh/sshd_config
 COPY entrypoint.sh /usr/local/bin/entrypoint.sh
+COPY idle-wipe.sh /usr/local/bin/idle-wipe.sh
 
 USER 10001
 WORKDIR /home/agent
