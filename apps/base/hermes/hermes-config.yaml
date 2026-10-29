@@ -50,3 +50,7 @@ security:
   allow_lazy_installs: false
 cron:
   allow_agent_scheduling: true
+# Curated model picker; the DeepSeek models are set explicitly, and the fetch
+# only produces proxy rejections.
+model_catalog:
+  enabled: false

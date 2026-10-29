@@ -1,0 +1,36 @@
+---
+apiVersion: operator.victoriametrics.com/v1beta1
+kind: VMRule
+metadata:
+  name: hermes-egress
+spec:
+  groups:
+    - name: hermes-egress
+      type: vlogs
+      interval: 1m
+      rules:
+        # A credential other than the dummy token reached a secret-bearing host:
+        # someone tried to use their own key instead of the proxy's.
+        - alert: EgressSecretBypass
+          expr: >-
+            _time:5m kubernetes.pod_namespace:hermes kubernetes.container_name:iron-proxy
+            audit.action:reject rejected_by:secrets
+            | stats by (audit.host, kubernetes.pod_namespace) count() as requests
+            | rename audit.host as host, kubernetes.pod_namespace as namespace
+          labels:
+            severity: critical
+          annotations:
+            summary: "Non-proxy credential sent to {{ $labels.host }}"
+        # Hermes' own provider probes are expected; anything else is the agent
+        # trying a host outside the allowlist.
+        - alert: EgressBlocked
+          expr: >-
+            _time:5m kubernetes.pod_namespace:hermes kubernetes.container_name:iron-proxy
+            audit.action:reject rejected_by:allowlist
+            -audit.host:~"^(models[.]dev|portal[.]nousresearch[.]com|openrouter[.]ai)(:443)?$"
+            | stats by (audit.host, kubernetes.pod_namespace) count() as requests
+            | rename audit.host as host, kubernetes.pod_namespace as namespace
+          labels:
+            severity: warning
+          annotations:
+            summary: "Egress proxy blocked {{ $labels.host }}"

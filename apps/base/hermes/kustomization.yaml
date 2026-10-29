@@ -13,6 +13,7 @@ resources:
   - sandbox.yaml
   - browser.yaml
   - signal.yaml
+  - alerts.yaml
 components:
   - ../../components/egress-proxy
 # Hashed names: a config change rolls the pod that reads it at start.
