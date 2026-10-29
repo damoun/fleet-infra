@@ -27,7 +27,7 @@ spec:
           type: RuntimeDefault
       containers:
         - name: sandbox
-          image: ghcr.io/damoun/hermes-sandbox:main@sha256:6a03ba11fe273caec578b6b93c177198da8596bde4538ee0928e37ff17abead8
+          image: ghcr.io/damoun/hermes-sandbox:main@sha256:c26c0dd19a2ebbed0209d5c676ddd0044549540b905b2f35842eaed5d74f2e8d
           env:
             - name: SSH_SETENV
               value: HTTPS_PROXY HTTP_PROXY NO_PROXY SSL_CERT_FILE CURL_CA_BUNDLE REQUESTS_CA_BUNDLE NODE_EXTRA_CA_CERTS
