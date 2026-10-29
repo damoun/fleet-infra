@@ -17,6 +17,12 @@ auxiliary:
   vision:
     provider: gemini
     model: gemini-3.8-flash
+    # Flash answers in seconds; a 503 under load should move on, not wait 120s.
+    timeout: 30
+    fallback_chain:
+      - provider: gemini
+        model: gemini-3.7-flash
+        timeout: 30
 # 1M context and cheap cache hits: compress late to keep the cached prefix.
 compression:
   threshold: 0.85
