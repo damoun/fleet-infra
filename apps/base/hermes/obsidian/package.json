@@ -1,0 +1,7 @@
+{
+  "name": "obsidian-sync",
+  "private": true,
+  "dependencies": {
+    "obsidian-headless": "0.0.14"
+  }
+}
