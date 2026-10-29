@@ -13,6 +13,8 @@ resources:
   - sandbox.yaml
   - browser.yaml
   - signal.yaml
+  - obsidian-secret.yaml
+  - obsidian.yaml
   - alerts.yaml
 components:
   - ../../components/egress-proxy
@@ -24,3 +26,7 @@ configMapGenerator:
   - name: egress-proxy
     files:
       - proxy.yaml=egress-proxy.yaml
+  - name: obsidian-npm
+    files:
+      - obsidian/package.json
+      - obsidian/package-lock.json

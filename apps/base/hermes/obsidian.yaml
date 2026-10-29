@@ -1,0 +1,189 @@
+---
+# Subpath `vault` is shared with the sandbox; `state` (auth and E2EE key) stays here.
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: obsidian
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: local-retain
+  resources:
+    requests:
+      storage: 2Gi
+---
+# obsidian-headless is UNLICENSED, so it is installed from npm at start instead
+# of being baked into a published image.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: obsidian
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: obsidian
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: obsidian
+    spec:
+      automountServiceAccountToken: false
+      enableServiceLinks: false
+      # Same uid as the sandbox, which writes the same vault files.
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        runAsGroup: 10001
+        fsGroup: 10001
+        seccompProfile:
+          type: RuntimeDefault
+      initContainers:
+        # Builds better-sqlite3 from its bundled source with the image's own
+        # headers, so npm is the only download and the lockfile pins all of it.
+        - name: install
+          image: &image node:22.23.4@sha256:18a6d90fd60542269850c80ca03b29b1d9b14d6b221ac7ee8e35b0d33ef904bd
+          command:
+            - sh
+            - -ec
+            - cp /etc/obsidian-npm/package.json /etc/obsidian-npm/package-lock.json /app/ && cd /app && npm ci --omit=dev --no-audit --no-fund
+          env:
+            - name: HOME
+              value: /tmp
+            - name: npm_config_cache
+              value: /tmp/npm
+            - name: npm_config_build_from_source
+              value: "true"
+            - name: npm_config_nodedir
+              value: /usr/local
+            - name: npm_config_update_notifier
+              value: "false"
+          securityContext: &securityContext
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              memory: 1Gi
+          volumeMounts:
+            - name: app
+              mountPath: /app
+            - name: tmp
+              mountPath: /tmp
+            - name: npm
+              mountPath: /etc/obsidian-npm
+              readOnly: true
+        - name: setup
+          image: *image
+          command:
+            - sh
+            - -ec
+            - |
+              [ -n "$(ls -A /state/obsidian-headless/sync 2>/dev/null)" ] && exit 0
+              ob sync-setup --vault "$VAULT" --path /vault --password "$E2EE_PASSWORD" --device-name hermes --json
+              ob sync-config --path /vault --conflict-strategy merge
+          env:
+            - name: PATH
+              value: /app/node_modules/.bin:/usr/local/bin:/usr/bin:/bin
+            - name: HOME
+              value: /state
+            - name: XDG_CONFIG_HOME
+              value: /state
+            - name: OBSIDIAN_AUTH_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: obsidian
+                  key: OBSIDIAN_AUTH_TOKEN
+            - name: VAULT
+              valueFrom:
+                secretKeyRef:
+                  name: obsidian
+                  key: VAULT
+            - name: E2EE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: obsidian
+                  key: E2EE_PASSWORD
+          securityContext: *securityContext
+          volumeMounts: &volumeMounts
+            - name: app
+              mountPath: /app
+            - name: tmp
+              mountPath: /tmp
+            - name: data
+              mountPath: /state
+              subPath: state
+            - name: data
+              mountPath: /vault
+              subPath: vault
+      containers:
+        - name: obsidian
+          image: *image
+          command:
+            - ob
+            - sync
+            - --continuous
+            - --path
+            - /vault
+          env:
+            - name: PATH
+              value: /app/node_modules/.bin:/usr/local/bin:/usr/bin:/bin
+            - name: HOME
+              value: /state
+            - name: XDG_CONFIG_HOME
+              value: /state
+            - name: OBSIDIAN_AUTH_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: obsidian
+                  key: OBSIDIAN_AUTH_TOKEN
+          securityContext: *securityContext
+          resources:
+            requests:
+              cpu: 20m
+              memory: 128Mi
+            limits:
+              memory: 512Mi
+          volumeMounts: *volumeMounts
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: obsidian
+        - name: app
+          emptyDir:
+            sizeLimit: 512Mi
+        - name: tmp
+          emptyDir:
+            sizeLimit: 512Mi
+        - name: npm
+          configMap:
+            name: obsidian-npm
+---
+# Direct egress: the auth token lives here, never in the agent's pods.
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: obsidian
+spec:
+  endpointSelector:
+    matchLabels:
+      app.kubernetes.io/name: obsidian
+  # Overrides the cluster baseline's kube-apiserver allow; this pod never needs it.
+  egressDeny:
+    - toEntities:
+        - kube-apiserver
+  egress:
+    - toFQDNs:
+        - matchPattern: "*.obsidian.md"
+        - matchName: registry.npmjs.org
+      toPorts:
+        - ports:
+            - port: "443"
+              protocol: TCP
