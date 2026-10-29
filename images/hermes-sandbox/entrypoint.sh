@@ -27,4 +27,6 @@ else
 	: >/run/sshd/env.conf
 fi
 
+/usr/local/bin/idle-wipe.sh &
+
 exec /usr/sbin/sshd -D -e -f /etc/ssh/sshd_config
