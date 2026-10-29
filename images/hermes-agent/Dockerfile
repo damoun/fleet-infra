@@ -20,6 +20,13 @@ RUN rm -rf /opt/hermes/.venv/lib/python3.*/site-packages/browser_harness \
         /opt/hermes/.venv/bin/browser-harness \
         /opt/hermes/.venv/bin/browser-harness-mcp
 
+# signal-cli runs in its own pod and cannot open the gateway's file paths;
+# send attachments as data URIs. The script fails the build if the adapter
+# code it rewrites has moved.
+COPY signal-data-uri.py /tmp/signal-data-uri.py
+RUN python3 /tmp/signal-data-uri.py /opt/hermes/plugins/platforms/signal/adapter.py \
+    && rm /tmp/signal-data-uri.py
+
 # The pod runs Hermes directly as the image's hermes user, bypassing the s6
 # init that needs root.
 USER 10000:10000
