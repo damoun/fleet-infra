@@ -99,9 +99,11 @@ spec:
               value: /etc/egress-ca/ca.crt
             - name: CURL_CA_BUNDLE
               value: /etc/egress-ca/ca.crt
-            # Dummy token, swapped for the real key by the egress proxy.
+            # Dummy tokens, swapped for the real keys by the egress proxy.
             - name: DEEPSEEK_API_KEY
               value: proxy-deepseek
+            - name: GEMINI_API_KEY
+              value: proxy-gemini
             - name: SIGNAL_HTTP_URL
               value: http://signal-cli.hermes.svc.cluster.local:8080
           envFrom:

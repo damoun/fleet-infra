@@ -13,6 +13,10 @@ auxiliary:
   title_generation:
     provider: deepseek
     model: deepseek-flash
+  # DeepSeek has no vision; images sent to Hermes are described by Gemini.
+  vision:
+    provider: gemini
+    model: gemini-3.8-flash
 # 1M context and cheap cache hits: compress late to keep the cached prefix.
 compression:
   threshold: 0.85

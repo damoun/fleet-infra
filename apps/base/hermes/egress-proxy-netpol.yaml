@@ -10,6 +10,7 @@ spec:
   egress:
     - toFQDNs:
         - matchName: api.deepseek.com
+        - matchName: generativelanguage.googleapis.com
         - matchName: mcp.exa.ai
         - matchName: search.parallel.ai
         - matchName: api.firecrawl.dev
