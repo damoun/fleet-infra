@@ -64,3 +64,14 @@ cron:
 # only produces proxy rejections.
 model_catalog:
   enabled: false
+dashboard:
+  public_url: https://herm.core.ams.damoun.casa
+  # Cilium's Envoy reaches the pod from an address in the pod CIDR.
+  trusted_proxies:
+    - 172.20.0.0/20
+  oauth:
+    provider: self-hosted
+    self_hosted:
+      issuer: https://id.core.ams.damoun.casa
+      # Public PKCE client; Pocket ID admits only hermes_admins.
+      client_id: 94e1cd5c-8e11-43dd-b6ed-75f4a661d5ed

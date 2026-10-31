@@ -1,0 +1,15 @@
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: hermes-dashboard
+spec:
+  parentRefs:
+    - name: gw
+      namespace: edge
+  hostnames:
+    - herm.core.ams.damoun.casa
+  rules:
+    - backendRefs:
+        - name: hermes-dashboard
+          port: 9119

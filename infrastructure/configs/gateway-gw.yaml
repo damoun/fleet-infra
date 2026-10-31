@@ -31,5 +31,6 @@ spec:
                 operator: In
                 values:
                   - flux-system
+                  - hermes
                   - id
                   - o11y

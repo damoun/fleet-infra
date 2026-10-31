@@ -10,6 +10,8 @@ resources:
   - gateway-ssh-secret.yaml
   - sandbox-host-key-secret.yaml
   - gateway.yaml
+  - dashboard.yaml
+  - httproute.yaml
   - sandbox.yaml
   - browser.yaml
   - signal.yaml
