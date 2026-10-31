@@ -49,17 +49,9 @@ spec:
             - |
               # Hermes refuses a control socket in a home it does not own, and
               # local-path creates the volume root as root 0777. The home is a
-              # subdirectory instead; the move is one-time and resumable.
-              cd /vol
-              if [ ! -d hermes ]; then
-                mkdir -p -m 0700 .hermes
-                for f in * .[!.]*; do
-                  [ -e "$f" ] || continue
-                  [ "$f" = .hermes ] || mv "$f" .hermes/
-                done
-                mv .hermes hermes
-              fi
-              cd hermes
+              # subdirectory instead.
+              mkdir -p -m 0700 /vol/hermes
+              cd /vol/hermes
               mkdir -p backups cron sessions logs/gateways hooks memories skills skins plans workspace home pairing platforms/pairing .ssh
               cp /etc/hermes-config/config.yaml config.yaml
               install -m 0600 /etc/hermes-ssh/id_ed25519 .ssh/id_ed25519
