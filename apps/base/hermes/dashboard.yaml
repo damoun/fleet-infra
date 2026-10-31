@@ -36,10 +36,14 @@ spec:
       initContainers:
         - name: config
           image: &image ghcr.io/damoun/hermes-agent:main@sha256:da698ea10d9b9730fc9a1a924fbec54abe7725fc8e1747dc84fd1134dd55d8df
+          # Waits for the gateway's init to create the home, or kubelet would
+          # create the subPath as root.
           command:
-            - cp
-            - /etc/hermes-config/config.yaml
-            - /opt/data/config.yaml
+            - /bin/sh
+            - -ec
+            - |
+              until [ -d /vol/hermes ]; do sleep 2; done
+              cp /etc/hermes-config/config.yaml /vol/hermes/config.yaml
           securityContext: &securityContext
             allowPrivilegeEscalation: false
             readOnlyRootFilesystem: true
@@ -51,7 +55,7 @@ spec:
               memory: 64Mi
           volumeMounts:
             - name: data
-              mountPath: /opt/data
+              mountPath: /vol
             - name: config
               mountPath: /etc/hermes-config
               readOnly: true
@@ -97,6 +101,7 @@ spec:
           volumeMounts:
             - name: data
               mountPath: /opt/data
+              subPath: hermes
             - name: tmp
               mountPath: /tmp
       volumes:
