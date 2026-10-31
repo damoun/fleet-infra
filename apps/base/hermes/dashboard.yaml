@@ -1,0 +1,154 @@
+---
+# Reviews staged skill writes outside the agent's pod: it shares hermes-data
+# but has no LLM, proxy or sandbox access.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hermes-dashboard
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: hermes-dashboard
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: hermes-dashboard
+        edge.damoun.casa/exposed: "true"
+    spec:
+      automountServiceAccountToken: false
+      enableServiceLinks: false
+      # The Pocket ID issuer only resolves in NetBird DNS.
+      hostAliases:
+        - ip: 172.28.0.10
+          hostnames:
+            - id.core.ams.damoun.casa
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10000
+        runAsGroup: 10000
+        fsGroup: 10000
+        seccompProfile:
+          type: RuntimeDefault
+      # Same config as the gateway; the hashed ConfigMap rolls this pod too.
+      initContainers:
+        - name: config
+          image: &image ghcr.io/damoun/hermes-agent:main@sha256:da698ea10d9b9730fc9a1a924fbec54abe7725fc8e1747dc84fd1134dd55d8df
+          command:
+            - cp
+            - /etc/hermes-config/config.yaml
+            - /opt/data/config.yaml
+          securityContext: &securityContext
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
+          resources:
+            limits:
+              memory: 64Mi
+          volumeMounts:
+            - name: data
+              mountPath: /opt/data
+            - name: config
+              mountPath: /etc/hermes-config
+              readOnly: true
+      containers:
+        - name: dashboard
+          image: *image
+          command:
+            - /opt/hermes/.venv/bin/hermes
+            - dashboard
+            - --host
+            - 0.0.0.0
+            - --port
+            - "9119"
+            - --no-open
+            - --skip-build
+          workingDir: /opt/data
+          env:
+            - name: HOME
+              value: /opt/data
+            - name: XDG_RUNTIME_DIR
+              value: /tmp
+            - name: TMPDIR
+              value: /tmp
+            # Dummies with no route to the proxy; they only satisfy the TUI's
+            # provider check so its slash commands run.
+            - name: DEEPSEEK_API_KEY
+              value: proxy-deepseek
+            - name: GEMINI_API_KEY
+              value: proxy-gemini
+          ports:
+            - name: http
+              containerPort: 9119
+          readinessProbe:
+            tcpSocket:
+              port: http
+          securityContext: *securityContext
+          resources:
+            requests:
+              cpu: 50m
+              memory: 256Mi
+            limits:
+              memory: 1Gi
+          volumeMounts:
+            - name: data
+              mountPath: /opt/data
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: hermes-data
+        - name: tmp
+          emptyDir:
+            sizeLimit: 512Mi
+        - name: config
+          configMap:
+            name: hermes-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: hermes-dashboard
+spec:
+  selector:
+    app.kubernetes.io/name: hermes-dashboard
+  ports:
+    - name: http
+      port: 9119
+      targetPort: http
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: hermes-dashboard
+spec:
+  endpointSelector:
+    matchLabels:
+      app.kubernetes.io/name: hermes-dashboard
+  # Overrides the cluster baseline's kube-apiserver allow; this pod never needs it.
+  egressDeny:
+    - toEntities:
+        - kube-apiserver
+  ingress:
+    - fromEntities:
+        - ingress
+      toPorts:
+        - ports:
+            - port: "9119"
+              protocol: TCP
+  egress:
+    # Login with Pocket ID goes through the Gateway, and Cilium's Envoy checks
+    # the client's egress against the backend pod.
+    - toEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: id
+            app.kubernetes.io/name: pocket-id
+      toPorts:
+        - ports:
+            - port: "1411"
+              protocol: TCP

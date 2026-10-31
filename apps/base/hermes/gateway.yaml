@@ -27,14 +27,8 @@ spec:
       labels:
         app.kubernetes.io/name: hermes
         egress.damoun.casa/client: "true"
-        edge.damoun.casa/exposed: "true"
     spec:
       automountServiceAccountToken: false
-      # The Pocket ID issuer only resolves in NetBird DNS.
-      hostAliases:
-        - ip: 172.28.0.10
-          hostnames:
-            - id.core.ams.damoun.casa
       # Python runs as PID 1 without an init; let the pause container reap
       # ssh and browser driver children.
       shareProcessNamespace: true
@@ -58,8 +52,6 @@ spec:
               cp /etc/hermes-config/config.yaml config.yaml
               install -m 0600 /etc/hermes-ssh/id_ed25519 .ssh/id_ed25519
               install -m 0644 /etc/hermes-ssh/known_hosts .ssh/known_hosts
-              # The dashboard reaches Pocket ID directly and the LLMs through the proxy.
-              cat /etc/ssl/certs/ca-certificates.crt /etc/egress-ca/ca.crt > /tmp/ca.crt
           securityContext: &securityContext
             allowPrivilegeEscalation: false
             readOnlyRootFilesystem: true
@@ -77,11 +69,6 @@ spec:
               readOnly: true
             - name: ssh
               mountPath: /etc/hermes-ssh
-              readOnly: true
-            - name: tmp
-              mountPath: /tmp
-            - name: egress-ca
-              mountPath: /etc/egress-ca
               readOnly: true
       containers:
         - name: hermes
@@ -137,58 +124,6 @@ spec:
             - name: egress-ca
               mountPath: /etc/egress-ca
               readOnly: true
-        # Its Chat tab runs the TUI, where /skills diff is not cut short.
-        - name: dashboard
-          image: ghcr.io/damoun/hermes-agent:main@sha256:da698ea10d9b9730fc9a1a924fbec54abe7725fc8e1747dc84fd1134dd55d8df
-          command:
-            - /opt/hermes/.venv/bin/hermes
-            - dashboard
-            - --host
-            - 0.0.0.0
-            - --port
-            - "9119"
-            - --no-open
-            - --skip-build
-          workingDir: /opt/data
-          env:
-            - name: HOME
-              value: /opt/data
-            - name: XDG_RUNTIME_DIR
-              value: /tmp
-            - name: TMPDIR
-              value: /tmp
-            - name: HTTPS_PROXY
-              value: http://egress-proxy.hermes.svc.cluster.local:8080
-            - name: NO_PROXY
-              value: localhost,127.0.0.1,.cluster.local,172.24.0.222,id.core.ams.damoun.casa
-            - name: SSL_CERT_FILE
-              value: /tmp/ca.crt
-            - name: REQUESTS_CA_BUNDLE
-              value: /tmp/ca.crt
-            - name: CURL_CA_BUNDLE
-              value: /tmp/ca.crt
-            - name: DEEPSEEK_API_KEY
-              value: proxy-deepseek
-            - name: GEMINI_API_KEY
-              value: proxy-gemini
-          ports:
-            - name: http
-              containerPort: 9119
-          readinessProbe:
-            tcpSocket:
-              port: http
-          securityContext: *securityContext
-          resources:
-            requests:
-              cpu: 50m
-              memory: 256Mi
-            limits:
-              memory: 1Gi
-          volumeMounts:
-            - name: data
-              mountPath: /opt/data
-            - name: tmp
-              mountPath: /tmp
       volumes:
         - name: data
           persistentVolumeClaim:
@@ -209,18 +144,6 @@ spec:
               - key: ca.crt
                 path: ca.crt
 ---
-apiVersion: v1
-kind: Service
-metadata:
-  name: hermes-dashboard
-spec:
-  selector:
-    app.kubernetes.io/name: hermes
-  ports:
-    - name: http
-      port: 9119
-      targetPort: http
----
 # Proxy egress comes from egress-proxy-clients (component); the rest is here.
 apiVersion: cilium.io/v2
 kind: CiliumNetworkPolicy
@@ -234,24 +157,7 @@ spec:
   egressDeny:
     - toEntities:
         - kube-apiserver
-  ingress:
-    - fromEntities:
-        - ingress
-      toPorts:
-        - ports:
-            - port: "9119"
-              protocol: TCP
   egress:
-    # Dashboard login with Pocket ID goes through the Gateway, and Cilium's
-    # Envoy checks the client's egress against the backend pod.
-    - toEndpoints:
-        - matchLabels:
-            io.kubernetes.pod.namespace: id
-            app.kubernetes.io/name: pocket-id
-      toPorts:
-        - ports:
-            - port: "1411"
-              protocol: TCP
     - toEndpoints:
         - matchLabels:
             app.kubernetes.io/name: signal-cli
