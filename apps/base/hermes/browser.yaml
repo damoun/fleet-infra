@@ -23,7 +23,7 @@ spec:
           type: RuntimeDefault
       containers:
         - name: chromium
-          image: chromedp/headless-shell:157.0.8103.15@sha256:f76fce2964611eb1e25b90d906727884db12a8918a6d85a0df2619a9ef845c7c
+          image: chromedp/headless-shell:157.0.8103.27@sha256:7bee201478b2f6266aae01243740ee85c16281e32f42d3aed9fdf04f4eace7a1
           # run.sh fronts Chrome's loopback-only DevTools port 9223 with socat on 9222.
           args:
             - --user-data-dir=/tmp/profile
