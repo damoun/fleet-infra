@@ -35,11 +35,11 @@ spec:
     victoria-metrics-operator:
       image:
         repository: victoriametrics/operator
-        tag: v0.75.1@sha256:97162bf8320b296f0361099f0290b9e035a3369e4022c5c42ca4a8146deca981
+        tag: v0.75.2@sha256:237fac68b608c7ed7bc4c47ad25ebcb1cbe973c9a789661d2b6cfaa83093f87a
       configReloader:
         image:
           repository: victoriametrics/operator
-          tag: config-reloader-v0.75.1@sha256:72d129e6a95edd3ee233cf11680c394baa2f75835f8cb978d3748dfb5eac87f2
+          tag: config-reloader-v0.75.2@sha256:6a997c5fe38692bff0384c0f113f8ab560f429d215649b16afc102ff81c80299
       # Restricted-compatible securityContext on every pod the operator creates.
       env:
         - name: VM_ENABLESTRICTSECURITY
@@ -91,16 +91,16 @@ spec:
       sources:
         victoriametrics-single-node:
           # renovate: datasource=github-tags depName=VictoriaMetrics/VictoriaMetrics tag=1.155.0
-          url: https://raw.githubusercontent.com/VictoriaMetrics/VictoriaMetrics/3db4e151429f6b864f906ac07ae7f5b9f54c09bd/dashboards/victoriametrics.json
+          url: https://raw.githubusercontent.com/VictoriaMetrics/VictoriaMetrics/3fec2f72414d00d1acda807c8818d7af90cc966d/dashboards/victoriametrics.json
         victoriametrics-vmagent:
           # renovate: datasource=github-tags depName=VictoriaMetrics/VictoriaMetrics tag=1.155.0
-          url: https://raw.githubusercontent.com/VictoriaMetrics/VictoriaMetrics/3db4e151429f6b864f906ac07ae7f5b9f54c09bd/dashboards/vmagent.json
+          url: https://raw.githubusercontent.com/VictoriaMetrics/VictoriaMetrics/3fec2f72414d00d1acda807c8818d7af90cc966d/dashboards/vmagent.json
         victoriametrics-vmalert:
           # renovate: datasource=github-tags depName=VictoriaMetrics/VictoriaMetrics tag=1.155.0
-          url: https://raw.githubusercontent.com/VictoriaMetrics/VictoriaMetrics/3db4e151429f6b864f906ac07ae7f5b9f54c09bd/dashboards/vmalert.json
+          url: https://raw.githubusercontent.com/VictoriaMetrics/VictoriaMetrics/3fec2f72414d00d1acda807c8818d7af90cc966d/dashboards/vmalert.json
         victoriametrics-operator:
           # renovate: datasource=github-tags depName=VictoriaMetrics/VictoriaMetrics tag=1.155.0
-          url: https://raw.githubusercontent.com/VictoriaMetrics/VictoriaMetrics/3db4e151429f6b864f906ac07ae7f5b9f54c09bd/dashboards/operator.json
+          url: https://raw.githubusercontent.com/VictoriaMetrics/VictoriaMetrics/3fec2f72414d00d1acda807c8818d7af90cc966d/dashboards/operator.json
         kubernetes-views-global:
           # renovate: datasource=github-tags depName=dotdc/grafana-dashboards-kubernetes tag=v3.0.8
           url: https://raw.githubusercontent.com/dotdc/grafana-dashboards-kubernetes/e4faf59e017a18e1b06fa64f11623bef15ce7507/dashboards/k8s-views-global.json
@@ -159,19 +159,19 @@ spec:
           url: https://raw.githubusercontent.com/prometheus-operator/kube-prometheus/799f3d73b5adf5758c3119c9201d9f417accb6d0/manifests/nodeExporter-prometheusRule.yaml
         vmhealth:
           # renovate: datasource=github-tags depName=VictoriaMetrics/VictoriaMetrics tag=1.155.0
-          url: https://raw.githubusercontent.com/VictoriaMetrics/VictoriaMetrics/3db4e151429f6b864f906ac07ae7f5b9f54c09bd/deployment/docker/rules/alerts-health.yml
+          url: https://raw.githubusercontent.com/VictoriaMetrics/VictoriaMetrics/3fec2f72414d00d1acda807c8818d7af90cc966d/deployment/docker/rules/alerts-health.yml
         vmagent:
           # renovate: datasource=github-tags depName=VictoriaMetrics/VictoriaMetrics tag=1.155.0
-          url: https://raw.githubusercontent.com/VictoriaMetrics/VictoriaMetrics/3db4e151429f6b864f906ac07ae7f5b9f54c09bd/deployment/docker/rules/alerts-vmagent.yml
+          url: https://raw.githubusercontent.com/VictoriaMetrics/VictoriaMetrics/3fec2f72414d00d1acda807c8818d7af90cc966d/deployment/docker/rules/alerts-vmagent.yml
         vmalert:
           # renovate: datasource=github-tags depName=VictoriaMetrics/VictoriaMetrics tag=1.155.0
-          url: https://raw.githubusercontent.com/VictoriaMetrics/VictoriaMetrics/3db4e151429f6b864f906ac07ae7f5b9f54c09bd/deployment/docker/rules/alerts-vmalert.yml
+          url: https://raw.githubusercontent.com/VictoriaMetrics/VictoriaMetrics/3fec2f72414d00d1acda807c8818d7af90cc966d/deployment/docker/rules/alerts-vmalert.yml
         vmsingle:
           # renovate: datasource=github-tags depName=VictoriaMetrics/VictoriaMetrics tag=1.155.0
-          url: https://raw.githubusercontent.com/VictoriaMetrics/VictoriaMetrics/3db4e151429f6b864f906ac07ae7f5b9f54c09bd/deployment/docker/rules/alerts-single-node.yml
+          url: https://raw.githubusercontent.com/VictoriaMetrics/VictoriaMetrics/3fec2f72414d00d1acda807c8818d7af90cc966d/deployment/docker/rules/alerts-single-node.yml
         vmoperator:
-          # renovate: datasource=github-tags depName=VictoriaMetrics/operator tag=v0.75.1
-          url: https://raw.githubusercontent.com/VictoriaMetrics/operator/444a18fcaa03e8ac9c8f706bd1f0b53629f1fb19/config/alerting/vmoperator-rules.yaml
+          # renovate: datasource=github-tags depName=VictoriaMetrics/operator tag=0.75.2
+          url: https://raw.githubusercontent.com/VictoriaMetrics/operator/61d1fd3209bfe1819ad4f6e48dcd7f74f51e228c/config/alerting/vmoperator-rules.yaml
         victorialogs:
           # renovate: datasource=github-tags depName=VictoriaMetrics/VictoriaLogs tag=v1.53.0
           url: https://raw.githubusercontent.com/VictoriaMetrics/VictoriaLogs/915d91904bf7f5be66ab00f88947ae7fc1431acc/deployment/docker/rules/alerts-vlogs.yml
