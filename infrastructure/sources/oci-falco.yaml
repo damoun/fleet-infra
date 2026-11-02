@@ -8,8 +8,8 @@ spec:
   interval: 24h
   url: oci://ghcr.io/falcosecurity/charts/falco
   ref:
-    tag: 9.2.1
-    digest: sha256:0e1fb8c9a069659f19427ee96695416dc4152bb43c8fd5234108dd05c34ef3b1
+    tag: 9.2.2
+    digest: sha256:08cd4fd501f12b33c8220886a595bb0cc6a6b5bf9713b5fad9e3381148409d6f
   verify:
     provider: cosign
     matchOIDCIdentity:
