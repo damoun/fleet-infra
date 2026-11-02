@@ -106,7 +106,7 @@ variable "kubernetes_version" {
   type        = string
   description = "Kubernetes version to bootstrap"
   # renovate: datasource=github-releases depName=kubernetes/kubernetes
-  default = "1.35.9"
+  default = "1.35.10"
 }
 
 variable "talos_version" {
