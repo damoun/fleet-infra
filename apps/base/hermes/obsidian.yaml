@@ -44,7 +44,7 @@ spec:
         # Builds better-sqlite3 from its bundled source with the image's own
         # headers, so npm is the only download and the lockfile pins all of it.
         - name: install
-          image: &image node:26.12.0@sha256:45a2bf9d9300e9cf47ecb375e38447c140c45ef5fbae869c430475b05b98d86e
+          image: &image node:26.12.1@sha256:97fa0f1b59035c6072721a88d55be1371c7cb1cc942b521e1cc5c72ec87655f4
           command:
             - sh
             - -ec
