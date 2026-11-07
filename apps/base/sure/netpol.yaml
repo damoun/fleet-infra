@@ -1,0 +1,152 @@
+---
+# Web, worker and the migrate job. The UI is reached through the gateway, /mcp
+# only through mcp-auth.
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: sure
+  namespace: sure
+spec:
+  endpointSelector:
+    matchLabels:
+      app.kubernetes.io/name: sure
+  ingress:
+    - fromEntities:
+        - ingress
+      toPorts:
+        - ports:
+            - port: "3000"
+              protocol: TCP
+    - fromEndpoints:
+        - matchLabels:
+            app.kubernetes.io/name: mcp-auth
+      toPorts:
+        - ports:
+            - port: "3000"
+              protocol: TCP
+  egressDeny:
+    - toEntities:
+        - kube-apiserver
+  egress:
+    - toEndpoints:
+        - matchLabels:
+            cnpg.io/cluster: sure-db
+      toPorts:
+        - ports:
+            - port: "5432"
+              protocol: TCP
+    - toEndpoints:
+        - matchLabels:
+            app.kubernetes.io/name: sure-redis
+      toPorts:
+        - ports:
+            - port: "6379"
+              protocol: TCP
+    # Bank sync (Enable Banking), brokers (SnapTrade), prices (Yahoo) and FX (Frankfurter).
+    - toFQDNs:
+        - matchName: api.enablebanking.com
+        - matchName: api.snaptrade.com
+        - matchName: query1.finance.yahoo.com
+        - matchName: finance.yahoo.com
+        - matchName: fc.yahoo.com
+        - matchName: api.frankfurter.dev
+      toPorts:
+        - ports:
+            - port: "443"
+              protocol: TCP
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: sure-redis
+  namespace: sure
+spec:
+  endpointSelector:
+    matchLabels:
+      app.kubernetes.io/name: sure-redis
+  ingress:
+    - fromEndpoints:
+        - matchLabels:
+            app.kubernetes.io/name: sure
+      toPorts:
+        - ports:
+            - port: "6379"
+              protocol: TCP
+  egressDeny:
+    - toEntities:
+        - kube-apiserver
+  egress: []
+---
+# Only the Hermes gateway may use the injected token; the sandbox cannot.
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: mcp-auth
+  namespace: sure
+spec:
+  endpointSelector:
+    matchLabels:
+      app.kubernetes.io/name: mcp-auth
+  ingress:
+    - fromEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: hermes
+            app.kubernetes.io/name: hermes
+      toPorts:
+        - ports:
+            - port: "8080"
+              protocol: TCP
+  egressDeny:
+    - toEntities:
+        - kube-apiserver
+  egress:
+    - toEndpoints:
+        - matchLabels:
+            app.kubernetes.io/name: sure
+            app.kubernetes.io/component: web
+      toPorts:
+        - ports:
+            - port: "3000"
+              protocol: TCP
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: sure-db
+  namespace: sure
+spec:
+  endpointSelector:
+    matchLabels:
+      cnpg.io/cluster: sure-db
+  ingress:
+    - fromEndpoints:
+        - matchLabels:
+            app.kubernetes.io/name: sure
+        - matchLabels:
+            cnpg.io/cluster: sure-db
+      toPorts:
+        - ports:
+            - port: "5432"
+              protocol: TCP
+    # The operator and the other instance poll each instance manager's status endpoint.
+    - fromEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: cnpg-system
+            app.kubernetes.io/name: cloudnative-pg
+        - matchLabels:
+            cnpg.io/cluster: sure-db
+      toPorts:
+        - ports:
+            - port: "8000"
+              protocol: TCP
+  egress:
+    # Streaming replication and status polling between the instances.
+    - toEndpoints:
+        - matchLabels:
+            cnpg.io/cluster: sure-db
+      toPorts:
+        - ports:
+            - port: "5432"
+              protocol: TCP
+            - port: "8000"
+              protocol: TCP

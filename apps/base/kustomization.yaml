@@ -4,3 +4,4 @@ kind: Kustomization
 resources:
   - hermes
   - pocket-id
+  - sure

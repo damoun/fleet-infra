@@ -186,3 +186,12 @@ spec:
         - ports:
             - port: "9377"
               protocol: TCP
+    # Sure's MCP, through the injector that holds its token.
+    - toEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: sure
+            app.kubernetes.io/name: mcp-auth
+      toPorts:
+        - ports:
+            - port: "8080"
+              protocol: TCP

@@ -72,9 +72,6 @@ spec:
             - name: vault
               mountPath: /vault
               subPath: vault
-            - name: bank
-              mountPath: /bank
-              readOnly: true
             - name: tmp
               mountPath: /tmp
             - name: run
@@ -97,11 +94,6 @@ spec:
         - name: vault
           persistentVolumeClaim:
             claimName: obsidian
-        # Written by the bank-sync CronJob.
-        - name: bank
-          persistentVolumeClaim:
-            claimName: bank-sync
-            readOnly: true
         - name: tmp
           emptyDir:
             sizeLimit: 1Gi
