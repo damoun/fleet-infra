@@ -1,0 +1,43 @@
+name: cert-manager signature
+
+# Flux verifies key-based cosign signatures with SHA-256 only, and cert-manager
+# signs with SHA-512, so the pinned chart and images are verified here instead.
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - infrastructure/sources/oci-cert-manager.yaml
+      - infrastructure/controllers/cert-manager.yaml
+      - .github/keys/cert-manager.pem
+      - .github/workflows/cert-manager-signature.yml
+
+permissions: {}
+
+env:
+  # renovate: datasource=github-releases depName=sigstore/cosign
+  COSIGN_VERSION: v3.1.4
+
+jobs:
+  cosign:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: sigstore/cosign-installer@6f9f17788090df1f26f669e9d70d6ae9567deba6 # v4.1.2
+        with:
+          cosign-release: ${{ env.COSIGN_VERSION }}
+      - name: Verify the pinned chart and images
+        run: |
+          refs=$(
+            awk '/url: oci:\/\//{u=substr($2,7)} /digest: sha256:/{print u"@"$2}' infrastructure/sources/oci-cert-manager.yaml
+            awk '/repository:/{r=($2 ~ /^quay\.io\/jetstack\//) ? $2 : ""} /tag: .*@sha256:/ && r {split($2,a,"@"); print r"@"a[2]}' infrastructure/controllers/cert-manager.yaml
+          )
+          test -n "$refs"
+          for ref in $refs; do
+            cosign verify --key .github/keys/cert-manager.pem --signature-digest-algorithm sha512 --insecure-ignore-tlog "$ref" > /dev/null
+            echo "verified $ref"
+          done
