@@ -8,6 +8,7 @@ resources:
   - helm-cilium.yaml
   - helm-descheduler.yaml
   - helm-metrics-server.yaml
+  - helm-sure.yaml
   - oci-cert-manager.yaml
   - oci-cert-manager-webhook-bunny.yaml
   - oci-cloudnative-pg.yaml
