@@ -54,6 +54,35 @@ agent:
     - browser-use
 skills:
   write_approval: true
+# Finances: read and categorize only. No deletes, transaction creation,
+# imports, transfer, budget or goal edits.
+mcp_servers:
+  sure:
+    url: http://mcp-auth.sure.svc.cluster.local:8080/mcp
+    tools:
+      include:
+        - get_transactions
+        - get_recurring_transactions
+        - get_accounts
+        - get_holdings
+        - get_balance_sheet
+        - get_income_statement
+        - get_budget
+        - get_tags
+        - get_categories
+        - get_merchants
+        - get_rules
+        - get_rule_options
+        - preview_rule
+        - get_transfer_match_candidates
+        - update_transaction
+        - create_category
+        - update_category
+        - create_tag
+        - update_tag
+        - create_rule
+        - update_rule
+        - apply_rule
 streaming:
   enabled: false
 security:
