@@ -265,13 +265,6 @@
       ]
     },
     {
-      "description": "One PR to the newest Chrome build instead of one per major.",
-      "matchDepNames": [
-        "chromedp/headless-shell"
-      ],
-      "separateMajorMinor": false
-    },
-    {
       "description": "Only Docker Hub exposes release timestamps; the release-age workflow holds these for 7 days from first sight instead.",
       "matchDatasources": [
         "docker"
