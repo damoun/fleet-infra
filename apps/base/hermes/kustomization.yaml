@@ -17,6 +17,8 @@ resources:
   - signal.yaml
   - obsidian-secret.yaml
   - obsidian.yaml
+  - bank-sync-secret.yaml
+  - bank-sync.yaml
   - alerts.yaml
 components:
   - ../../components/egress-proxy
@@ -32,3 +34,6 @@ configMapGenerator:
     files:
       - obsidian/package.json
       - obsidian/package-lock.json
+  - name: bank-sync
+    files:
+      - bank-sync/sync.py
