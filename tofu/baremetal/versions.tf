@@ -4,7 +4,7 @@ terraform {
   required_providers {
     talos = {
       source  = "registry.opentofu.org/siderolabs/talos"
-      version = "~> 0.12.0"
+      version = "0.12.0"
     }
   }
 }
