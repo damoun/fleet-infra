@@ -215,6 +215,42 @@
         "major"
       ],
       "enabled": false
+    },
+    {
+      "description": "A git-tags digest update repoints the pin at the default branch HEAD, not the tag.",
+      "matchDatasources": [
+        "git-tags"
+      ],
+      "matchUpdateTypes": [
+        "digest"
+      ],
+      "enabled": false
+    },
+    {
+      "description": "required_version tracks HashiCorp Terraform releases, but this repo runs OpenTofu.",
+      "matchManagers": [
+        "terraform"
+      ],
+      "matchDepTypes": [
+        "required_version"
+      ],
+      "enabled": false
+    },
+    {
+      "description": "Rolling master branch: take it monthly instead of on every commit.",
+      "matchDepNames": [
+        "https://github.com/rfmoz/grafana-dashboards"
+      ],
+      "schedule": [
+        "* * 1 * *"
+      ]
+    },
+    {
+      "description": "One PR to the newest Chrome build instead of one per major.",
+      "matchDepNames": [
+        "chromedp/headless-shell"
+      ],
+      "separateMajorMinor": false
     }
   ]
 }
