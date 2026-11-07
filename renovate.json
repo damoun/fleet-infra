@@ -149,7 +149,7 @@
       "description": "Chart and images move together.",
       "groupName": "cert-manager",
       "matchDepNames": [
-        "cert-manager",
+        "/^quay\\.io/jetstack/charts/cert-manager$/",
         "/^quay\\.io/jetstack/cert-manager-/"
       ]
     },

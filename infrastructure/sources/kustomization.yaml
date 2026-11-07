@@ -5,10 +5,10 @@ resources:
   - git-gateway-api.yaml
   - git-kubelet-serving-cert-approver.yaml
   - git-local-path-provisioner.yaml
-  - helm-cert-manager.yaml
   - helm-cilium.yaml
   - helm-descheduler.yaml
   - helm-metrics-server.yaml
+  - oci-cert-manager.yaml
   - oci-cert-manager-webhook-bunny.yaml
   - oci-cloudnative-pg.yaml
   - oci-falco.yaml
