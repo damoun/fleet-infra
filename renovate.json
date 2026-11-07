@@ -3,6 +3,9 @@
   "extends": [
     "github>damoun/renovate-config"
   ],
+  "automergeSchedule": [
+    "after 9am and before 5pm on monday,tuesday,wednesday,thursday"
+  ],
   "logLevelRemap": [
     {
       "matchMessage": "/Some .+ did not have a releaseTimestamp, but as we're running with minimumReleaseAgeBehaviour=timestamp-optional, proceeding/",
@@ -290,6 +293,87 @@
         "ghcr.io/damoun/**"
       ],
       "minimumReleaseAge": null
+    },
+    {
+      "description": "Automerge only what the rules below allow.",
+      "matchPackageNames": [
+        "*"
+      ],
+      "automerge": false
+    },
+    {
+      "matchUpdateTypes": [
+        "patch",
+        "digest"
+      ],
+      "automerge": true
+    },
+    {
+      "description": "SHA-pinned actions from well-known publishers.",
+      "matchManagers": [
+        "github-actions"
+      ],
+      "matchPackageNames": [
+        "actions/**",
+        "github/**",
+        "docker/**"
+      ],
+      "matchUpdateTypes": [
+        "minor",
+        "patch"
+      ],
+      "automerge": true
+    },
+    {
+      "description": "A new SHA for the same action tag means the tag moved.",
+      "matchManagers": [
+        "github-actions"
+      ],
+      "matchUpdateTypes": [
+        "digest"
+      ],
+      "automerge": false
+    },
+    {
+      "description": "Cluster-critical, access-path and secret-handling components get a human merge.",
+      "matchPackageNames": [
+        "/cilium/",
+        "/flux/",
+        "/cert-manager/",
+        "/netbird/",
+        "/talos/",
+        "/siderolabs/",
+        "kubernetes/kubernetes",
+        "/gateway-api/",
+        "/cloudnative-pg/",
+        "/falco/",
+        "/iron-proxy/",
+        "/pocket-id/",
+        "/hermes-agent/"
+      ],
+      "automerge": false
+    },
+    {
+      "matchManagers": [
+        "terraform"
+      ],
+      "automerge": false
+    },
+    {
+      "matchUpdateTypes": [
+        "major"
+      ],
+      "automerge": false
+    },
+    {
+      "description": "Images built by this repository's CI.",
+      "matchPackageNames": [
+        "ghcr.io/damoun/**"
+      ],
+      "matchUpdateTypes": [
+        "digest"
+      ],
+      "automerge": true
     }
   ]
 }
