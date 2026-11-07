@@ -226,9 +226,18 @@
       "enabled": false
     },
     {
-      "description": "A git-tags digest update repoints the pin at the default branch HEAD, not the tag.",
+      "description": "Digest updates on tag-pinned git sources point at a commit that is not the tag. Tag bumps still move the commit.",
+      "matchManagers": [
+        "flux",
+        "custom.regex"
+      ],
       "matchDatasources": [
-        "git-tags"
+        "git-refs",
+        "git-tags",
+        "github-tags"
+      ],
+      "matchDepNames": [
+        "!https://github.com/rfmoz/grafana-dashboards"
       ],
       "matchUpdateTypes": [
         "digest"
