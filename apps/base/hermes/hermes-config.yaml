@@ -38,9 +38,9 @@ approvals:
 browser:
   # The default Browser Use backend swaps the built-in tools for browser_exec,
   # which runs model-written Python inside the gateway. Keep the built-in
-  # tools, which drive the browser pod over CDP.
+  # tools, which drive the camofox pod (anti-detection Firefox) over its REST API.
   backend: "off"
-  cdp_url: http://172.24.0.222:9222
+  cloud_provider: camofox
 # With an ssh terminal, the default (auto) places the browser's screen in the
 # sandbox and tries to start a desktop there. Run the agent-browser driver in
 # the gateway instead; it attaches to the browser pod over CDP.
