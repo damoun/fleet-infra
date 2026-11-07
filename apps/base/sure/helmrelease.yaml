@@ -15,8 +15,7 @@ spec:
         kind: HelmRepository
         name: sure
         namespace: flux-system
-  # The chart has no pod labels value; the label opts the web pod into Gateway
-  # traffic from the NetBird routers.
+  # The chart has no pod labels or hostAliases values.
   postRenderers:
     - kustomize:
         patches:
@@ -24,9 +23,17 @@ spec:
               kind: Deployment
               name: sure-web
             patch: |
+              # Opts the web pod into Gateway traffic from the NetBird routers.
               - op: add
                 path: /spec/template/metadata/labels/edge.damoun.casa~1exposed
                 value: "true"
+              # The Pocket ID issuer only resolves in NetBird DNS.
+              - op: add
+                path: /spec/template/spec/hostAliases
+                value:
+                  - ip: 172.28.0.10
+                    hostnames:
+                      - id.core.ams.damoun.casa
   values:
     image:
       repository: ghcr.io/we-promise/sure
@@ -41,6 +48,12 @@ spec:
         # Passkeys bind to this ID; changing it later orphans registered keys.
         WEBAUTHN_RP_ID: sure.core.ams.damoun.casa
         WEBAUTHN_ALLOWED_ORIGINS: https://sure.core.ams.damoun.casa
+        OIDC_ISSUER: https://id.core.ams.damoun.casa
+        OIDC_REDIRECT_URI: https://sure.core.ams.damoun.casa/auth/openid_connect/callback
+        OIDC_BUTTON_LABEL: Sign in with Pocket ID
+        # The first Pocket ID login creates the account; switched to link_only after.
+        AUTH_JIT_MODE: create_and_link
+        ALLOWED_OIDC_DOMAINS: plenard.me
       extraEnv:
         REDIS_URL: redis://sure-redis:6379/0
       extraEnvVars:
@@ -59,6 +72,16 @@ spec:
             secretKeyRef:
               name: sure
               key: MCP_USER_EMAIL
+        - name: OIDC_CLIENT_ID
+          valueFrom:
+            secretKeyRef:
+              name: sure-oidc
+              key: OIDC_CLIENT_ID
+        - name: OIDC_CLIENT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: sure-oidc
+              key: OIDC_CLIENT_SECRET
     # The database is the CNPG Cluster in database.yaml, Redis is redis.yaml.
     cnpg:
       enabled: false
