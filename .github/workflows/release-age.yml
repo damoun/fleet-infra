@@ -1,7 +1,8 @@
 name: Release age
 
 # Cooldown for Renovate PRs labelled no-release-age (registries without release
-# timestamps): pending until the head commit is MIN_DAYS old. Other PRs pass.
+# timestamps): pending until the head commit is MIN_DAYS old. Every PR also fails
+# while an OSV advisory affects a version it updates to (GitHub Actions and PyPI).
 
 on:
   pull_request:
@@ -25,20 +26,97 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
           MIN_DAYS: "7"
+        shell: python
         run: |
-          now=$(date -u +%s)
-          gh pr list --state open --limit 100 --json headRefOid,labels \
-            --jq '.[] | [.headRefOid, ([.labels[].name] | index("no-release-age") != null)] | @tsv' |
-          while IFS=$'\t' read -r sha labelled; do
-            if [ "$labelled" != true ]; then
-              state=success
-              desc="Not applicable"
-            else
-              committed=$(gh api "repos/$GH_REPO/commits/$sha" --jq .commit.committer.date)
-              age=$(( (now - $(date -u -d "$committed" +%s)) / 86400 ))
-              state=pending
-              [ "$age" -ge "$MIN_DAYS" ] && state=success
-              desc="First seen ${age}d ago, needs ${MIN_DAYS}d"
-            fi
-            gh api "repos/$GH_REPO/statuses/$sha" -f state="$state" -f context=release-age -f description="$desc" > /dev/null
-          done
+          import json, os, re, time, urllib.request
+          from datetime import datetime
+
+          REPO, MIN_DAYS = os.environ["GH_REPO"], int(os.environ["MIN_DAYS"])
+          # Renovate labels each PR with its manager.
+          ECOSYSTEMS = {"github-actions": "GitHub Actions", "pip_requirements": "PyPI"}
+          # Renovate PR body row: | [name](url) | type | update | `old` → `new` |
+          ROW = re.compile(r"^\| \[?([^\]|(]+?)\]?(?:\([^)]*\))? \|.*\| `[^`]+` → `v?([^`]+)` \|$", re.M)
+
+
+          def call(url, data=None):
+              headers = {"Accept": "application/json"}
+              if url.startswith("https://api.github.com"):
+                  headers["Authorization"] = f"Bearer {os.environ['GH_TOKEN']}"
+              body = json.dumps(data).encode() if data is not None else None
+              with urllib.request.urlopen(urllib.request.Request(url, body, headers)) as r:
+                  return json.load(r)
+
+
+          def key(version):
+              return [int(n) for n in re.findall(r"\d+", version)]
+
+
+          def affects(vuln, ecosystem, name, version):
+              for a in vuln.get("affected", []):
+                  pkg = a.get("package", {})
+                  if pkg.get("ecosystem") != ecosystem or pkg.get("name", "").lower() != name.lower():
+                      continue
+                  if version in a.get("versions", []):
+                      return True
+                  # GHSA leaves some ranges open and records the real bound here.
+                  bound = re.match(r"(<=?)\s*v?(\S+)", (a.get("database_specific") or {}).get("last_known_affected_version_range", ""))
+                  if bound and (key(version) > key(bound[2]) if bound[1] == "<=" else key(version) >= key(bound[2])):
+                      continue
+                  # OSV does not match versions for every ecosystem, so walk the ranges here.
+                  for rng in a.get("ranges", []):
+                      if rng["type"] not in ("ECOSYSTEM", "SEMVER"):
+                          continue
+                      start = None
+                      for ev in rng["events"]:
+                          if "introduced" in ev:
+                              start = key(ev["introduced"])
+                          elif start is not None and "fixed" in ev:
+                              if start <= key(version) < key(ev["fixed"]):
+                                  return True
+                              start = None
+                          elif start is not None and "last_affected" in ev:
+                              if start <= key(version) <= key(ev["last_affected"]):
+                                  return True
+                              start = None
+                      if start is not None and start <= key(version):
+                          return True
+              return False
+
+
+          def advisory(ecosystem, name, version):
+              query, token = {"package": {"ecosystem": ecosystem, "name": name}}, None
+              while True:
+                  if token:
+                      query["page_token"] = token
+                  res = call("https://api.osv.dev/v1/query", query)
+                  for vuln in res.get("vulns", []):
+                      if not vuln.get("withdrawn") and affects(vuln, ecosystem, name, version):
+                          return vuln["id"]
+                  token = res.get("next_page_token")
+                  if not token:
+                      return None
+
+
+          def status(pr):
+              labels = {label["name"] for label in pr["labels"]}
+              for ecosystem in (ECOSYSTEMS[m] for m in labels & ECOSYSTEMS.keys()):
+                  for name, version in ROW.findall(pr["body"] or ""):
+                      if found := advisory(ecosystem, name.strip(), version):
+                          return "failure", f"{found} affects {name.strip()} {version}", f"https://osv.dev/vulnerability/{found}"
+              if "no-release-age" not in labels:
+                  return "success", "Not applicable", None
+              commit = call(f"https://api.github.com/repos/{REPO}/commits/{pr['head']['sha']}")
+              committed = datetime.fromisoformat(commit["commit"]["committer"]["date"].replace("Z", "+00:00"))
+              age = int((time.time() - committed.timestamp()) // 86400)
+              state = "success" if age >= MIN_DAYS else "pending"
+              return state, f"First seen {age}d ago, needs {MIN_DAYS}d", None
+
+
+          if __name__ == "__main__":
+              for pr in call(f"https://api.github.com/repos/{REPO}/pulls?state=open&per_page=100"):
+                  state, description, url = status(pr)
+                  payload = {"state": state, "context": "release-age", "description": description}
+                  if url:
+                      payload["target_url"] = url
+                  call(f"https://api.github.com/repos/{REPO}/statuses/{pr['head']['sha']}", payload)
+                  print(f"#{pr['number']} {state}: {description}")
