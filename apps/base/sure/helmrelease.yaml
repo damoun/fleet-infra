@@ -15,6 +15,18 @@ spec:
         kind: HelmRepository
         name: sure
         namespace: flux-system
+  # The chart has no pod labels value; the label opts the web pod into Gateway
+  # traffic from the NetBird routers.
+  postRenderers:
+    - kustomize:
+        patches:
+          - target:
+              kind: Deployment
+              name: sure-web
+            patch: |
+              - op: add
+                path: /spec/template/metadata/labels/edge.damoun.casa~1exposed
+                value: "true"
   values:
     image:
       repository: ghcr.io/we-promise/sure
