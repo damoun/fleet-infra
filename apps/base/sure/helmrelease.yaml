@@ -42,8 +42,7 @@ spec:
       existingSecret: sure
       settings:
         SELF_HOSTED: "true"
-        # Closed in the UI right after the first signup.
-        ONBOARDING_STATE: open
+        ONBOARDING_STATE: closed
         POSTHOG_FEEDBACK_ENABLED: "false"
         # Passkeys bind to this ID; changing it later orphans registered keys.
         WEBAUTHN_RP_ID: sure.core.ams.damoun.casa
@@ -51,8 +50,9 @@ spec:
         OIDC_ISSUER: https://id.core.ams.damoun.casa
         OIDC_REDIRECT_URI: https://sure.core.ams.damoun.casa/auth/openid_connect/callback
         OIDC_BUTTON_LABEL: Sign in with Pocket ID
-        # The first Pocket ID login creates the account; switched to link_only after.
-        AUTH_JIT_MODE: create_and_link
+        # Pocket ID only: no new accounts, no passwords.
+        AUTH_JIT_MODE: link_only
+        AUTH_LOCAL_LOGIN_ENABLED: "false"
         ALLOWED_OIDC_DOMAINS: plenard.me
       extraEnv:
         REDIS_URL: redis://sure-redis:6379/0
