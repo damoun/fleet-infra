@@ -8,7 +8,6 @@ tofu/**/*.tfstate
 tofu/**/*.tfstate.*
 tofu/**/*.tfplan
 tofu/**/*.auto.tfvars
-tofu/**/.terraform.lock.hcl
 
 # SOPS
 *.decrypted.yaml
