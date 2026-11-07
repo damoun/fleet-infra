@@ -13,7 +13,6 @@ resources:
   - dashboard.yaml
   - httproute.yaml
   - sandbox.yaml
-  - browser.yaml
   - camofox.yaml
   - signal.yaml
   - obsidian-secret.yaml
