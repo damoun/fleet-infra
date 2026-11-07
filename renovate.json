@@ -3,6 +3,12 @@
   "extends": [
     "github>damoun/renovate-config"
   ],
+  "logLevelRemap": [
+    {
+      "matchMessage": "/Some .+ did not have a releaseTimestamp, but as we're running with minimumReleaseAgeBehaviour=timestamp-optional, proceeding/",
+      "newLogLevel": "info"
+    }
+  ],
   "flux": {
     "managerFilePatterns": [
       "/.+\\.ya?ml$/"
@@ -251,6 +257,39 @@
         "chromedp/headless-shell"
       ],
       "separateMajorMinor": false
+    },
+    {
+      "description": "Only Docker Hub exposes release timestamps; the release-age workflow holds these for 7 days from first sight instead.",
+      "matchDatasources": [
+        "docker"
+      ],
+      "matchPackageNames": [
+        "/^[^/]+\\.[^/]+\\//",
+        "!/^docker\\.io\\//",
+        "!/^index\\.docker\\.io\\//"
+      ],
+      "minimumReleaseAgeBehaviour": "timestamp-optional",
+      "addLabels": [
+        "no-release-age"
+      ]
+    },
+    {
+      "description": "Git sources have no release timestamp; the release-age workflow holds these for 7 days from first sight instead.",
+      "matchDatasources": [
+        "git-refs",
+        "git-tags"
+      ],
+      "minimumReleaseAgeBehaviour": "timestamp-optional",
+      "addLabels": [
+        "no-release-age"
+      ]
+    },
+    {
+      "description": "Images built by this repository's CI.",
+      "matchPackageNames": [
+        "ghcr.io/damoun/**"
+      ],
+      "minimumReleaseAge": null
     }
   ]
 }
