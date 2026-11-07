@@ -42,6 +42,16 @@ spec:
         - ports:
             - port: "6379"
               protocol: TCP
+    # Login with Pocket ID goes through the Gateway, and Cilium's Envoy checks
+    # the client's egress against the backend pod.
+    - toEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: id
+            app.kubernetes.io/name: pocket-id
+      toPorts:
+        - ports:
+            - port: "1411"
+              protocol: TCP
     # Bank sync (Enable Banking), brokers (SnapTrade), prices (Yahoo) and FX (Frankfurter).
     - toFQDNs:
         - matchName: api.enablebanking.com

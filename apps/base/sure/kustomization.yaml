@@ -5,6 +5,7 @@ resources:
   - namespace.yaml
   - secret.yaml
   - mcp-auth-secret.yaml
+  - oidc-secret.yaml
   - database.yaml
   - redis.yaml
   - helmrelease.yaml
