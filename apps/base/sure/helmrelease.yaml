@@ -38,6 +38,9 @@ spec:
         # Closed in the UI right after the first signup.
         ONBOARDING_STATE: open
         POSTHOG_FEEDBACK_ENABLED: "false"
+        # Passkeys bind to this ID; changing it later orphans registered keys.
+        WEBAUTHN_RP_ID: sure.core.ams.damoun.casa
+        WEBAUTHN_ALLOWED_ORIGINS: https://sure.core.ams.damoun.casa
       extraEnv:
         REDIS_URL: redis://sure-redis:6379/0
       extraEnvVars:
