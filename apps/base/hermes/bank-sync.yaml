@@ -46,7 +46,7 @@ spec:
           containers:
             # The sandbox image already ships cryptography for the JWT signature.
             - name: bank-sync
-              image: ghcr.io/damoun/hermes-sandbox:main@sha256:c26c0dd19a2ebbed0209d5c676ddd0044549540b905b2f35842eaed5d74f2e8d
+              image: ghcr.io/damoun/hermes-sandbox:main@sha256:2be100caf002f946b5d38b8069cecaca4a3bae786421886e6c642e460c702ac2
               command:
                 - python
                 - /opt/bank-sync/sync.py
