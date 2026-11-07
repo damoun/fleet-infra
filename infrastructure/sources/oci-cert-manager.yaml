@@ -1,0 +1,14 @@
+---
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: OCIRepository
+metadata:
+  name: cert-manager
+  namespace: flux-system
+spec:
+  interval: 24h
+  url: oci://quay.io/jetstack/charts/cert-manager
+  ref:
+    tag: v1.21.3
+    digest: sha256:e482675aec32862d323a9218293ff7de81192337998615e4378c56498473f240
+  # No verify: the chart is cosign-signed with the cert-manager RSA key using SHA-512,
+  # but Flux only verifies key-based signatures with SHA-256.
