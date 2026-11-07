@@ -6,10 +6,8 @@ import json
 import os
 import pathlib
 import time
-import urllib.error
-import urllib.parse
-import urllib.request
 
+import requests
 from cryptography.hazmat.primitives import hashes, serialization
 from cryptography.hazmat.primitives.asymmetric import padding
 
@@ -35,10 +33,9 @@ def token():
 
 
 def get(path, **params):
-    query = "?" + urllib.parse.urlencode(params) if params else ""
-    req = urllib.request.Request(API + path + query, headers={"Authorization": f"Bearer {token()}"})
-    with urllib.request.urlopen(req, timeout=60) as r:
-        return json.load(r)
+    r = requests.get(API + path, params=params, headers={"Authorization": f"Bearer {token()}"}, timeout=60)
+    r.raise_for_status()
+    return r.json()
 
 
 def transactions(uid, date_from):
@@ -69,9 +66,9 @@ def main():
                     }
                 )
             print(f"session {i}: {session['status']}, {len(entry['accounts'])} account(s)")
-        except urllib.error.HTTPError as e:
-            entry.update(status="stale", error=f"HTTP {e.code}")
-            print(f"session {i}: HTTP {e.code}")
+        except requests.HTTPError as e:
+            entry.update(status="stale", error=f"HTTP {e.response.status_code}")
+            print(f"session {i}: HTTP {e.response.status_code}")
         snapshot["sessions"].append(entry)
 
     tmp = OUT.with_suffix(".tmp")
