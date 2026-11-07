@@ -42,8 +42,8 @@ browser:
   backend: "off"
   cloud_provider: camofox
 # With an ssh terminal, the default (auto) places the browser's screen in the
-# sandbox and tries to start a desktop there. Run the agent-browser driver in
-# the gateway instead; it attaches to the browser pod over CDP.
+# sandbox and tries to start a desktop there. Browsing goes to the camofox pod;
+# this keeps any local browser or desktop out of the sandbox.
 bot_desktop:
   placement: gateway
 agent:

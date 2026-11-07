@@ -30,7 +30,7 @@ spec:
     spec:
       automountServiceAccountToken: false
       # Python runs as PID 1 without an init; let the pause container reap
-      # ssh and browser driver children.
+      # ssh children.
       shareProcessNamespace: true
       securityContext:
         runAsNonRoot: true
@@ -96,7 +96,7 @@ spec:
             - name: HTTPS_PROXY
               value: http://egress-proxy.hermes.svc.cluster.local:8080
             - name: NO_PROXY
-              value: localhost,127.0.0.1,.cluster.local,172.24.0.222
+              value: localhost,127.0.0.1,.cluster.local
             - name: SSL_CERT_FILE
               value: /etc/egress-ca/ca.crt
             - name: REQUESTS_CA_BUNDLE
@@ -178,13 +178,6 @@ spec:
       toPorts:
         - ports:
             - port: "2222"
-              protocol: TCP
-    - toEndpoints:
-        - matchLabels:
-            app.kubernetes.io/name: browser
-      toPorts:
-        - ports:
-            - port: "9222"
               protocol: TCP
     - toEndpoints:
         - matchLabels:
