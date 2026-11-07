@@ -87,9 +87,22 @@ spec:
     matchLabels:
       app.kubernetes.io/name: camofox
   # Overrides the cluster baseline's kube-apiserver allow; this pod never needs it.
+  # The special-use ranges keep the browser off the LAN, NetBird and the LB VIPs.
   egressDeny:
     - toEntities:
         - kube-apiserver
+    - toCIDRSet:
+        - cidr: 0.0.0.0/8
+        - cidr: 10.0.0.0/8
+        - cidr: 100.64.0.0/10
+        - cidr: 127.0.0.0/8
+        - cidr: 169.254.0.0/16
+        - cidr: 172.16.0.0/12
+        - cidr: 192.0.0.0/24
+        - cidr: 192.168.0.0/16
+        - cidr: 198.18.0.0/15
+        - cidr: 224.0.0.0/4
+        - cidr: 240.0.0.0/4
   ingress:
     - fromEndpoints:
         - matchLabels:
@@ -99,16 +112,8 @@ spec:
             - port: "9377"
               protocol: TCP
   egress:
-    - toCIDRSet:
-        - cidr: 0.0.0.0/0
-          except:
-            - 0.0.0.0/8
-            - 10.0.0.0/8
-            - 100.64.0.0/10
-            - 127.0.0.0/8
-            - 169.254.0.0/16
-            - 172.16.0.0/12
-            - 192.168.0.0/16
+    - toEntities:
+        - world
       toPorts:
         - ports:
             - port: "80"
