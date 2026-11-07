@@ -1,0 +1,44 @@
+name: Release age
+
+# Cooldown for Renovate PRs labelled no-release-age (registries without release
+# timestamps): pending until the head commit is MIN_DAYS old. Other PRs pass.
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened, labeled, unlabeled]
+  schedule:
+    - cron: "23 6 * * *"
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  first-seen:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: read
+      statuses: write
+    steps:
+      - name: Set release-age status on open PRs
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          MIN_DAYS: "7"
+        run: |
+          now=$(date -u +%s)
+          gh pr list --state open --limit 100 --json headRefOid,labels \
+            --jq '.[] | [.headRefOid, ([.labels[].name] | index("no-release-age") != null)] | @tsv' |
+          while IFS=$'\t' read -r sha labelled; do
+            if [ "$labelled" != true ]; then
+              state=success
+              desc="Not applicable"
+            else
+              committed=$(gh api "repos/$GH_REPO/commits/$sha" --jq .commit.committer.date)
+              age=$(( (now - $(date -u -d "$committed" +%s)) / 86400 ))
+              state=pending
+              [ "$age" -ge "$MIN_DAYS" ] && state=success
+              desc="First seen ${age}d ago, needs ${MIN_DAYS}d"
+            fi
+            gh api "repos/$GH_REPO/statuses/$sha" -f state="$state" -f context=release-age -f description="$desc" > /dev/null
+          done

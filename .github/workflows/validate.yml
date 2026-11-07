@@ -1,0 +1,24 @@
+name: Validate
+
+on:
+  pull_request:
+    branches: [main]
+
+permissions: {}
+
+jobs:
+  kustomize:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Build every Flux path in this repo
+        run: |
+          for dir in infrastructure/sources infrastructure/prereqs infrastructure/controllers infrastructure/configs apps/production; do
+            echo "::group::$dir"
+            kubectl kustomize "$dir" > /dev/null
+            echo "::endgroup::"
+          done
