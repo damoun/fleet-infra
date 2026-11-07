@@ -166,7 +166,7 @@ flowchart TD
 3. **Sensitive Data**: Mark all credentials and tokens with `sensitive = true`.
 4. **Git Hygiene**:
    - Never commit `.tfstate`, `.tfstate.backup`, `.tfplan`, `.auto.tfvars`, or `.terraform/` directories.
-   - Note: `.terraform.lock.hcl` is gitignored in this repository.
+   - Note: `.terraform.lock.hcl` is committed, with `linux_amd64` and `darwin_arm64` hashes.
 
 ---
 
