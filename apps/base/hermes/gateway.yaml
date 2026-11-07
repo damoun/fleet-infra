@@ -110,6 +110,8 @@ spec:
               value: proxy-gemini
             - name: SIGNAL_HTTP_URL
               value: http://signal-cli.hermes.svc.cluster.local:8080
+            - name: CAMOFOX_URL
+              value: http://camofox.hermes.svc.cluster.local:9377
           envFrom:
             - secretRef:
                 name: hermes-signal
@@ -183,4 +185,11 @@ spec:
       toPorts:
         - ports:
             - port: "9222"
+              protocol: TCP
+    - toEndpoints:
+        - matchLabels:
+            app.kubernetes.io/name: camofox
+      toPorts:
+        - ports:
+            - port: "9377"
               protocol: TCP
