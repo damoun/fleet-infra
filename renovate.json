@@ -252,6 +252,7 @@
       "matchDepTypes": [
         "required_version"
       ],
+      "minimumReleaseAge": "7 days",
       "enabled": false
     },
     {
@@ -281,6 +282,7 @@
         "!/^index\\.docker\\.io\\//",
         "!/^ghcr\\.io\\/damoun\\//"
       ],
+      "minimumReleaseAge": "7 days",
       "minimumReleaseAgeBehaviour": "timestamp-optional",
       "addLabels": [
         "no-release-age"
@@ -295,6 +297,7 @@
         "/^[^/.]+$/",
         "/^docker\\.io\\/library\\//"
       ],
+      "minimumReleaseAge": "7 days",
       "minimumReleaseAgeBehaviour": "timestamp-optional",
       "addLabels": [
         "no-release-age"
@@ -310,20 +313,6 @@
       "addLabels": [
         "no-release-age"
       ]
-    },
-    {
-      "description": "Images built by this repository's CI.",
-      "matchPackageNames": [
-        "ghcr.io/damoun/**"
-      ],
-      "minimumReleaseAge": null
-    },
-    {
-      "description": "Automerge only what the rules below allow.",
-      "matchPackageNames": [
-        "*"
-      ],
-      "automerge": false
     },
     {
       "matchUpdateTypes": [
@@ -346,6 +335,7 @@
         "minor",
         "patch"
       ],
+      "minimumReleaseAge": "7 days",
       "automerge": true
     },
     {
@@ -375,6 +365,7 @@
         "/pocket-id/",
         "/hermes-agent/"
       ],
+      "minimumReleaseAge": "7 days",
       "automerge": false
     },
     {
@@ -397,7 +388,21 @@
       "matchUpdateTypes": [
         "digest"
       ],
+      "minimumReleaseAge": null,
       "automerge": true
+    },
+    {
+      "description": "Restated after the rules above: update types without release timestamps skip the cooldown, as in the shared preset.",
+      "matchUpdateTypes": [
+        "pin",
+        "pinDigest",
+        "replacement",
+        "lockFileMaintenance",
+        "bump",
+        "rollback",
+        "lockfileUpdate"
+      ],
+      "minimumReleaseAge": null
     }
   ]
 }
