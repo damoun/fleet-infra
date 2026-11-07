@@ -278,7 +278,22 @@
       "matchPackageNames": [
         "/^[^/]+\\.[^/]+\\//",
         "!/^docker\\.io\\//",
-        "!/^index\\.docker\\.io\\//"
+        "!/^index\\.docker\\.io\\//",
+        "!/^ghcr\\.io\\/damoun\\//"
+      ],
+      "minimumReleaseAgeBehaviour": "timestamp-optional",
+      "addLabels": [
+        "no-release-age"
+      ]
+    },
+    {
+      "description": "Docker Hub official images return no release timestamp either.",
+      "matchDatasources": [
+        "docker"
+      ],
+      "matchPackageNames": [
+        "/^[^/.]+$/",
+        "/^docker\\.io\\/library\\//"
       ],
       "minimumReleaseAgeBehaviour": "timestamp-optional",
       "addLabels": [
