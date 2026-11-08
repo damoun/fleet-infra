@@ -35,5 +35,6 @@ spec:
                   - home-assistant
                   - id
                   - karakeep
+                  - mealie
                   - o11y
                   - sure

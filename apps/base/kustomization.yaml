@@ -5,6 +5,7 @@ resources:
   - hermes
   - home-assistant
   - karakeep
+  - mealie
   - o11y-mcp
   - pocket-id
   - sure
