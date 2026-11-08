@@ -127,6 +127,14 @@ mcp_servers:
         - get-highlight
         - create-highlight
         - update-highlight
+  # Recipes, meal plans and shopping lists. The upload tools read files from
+  # the MCP pod's own filesystem, its environment included.
+  mealie:
+    url: http://mealie-mcp.mealie.svc.cluster.local:8765/mcp
+    tools:
+      exclude:
+        - delete_*
+        - upload_recipe_*_file
 streaming:
   enabled: false
 security:

@@ -7,4 +7,6 @@ resources:
   - database.yaml
   - deployment.yaml
   - httproute.yaml
+  - mcp-secret.yaml
+  - mcp.yaml
   - netpol.yaml

@@ -213,6 +213,15 @@ spec:
         - ports:
             - port: "8000"
               protocol: TCP
+    # Mealie's MCP, which holds the Hermes user's token.
+    - toEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: mealie
+            app.kubernetes.io/name: mealie-mcp
+      toPorts:
+        - ports:
+            - port: "8765"
+              protocol: TCP
     # Read-only VictoriaMetrics and VictoriaLogs MCPs.
     - toEndpoints:
         - matchLabels:
