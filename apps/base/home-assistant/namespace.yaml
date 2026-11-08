@@ -1,0 +1,11 @@
+---
+# hostNetwork for mDNS/SSDP discovery needs privileged Pod Security.
+# The only non-restricted app namespace.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: home-assistant
+  labels:
+    pod-security.kubernetes.io/enforce: privileged
+    pod-security.kubernetes.io/audit: privileged
+    pod-security.kubernetes.io/warn: privileged

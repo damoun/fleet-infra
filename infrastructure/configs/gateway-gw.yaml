@@ -32,6 +32,7 @@ spec:
                 values:
                   - flux-system
                   - hermes
+                  - home-assistant
                   - id
                   - o11y
                   - sure
