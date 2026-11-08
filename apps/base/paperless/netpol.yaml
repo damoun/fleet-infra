@@ -15,6 +15,13 @@ spec:
         - ports:
             - port: "8000"
               protocol: TCP
+    - fromEndpoints:
+        - matchLabels:
+            app.kubernetes.io/name: paperless-mcp
+      toPorts:
+        - ports:
+            - port: "8000"
+              protocol: TCP
   egressDeny:
     - toEntities:
         - kube-apiserver
@@ -106,4 +113,64 @@ spec:
             - port: "5432"
               protocol: TCP
             - port: "8000"
+              protocol: TCP
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: paperless-mcp
+  namespace: paperless
+spec:
+  endpointSelector:
+    matchLabels:
+      app.kubernetes.io/name: paperless-mcp
+  # Calls without a token run with no rights, but only mcp-auth may call at all.
+  ingress:
+    - fromEndpoints:
+        - matchLabels:
+            app.kubernetes.io/name: mcp-auth
+      toPorts:
+        - ports:
+            - port: "3001"
+              protocol: TCP
+  egressDeny:
+    - toEntities:
+        - kube-apiserver
+  egress:
+    - toEndpoints:
+        - matchLabels:
+            app.kubernetes.io/name: paperless
+      toPorts:
+        - ports:
+            - port: "8000"
+              protocol: TCP
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: mcp-auth
+  namespace: paperless
+spec:
+  endpointSelector:
+    matchLabels:
+      app.kubernetes.io/name: mcp-auth
+  ingress:
+    - fromEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: hermes
+            app.kubernetes.io/name: hermes
+      toPorts:
+        - ports:
+            - port: "8080"
+              protocol: TCP
+  egressDeny:
+    - toEntities:
+        - kube-apiserver
+  egress:
+    - toEndpoints:
+        - matchLabels:
+            app.kubernetes.io/name: paperless-mcp
+      toPorts:
+        - ports:
+            - port: "3001"
               protocol: TCP

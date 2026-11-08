@@ -9,4 +9,7 @@ resources:
   - redis.yaml
   - deployment.yaml
   - httproute.yaml
+  - mcp-secret.yaml
+  - mcp-auth-secret.yaml
+  - mcp.yaml
   - netpol.yaml
