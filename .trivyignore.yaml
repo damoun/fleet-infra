@@ -1,0 +1,9 @@
+misconfigurations:
+  - id: KSV-0009
+    paths:
+      - apps/base/home-assistant/home-assistant.yaml
+    statement: Host networking is what lets Home Assistant discover devices over mDNS and SSDP.
+  - id: KSV-0014
+    paths:
+      - apps/base/home-assistant/home-assistant.yaml
+    statement: Home Assistant pip-installs integration requirements into the image at runtime.

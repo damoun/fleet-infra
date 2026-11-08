@@ -33,6 +33,7 @@ spec:
                   - changedetection
                   - flux-system
                   - hermes
+                  - home-assistant
                   - id
                   - karakeep
                   - mealie

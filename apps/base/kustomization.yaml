@@ -4,6 +4,7 @@ kind: Kustomization
 resources:
   - changedetection
   - hermes
+  - home-assistant
   - karakeep
   - mealie
   - o11y-mcp
