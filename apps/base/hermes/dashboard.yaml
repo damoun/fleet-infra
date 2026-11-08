@@ -35,7 +35,7 @@ spec:
       # Same config as the gateway; the hashed ConfigMap rolls this pod too.
       initContainers:
         - name: config
-          image: &image ghcr.io/damoun/hermes-agent:main@sha256:da698ea10d9b9730fc9a1a924fbec54abe7725fc8e1747dc84fd1134dd55d8df
+          image: &image ghcr.io/damoun/hermes-agent:main@sha256:e81cbe415f3b974e2df3e5614c01d16820a54eb8c596f427e36de31e5ae438b4
           # Waits for the gateway's init to create the home, or kubelet would
           # create the subPath as root.
           command:

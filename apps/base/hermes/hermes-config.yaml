@@ -1,4 +1,8 @@
-_config_version: 51
+_config_version: 52
+# The image bakes the camofox plugin in. Startup only looks for it in the home,
+# and with lazy installs off would report it missing and turn camofox off.
+_left_core_installed:
+  - camofox
 timezone: Europe/Amsterdam
 # V4 Pro plans and talks; delegated subtasks, where most tokens go, run on Flash.
 model:
@@ -36,11 +40,12 @@ terminal:
 approvals:
   mode: manual
 browser:
-  # The default Browser Use backend swaps the built-in tools for browser_exec,
-  # which runs model-written Python inside the gateway. Keep the built-in
-  # tools, which drive the camofox pod (anti-detection Firefox) over its REST API.
-  backend: "off"
   cloud_provider: camofox
+# The camofox plugin's browser_* tools drive the camofox pod (anti-detection
+# Firefox) over its REST API.
+plugins:
+  enabled:
+    - camofox
 # With an ssh terminal, the default (auto) places the browser's screen in the
 # sandbox and tries to start a desktop there. Browsing goes to the camofox pod;
 # this keeps any local browser or desktop out of the sandbox.
@@ -50,8 +55,8 @@ agent:
   disabled_toolsets:
     - image_gen
     - tts
-    # browser_exec, independent of browser.backend: resumed sessions keep their tool list.
-    - browser-use
+    # Core's browser_exec, which runs model-written Python inside the gateway.
+    - browser
 skills:
   write_approval: true
 # Finances: read and categorize only. No deletes, transaction creation,
