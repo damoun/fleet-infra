@@ -5,8 +5,10 @@ resources:
   - namespace.yaml
   - secret.yaml
   - oidc-secret.yaml
+  - mcp-secret.yaml
   - karakeep.yaml
   - meilisearch.yaml
   - chrome.yaml
+  - mcp.yaml
   - httproute.yaml
   - netpol.yaml

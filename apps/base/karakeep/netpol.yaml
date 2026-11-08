@@ -17,6 +17,13 @@ spec:
         - ports:
             - port: "3000"
               protocol: TCP
+    - fromEndpoints:
+        - matchLabels:
+            app.kubernetes.io/name: karakeep-mcp
+      toPorts:
+        - ports:
+            - port: "3000"
+              protocol: TCP
   # Overrides the cluster baseline's kube-apiserver allow; this pod never needs it.
   # The special-use ranges keep the crawler off the LAN, NetBird and the LB VIPs.
   egressDeny:
@@ -130,4 +137,34 @@ spec:
             - port: "80"
               protocol: TCP
             - port: "443"
+              protocol: TCP
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: karakeep-mcp
+  namespace: karakeep
+spec:
+  endpointSelector:
+    matchLabels:
+      app.kubernetes.io/name: karakeep-mcp
+  ingress:
+    - fromEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: hermes
+            app.kubernetes.io/name: hermes
+      toPorts:
+        - ports:
+            - port: "8000"
+              protocol: TCP
+  egressDeny:
+    - toEntities:
+        - kube-apiserver
+  egress:
+    - toEndpoints:
+        - matchLabels:
+            app.kubernetes.io/name: karakeep
+      toPorts:
+        - ports:
+            - port: "3000"
               protocol: TCP
