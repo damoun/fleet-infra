@@ -92,6 +92,36 @@ mcp_servers:
   # user it runs as has no delete permission.
   paperless:
     url: http://mcp-auth.paperless.svc.cluster.local:8080/mcp
+  # Bookmarks: everything except the delete tools.
+  karakeep:
+    url: http://karakeep-mcp.karakeep.svc.cluster.local:8000/mcp
+    tools:
+      include:
+        - search-bookmarks
+        - get-bookmark
+        - get-bookmark-content
+        - get-bookmark-lists
+        - get-bookmark-highlights
+        - get-asset
+        - create-bookmark
+        - update-bookmark
+        - get-lists
+        - get-list
+        - get-list-bookmarks
+        - create-list
+        - update-list
+        - add-bookmark-to-list
+        - remove-bookmark-from-list
+        - get-tags
+        - get-tag
+        - get-tag-bookmarks
+        - update-tag
+        - attach-tag-to-bookmark
+        - detach-tag-from-bookmark
+        - list-highlights
+        - get-highlight
+        - create-highlight
+        - update-highlight
 streaming:
   enabled: false
 security:
