@@ -48,8 +48,9 @@ spec:
             # Trust the Gateway's X-Forwarded-* headers.
             - name: USE_X_SETTINGS
               value: "1"
+            # sockpuppetbrowser has no TLS; the hop stays in the namespace, pinned by netpol.
             - name: PLAYWRIGHT_DRIVER_URL
-              value: ws://sockpuppetbrowser:3000
+              value: ws://sockpuppetbrowser:3000 # nosemgrep: javascript.lang.security.detect-insecure-websocket.detect-insecure-websocket
             # The only phone-home: a check for a newer release.
             - name: DISABLE_VERSION_CHECK
               value: "true"
