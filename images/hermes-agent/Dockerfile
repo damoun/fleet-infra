@@ -1,16 +1,13 @@
-FROM nousresearch/hermes-agent:v0.22.5@sha256:9c5561579f3ffdf333401797094ac3a743738d6c25d40f4331c7bf77b694238d
+FROM nousresearch/hermes-agent:v0.22.7@sha256:e6d81ae52ebf6a43efa529701405509f20054ba818f179ddd748bed4f8af584c
 
-# The browser tools need agent-browser, which the published image leaves out,
-# and lazy installs are off at runtime. A sealed image (manifest.json present)
-# sends PM installs to $HERMES_HOME/tools, the /opt/data volume, where build
-# output is discarded; hide the manifest for this step so agent-browser lands
-# in the image store next to chromium. PM rewrites facts.json root-only; restore
-# the base image's mode so the runtime user can read the store index.
-# The version and tarball sha256 come from the base release's pm/lock.json.
-RUN mv /opt/hermes/manifest.json /tmp/manifest.json \
-    && python3 -c 'from pm import ensure; ensure("agent-browser", explicit=True)' \
-    && mv /tmp/manifest.json /opt/hermes/manifest.json \
-    && chmod 0644 /opt/hermes/tools/facts.json
+# The browser tools that drive the camofox pod left Hermes core for the camofox
+# catalog plugin, which Hermes would otherwise clone into the home at runtime.
+# Bake it into the bundled plugin dir at the commit the base image's catalog
+# pins; the build fails once the catalog moves to another commit.
+ARG CAMOFOX_PLUGIN_SHA=1138f25c8b7b5a8fb882b3161e248f29abbd1a46
+ADD https://github.com/NousResearch/hermes-official-plugins.git#${CAMOFOX_PLUGIN_SHA}:camofox /opt/hermes/plugins/camofox
+RUN grep -qx "sha: ${CAMOFOX_PLUGIN_SHA}" /opt/hermes/plugin-catalog/camofox.yaml \
+    && rm -rf /opt/hermes/plugins/camofox/tests
 
 # browser_exec runs model-written Python in the gateway through the Browser Use
 # harness. Config keeps it off; removing the harness leaves nothing to run even
