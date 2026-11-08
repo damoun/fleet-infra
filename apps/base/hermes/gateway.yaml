@@ -204,6 +204,15 @@ spec:
         - ports:
             - port: "8080"
               protocol: TCP
+    # Karakeep's MCP, which holds the API key.
+    - toEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: karakeep
+            app.kubernetes.io/name: karakeep-mcp
+      toPorts:
+        - ports:
+            - port: "8000"
+              protocol: TCP
     # Read-only VictoriaMetrics and VictoriaLogs MCPs.
     - toEndpoints:
         - matchLabels:
