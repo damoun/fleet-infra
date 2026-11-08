@@ -30,8 +30,12 @@ spec:
       labels:
         app.kubernetes.io/name: home-assistant
         edge.damoun.casa/exposed: "true"
-    spec:
-      hostNetwork: true
+    # The image runs s6-overlay as root.
+    spec: # nosemgrep: yaml.kubernetes.security.run-as-non-root.run-as-non-root
+      securityContext:
+        seccompProfile:
+          type: RuntimeDefault
+      hostNetwork: true # nosemgrep: yaml.kubernetes.security.hostnetwork-pod.hostnetwork-pod
       dnsPolicy: ClusterFirstWithHostNet
       automountServiceAccountToken: false
       enableServiceLinks: false
@@ -41,6 +45,8 @@ spec:
           env:
             - name: TZ
               value: Europe/Amsterdam
+          securityContext:
+            allowPrivilegeEscalation: false
           ports:
             - name: http
               containerPort: 8123
