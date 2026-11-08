@@ -44,9 +44,6 @@ spec:
         SELF_HOSTED: "true"
         ONBOARDING_STATE: closed
         POSTHOG_FEEDBACK_ENABLED: "false"
-        # Keyless providers; the default (Twelve Data) needs an API key.
-        EXCHANGE_RATE_PROVIDER: frankfurter
-        SECURITIES_PROVIDER: yahoo_finance
         # Passkeys bind to this ID; changing it later orphans registered keys.
         WEBAUTHN_RP_ID: sure.core.ams.damoun.casa
         WEBAUTHN_ALLOWED_ORIGINS: https://sure.core.ams.damoun.casa
