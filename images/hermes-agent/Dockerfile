@@ -3,11 +3,23 @@ FROM nousresearch/hermes-agent:v0.22.7@sha256:e6d81ae52ebf6a43efa529701405509f20
 # The browser tools that drive the camofox pod left Hermes core for the camofox
 # catalog plugin, which Hermes would otherwise clone into the home at runtime.
 # Bake it into the bundled plugin dir at the commit the base image's catalog
-# pins; the build fails once the catalog moves to another commit.
-ARG CAMOFOX_PLUGIN_SHA=1138f25c8b7b5a8fb882b3161e248f29abbd1a46
-ADD https://github.com/NousResearch/hermes-official-plugins.git#${CAMOFOX_PLUGIN_SHA}:camofox /opt/hermes/plugins/camofox
-RUN grep -qx "sha: ${CAMOFOX_PLUGIN_SHA}" /opt/hermes/plugin-catalog/camofox.yaml \
-    && rm -rf /opt/hermes/plugins/camofox/tests
+# pins, so a base image bump carries the plugin with it. Its pyproject only
+# declares dependencies the venv already has; Hermes would still count it as a
+# venv member and warn at every start that the sealed venv needs a rebuild, so
+# the build checks each dependency against the venv and drops the file.
+RUN set -eu; \
+    catalog=/opt/hermes/plugin-catalog/camofox.yaml; \
+    repo=$(sed -n 's/^repo: //p' "$catalog"); \
+    sha=$(sed -n 's/^sha: //p' "$catalog"); \
+    subdir=$(sed -n 's/^subdir: //p' "$catalog"); \
+    echo "$sha" | grep -qxE '[0-9a-f]{40}'; \
+    git init -q /tmp/plugin; \
+    git -C /tmp/plugin fetch -q --depth 1 "$repo" "$sha"; \
+    git -C /tmp/plugin -c advice.detachedHead=false checkout -q FETCH_HEAD; \
+    cp -r "/tmp/plugin/$subdir" /opt/hermes/plugins/camofox; \
+    /opt/hermes/.venv/bin/python -c 'import sys, tomllib; from importlib.metadata import version; from packaging.requirements import Requirement; reqs = [Requirement(s) for s in tomllib.load(open(sys.argv[1], "rb"))["project"].get("dependencies", [])]; bad = [str(r) for r in reqs if not r.specifier.contains(version(r.name), prereleases=True)]; sys.exit(f"venv does not satisfy {bad}" if bad else 0)' /opt/hermes/plugins/camofox/pyproject.toml; \
+    rm -rf /opt/hermes/plugins/camofox/tests /opt/hermes/plugins/camofox/pyproject.toml /tmp/plugin; \
+    echo "camofox plugin: $repo@$sha"
 
 # browser_exec runs model-written Python in the gateway through the Browser Use
 # harness. Config keeps it off; removing the harness leaves nothing to run even
