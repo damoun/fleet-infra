@@ -35,5 +35,6 @@ spec:
                   - hermes
                   - id
                   - karakeep
+                  - mealie
                   - o11y
                   - sure

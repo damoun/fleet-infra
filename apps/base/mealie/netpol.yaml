@@ -1,0 +1,104 @@
+---
+# The UI is reached through the gateway. Recipe import fetches from the public
+# web only, never the LAN, cluster or NetBird.
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: mealie
+  namespace: mealie
+spec:
+  endpointSelector:
+    matchLabels:
+      app.kubernetes.io/name: mealie
+  ingress:
+    - fromEntities:
+        - ingress
+      toPorts:
+        - ports:
+            - port: "9000"
+              protocol: TCP
+  # Overrides the cluster baseline's kube-apiserver allow; this pod never needs it.
+  # The special-use ranges keep the importer off the LAN, NetBird and the LB VIPs.
+  egressDeny:
+    - toEntities:
+        - kube-apiserver
+    - toCIDRSet:
+        - cidr: 0.0.0.0/8
+        - cidr: 10.0.0.0/8
+        - cidr: 100.64.0.0/10
+        - cidr: 127.0.0.0/8
+        - cidr: 169.254.0.0/16
+        - cidr: 172.16.0.0/12
+        - cidr: 192.0.0.0/24
+        - cidr: 192.168.0.0/16
+        - cidr: 198.18.0.0/15
+        - cidr: 224.0.0.0/4
+        - cidr: 240.0.0.0/4
+  egress:
+    - toEndpoints:
+        - matchLabels:
+            cnpg.io/cluster: mealie-db
+      toPorts:
+        - ports:
+            - port: "5432"
+              protocol: TCP
+    # Login with Pocket ID goes through the Gateway, and Cilium's Envoy checks
+    # the client's egress against the backend pod.
+    - toEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: id
+            app.kubernetes.io/name: pocket-id
+      toPorts:
+        - ports:
+            - port: "1411"
+              protocol: TCP
+    - toEntities:
+        - world
+      toPorts:
+        - ports:
+            - port: "80"
+              protocol: TCP
+            - port: "443"
+              protocol: TCP
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: mealie-db
+  namespace: mealie
+spec:
+  endpointSelector:
+    matchLabels:
+      cnpg.io/cluster: mealie-db
+  ingress:
+    - fromEndpoints:
+        - matchLabels:
+            app.kubernetes.io/name: mealie
+        - matchLabels:
+            cnpg.io/cluster: mealie-db
+      toPorts:
+        - ports:
+            - port: "5432"
+              protocol: TCP
+    # The operator and the other instance poll each instance manager's status endpoint.
+    - fromEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: cnpg-system
+            app.kubernetes.io/name: cloudnative-pg
+        - matchLabels:
+            cnpg.io/cluster: mealie-db
+      toPorts:
+        - ports:
+            - port: "8000"
+              protocol: TCP
+  egress:
+    # Streaming replication and status polling between the instances.
+    - toEndpoints:
+        - matchLabels:
+            cnpg.io/cluster: mealie-db
+      toPorts:
+        - ports:
+            - port: "5432"
+              protocol: TCP
+            - port: "8000"
+              protocol: TCP

@@ -5,6 +5,7 @@ resources:
   - changedetection
   - hermes
   - karakeep
+  - mealie
   - o11y-mcp
   - pocket-id
   - sure
