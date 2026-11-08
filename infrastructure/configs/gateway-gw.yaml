@@ -34,4 +34,5 @@ spec:
                   - hermes
                   - id
                   - o11y
+                  - paperless
                   - sure
