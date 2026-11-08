@@ -30,8 +30,10 @@ spec:
               - key: kubernetes.io/metadata.name
                 operator: In
                 values:
+                  - changedetection
                   - flux-system
                   - hermes
+                  - home-assistant
                   - id
                   - karakeep
                   - mealie

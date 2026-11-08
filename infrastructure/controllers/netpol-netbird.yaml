@@ -39,6 +39,14 @@ spec:
           matchExpressions:
             - key: io.kubernetes.pod.namespace
               operator: Exists
+    # hostNetwork Home Assistant has the host identity, not the exposed label.
+    - toEntities:
+        - host
+        - remote-node
+      toPorts:
+        - ports:
+            - port: "8123"
+              protocol: TCP
     - toEntities:
         - kube-apiserver
       toPorts:

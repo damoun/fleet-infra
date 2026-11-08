@@ -1,0 +1,94 @@
+---
+# The UI is reached through the gateway. Public web only, never the LAN,
+# cluster or NetBird.
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: changedetection
+  namespace: changedetection
+spec:
+  endpointSelector:
+    matchLabels:
+      app.kubernetes.io/name: changedetection
+  ingress:
+    - fromEntities:
+        - ingress
+      toPorts:
+        - ports:
+            - port: "5000"
+              protocol: TCP
+  # Overrides the cluster baseline's kube-apiserver allow; this pod never needs it.
+  # The special-use ranges keep the fetcher off the LAN, NetBird and the LB VIPs.
+  egressDeny:
+    - toEntities:
+        - kube-apiserver
+    - toCIDRSet:
+        - cidr: 0.0.0.0/8
+        - cidr: 10.0.0.0/8
+        - cidr: 100.64.0.0/10
+        - cidr: 127.0.0.0/8
+        - cidr: 169.254.0.0/16
+        - cidr: 172.16.0.0/12
+        - cidr: 192.0.0.0/24
+        - cidr: 192.168.0.0/16
+        - cidr: 198.18.0.0/15
+        - cidr: 224.0.0.0/4
+        - cidr: 240.0.0.0/4
+  egress:
+    - toEndpoints:
+        - matchLabels:
+            app.kubernetes.io/name: sockpuppetbrowser
+      toPorts:
+        - ports:
+            - port: "3000"
+              protocol: TCP
+    - toEntities:
+        - world
+      toPorts:
+        - ports:
+            - port: "80"
+              protocol: TCP
+            - port: "443"
+              protocol: TCP
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: sockpuppetbrowser
+  namespace: changedetection
+spec:
+  endpointSelector:
+    matchLabels:
+      app.kubernetes.io/name: sockpuppetbrowser
+  ingress:
+    - fromEndpoints:
+        - matchLabels:
+            app.kubernetes.io/name: changedetection
+      toPorts:
+        - ports:
+            - port: "3000"
+              protocol: TCP
+  egressDeny:
+    - toEntities:
+        - kube-apiserver
+    - toCIDRSet:
+        - cidr: 0.0.0.0/8
+        - cidr: 10.0.0.0/8
+        - cidr: 100.64.0.0/10
+        - cidr: 127.0.0.0/8
+        - cidr: 169.254.0.0/16
+        - cidr: 172.16.0.0/12
+        - cidr: 192.0.0.0/24
+        - cidr: 192.168.0.0/16
+        - cidr: 198.18.0.0/15
+        - cidr: 224.0.0.0/4
+        - cidr: 240.0.0.0/4
+  egress:
+    - toEntities:
+        - world
+      toPorts:
+        - ports:
+            - port: "80"
+              protocol: TCP
+            - port: "443"
+              protocol: TCP
