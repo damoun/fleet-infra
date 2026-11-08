@@ -1,0 +1,98 @@
+---
+# Only the Hermes gateway may call the MCP servers.
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: mcp-victoriametrics
+  namespace: o11y
+spec:
+  endpointSelector:
+    matchLabels:
+      app.kubernetes.io/name: mcp-victoriametrics
+  ingress:
+    - fromEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: hermes
+            app.kubernetes.io/name: hermes
+      toPorts:
+        - ports:
+            - port: "8080"
+              protocol: TCP
+  egressDeny:
+    - toEntities:
+        - kube-apiserver
+  egress:
+    - toEndpoints:
+        - matchLabels:
+            app.kubernetes.io/name: vmsingle
+      toPorts:
+        - ports:
+            - port: "8428"
+              protocol: TCP
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: mcp-victorialogs
+  namespace: o11y
+spec:
+  endpointSelector:
+    matchLabels:
+      app.kubernetes.io/name: mcp-victorialogs
+  ingress:
+    - fromEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: hermes
+            app.kubernetes.io/name: hermes
+      toPorts:
+        - ports:
+            - port: "8081"
+              protocol: TCP
+  egressDeny:
+    - toEntities:
+        - kube-apiserver
+  egress:
+    - toEndpoints:
+        - matchLabels:
+            app.kubernetes.io/name: vlsingle
+      toPorts:
+        - ports:
+            - port: "9428"
+              protocol: TCP
+---
+# Additive to the vmsingle and vlsingle policies in infrastructure/controllers.
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: vmsingle-mcp
+  namespace: o11y
+spec:
+  endpointSelector:
+    matchLabels:
+      app.kubernetes.io/name: vmsingle
+  ingress:
+    - fromEndpoints:
+        - matchLabels:
+            app.kubernetes.io/name: mcp-victoriametrics
+      toPorts:
+        - ports:
+            - port: "8428"
+              protocol: TCP
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: vlsingle-mcp
+  namespace: o11y
+spec:
+  endpointSelector:
+    matchLabels:
+      app.kubernetes.io/name: vlsingle
+  ingress:
+    - fromEndpoints:
+        - matchLabels:
+            app.kubernetes.io/name: mcp-victorialogs
+      toPorts:
+        - ports:
+            - port: "9428"
+              protocol: TCP

@@ -83,6 +83,11 @@ mcp_servers:
         - create_rule
         - update_rule
         - apply_rule
+  # Observability: read-only servers, so no tool filter.
+  victoriametrics:
+    url: http://mcp-victoriametrics.o11y.svc.cluster.local:8080/mcp
+  victorialogs:
+    url: http://mcp-victorialogs.o11y.svc.cluster.local:8081/mcp
 streaming:
   enabled: false
 security:

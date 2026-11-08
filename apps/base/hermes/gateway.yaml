@@ -195,3 +195,20 @@ spec:
         - ports:
             - port: "8080"
               protocol: TCP
+    # Read-only VictoriaMetrics and VictoriaLogs MCPs.
+    - toEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: o11y
+            app.kubernetes.io/name: mcp-victoriametrics
+      toPorts:
+        - ports:
+            - port: "8080"
+              protocol: TCP
+    - toEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: o11y
+            app.kubernetes.io/name: mcp-victorialogs
+      toPorts:
+        - ports:
+            - port: "8081"
+              protocol: TCP
