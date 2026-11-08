@@ -1,16 +1,25 @@
-FROM nousresearch/hermes-agent:v0.22.5@sha256:9c5561579f3ffdf333401797094ac3a743738d6c25d40f4331c7bf77b694238d
+FROM nousresearch/hermes-agent:v0.22.7@sha256:e6d81ae52ebf6a43efa529701405509f20054ba818f179ddd748bed4f8af584c
 
-# The browser tools need agent-browser, which the published image leaves out,
-# and lazy installs are off at runtime. A sealed image (manifest.json present)
-# sends PM installs to $HERMES_HOME/tools, the /opt/data volume, where build
-# output is discarded; hide the manifest for this step so agent-browser lands
-# in the image store next to chromium. PM rewrites facts.json root-only; restore
-# the base image's mode so the runtime user can read the store index.
-# The version and tarball sha256 come from the base release's pm/lock.json.
-RUN mv /opt/hermes/manifest.json /tmp/manifest.json \
-    && python3 -c 'from pm import ensure; ensure("agent-browser", explicit=True)' \
-    && mv /tmp/manifest.json /opt/hermes/manifest.json \
-    && chmod 0644 /opt/hermes/tools/facts.json
+# The browser tools that drive the camofox pod left Hermes core for the camofox
+# catalog plugin, which Hermes would otherwise clone into the home at runtime.
+# Bake it into the bundled plugin dir at the commit the base image's catalog
+# pins, so a base image bump carries the plugin with it. Its pyproject only
+# declares dependencies the venv already has; Hermes would still count it as a
+# venv member and warn at every start that the sealed venv needs a rebuild, so
+# the build checks each dependency against the venv and drops the file.
+RUN set -eu; \
+    catalog=/opt/hermes/plugin-catalog/camofox.yaml; \
+    repo=$(sed -n 's/^repo: //p' "$catalog"); \
+    sha=$(sed -n 's/^sha: //p' "$catalog"); \
+    subdir=$(sed -n 's/^subdir: //p' "$catalog"); \
+    echo "$sha" | grep -qxE '[0-9a-f]{40}'; \
+    git init -q /tmp/plugin; \
+    git -C /tmp/plugin fetch -q --depth 1 "$repo" "$sha"; \
+    git -C /tmp/plugin -c advice.detachedHead=false checkout -q FETCH_HEAD; \
+    cp -r "/tmp/plugin/$subdir" /opt/hermes/plugins/camofox; \
+    /opt/hermes/.venv/bin/python -c 'import sys, tomllib; from importlib.metadata import version; from packaging.requirements import Requirement; reqs = [Requirement(s) for s in tomllib.load(open(sys.argv[1], "rb"))["project"].get("dependencies", [])]; bad = [str(r) for r in reqs if not r.specifier.contains(version(r.name), prereleases=True)]; sys.exit(f"venv does not satisfy {bad}" if bad else 0)' /opt/hermes/plugins/camofox/pyproject.toml; \
+    rm -rf /opt/hermes/plugins/camofox/tests /opt/hermes/plugins/camofox/pyproject.toml /tmp/plugin; \
+    echo "camofox plugin: $repo@$sha"
 
 # browser_exec runs model-written Python in the gateway through the Browser Use
 # harness. Config keeps it off; removing the harness leaves nothing to run even
