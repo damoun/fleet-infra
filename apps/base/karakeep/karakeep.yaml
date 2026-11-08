@@ -48,6 +48,9 @@ spec:
         - name: karakeep
           image: ghcr.io/karakeep-app/karakeep:0.34.1@sha256:69ae5315c618b7c14c1af3e34c6e211acdb231793af424ecd1cab0b70691d987
           env:
+            # s6-overlay otherwise refuses the root-owned emptyDir at /run.
+            - name: S6_YES_I_WANT_A_WORLD_WRITABLE_RUN_BECAUSE_KUBERNETES
+              value: "1"
             - name: DATA_DIR
               value: /data
             - name: NEXTAUTH_URL
