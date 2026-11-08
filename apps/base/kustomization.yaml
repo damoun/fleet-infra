@@ -4,6 +4,7 @@ kind: Kustomization
 resources:
   - changedetection
   - hermes
+  - karakeep
   - o11y-mcp
   - pocket-id
   - sure

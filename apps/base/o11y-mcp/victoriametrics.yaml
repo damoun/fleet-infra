@@ -34,6 +34,9 @@ spec:
               value: http://vmsingle-vm.o11y.svc.cluster.local:8428
             - name: VM_INSTANCE_TYPE
               value: single
+            # Upstream defaults plus documentation, whose embedded vector database needs about 700Mi.
+            - name: MCP_DISABLED_TOOLS
+              value: export,flags,metric_relabel_debug,downsampling_filters_debug,retention_filters_debug,test_rules,documentation
           ports:
             - name: http
               containerPort: 8080
