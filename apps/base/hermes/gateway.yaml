@@ -195,6 +195,15 @@ spec:
         - ports:
             - port: "8080"
               protocol: TCP
+    # Paperless's MCP, through the injector that holds the Hermes user's token.
+    - toEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: paperless
+            app.kubernetes.io/name: mcp-auth
+      toPorts:
+        - ports:
+            - port: "8080"
+              protocol: TCP
     # Read-only VictoriaMetrics and VictoriaLogs MCPs.
     - toEndpoints:
         - matchLabels:
