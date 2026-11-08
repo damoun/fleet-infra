@@ -8,5 +8,6 @@ resources:
   - karakeep
   - mealie
   - o11y-mcp
+  - paperless
   - pocket-id
   - sure
