@@ -1,0 +1,73 @@
+---
+# rldiao/mealie-mcp-server (images/mealie-mcp). It holds the Hermes user's
+# API token, so Hermes holds no credential.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mealie-mcp
+  namespace: mealie
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: mealie-mcp
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: mealie-mcp
+    spec:
+      automountServiceAccountToken: false
+      enableServiceLinks: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: mcp
+          image: ghcr.io/damoun/mealie-mcp:main@sha256:36732a33f7421e74d666a7088f7328e155aaba57ede0e4ad02dd409cdf50ea98
+          env:
+            - name: MEALIE_BASE_URL
+              value: http://mealie.mealie.svc.cluster.local:9000
+          envFrom:
+            - secretRef:
+                name: mealie-mcp
+          ports:
+            - name: http
+              containerPort: 8765
+          readinessProbe:
+            tcpSocket:
+              port: http
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
+          resources:
+            requests:
+              cpu: 10m
+              memory: 96Mi
+            limits:
+              memory: 256Mi
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        - name: tmp
+          emptyDir:
+            sizeLimit: 64Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mealie-mcp
+  namespace: mealie
+spec:
+  selector:
+    app.kubernetes.io/name: mealie-mcp
+  ports:
+    - name: http
+      port: 8765
+      targetPort: http
