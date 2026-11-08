@@ -107,7 +107,7 @@ jobs:
       - name: Scan
         run: |
           docker run --rm -v "$PWD:/repo" -w /repo "$TRIVY_IMAGE" \
-            config --skip-check-update --severity HIGH,CRITICAL \
+            config --skip-check-update --severity HIGH,CRITICAL --ignorefile .trivyignore.yaml \
             --format sarif --output trivy-config.sarif .
       - uses: github/codeql-action/upload-sarif@9b3254085494b55a0f7c4c2b3d2d52cc712ce370 # v4.39.1
         with:
