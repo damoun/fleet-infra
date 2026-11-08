@@ -4,6 +4,7 @@ kind: Kustomization
 resources:
   - hermes
   - home-assistant
+  - karakeep
   - o11y-mcp
   - pocket-id
   - sure

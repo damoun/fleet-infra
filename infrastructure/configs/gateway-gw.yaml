@@ -34,5 +34,6 @@ spec:
                   - hermes
                   - home-assistant
                   - id
+                  - karakeep
                   - o11y
                   - sure
