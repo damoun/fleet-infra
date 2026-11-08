@@ -1,0 +1,133 @@
+---
+# The UI is reached through the gateway. The crawler fetches the public web
+# only, never the LAN, cluster or NetBird.
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: karakeep
+  namespace: karakeep
+spec:
+  endpointSelector:
+    matchLabels:
+      app.kubernetes.io/name: karakeep
+  ingress:
+    - fromEntities:
+        - ingress
+      toPorts:
+        - ports:
+            - port: "3000"
+              protocol: TCP
+  # Overrides the cluster baseline's kube-apiserver allow; this pod never needs it.
+  # The special-use ranges keep the crawler off the LAN, NetBird and the LB VIPs.
+  egressDeny:
+    - toEntities:
+        - kube-apiserver
+    - toCIDRSet:
+        - cidr: 0.0.0.0/8
+        - cidr: 10.0.0.0/8
+        - cidr: 100.64.0.0/10
+        - cidr: 127.0.0.0/8
+        - cidr: 169.254.0.0/16
+        - cidr: 172.16.0.0/12
+        - cidr: 192.0.0.0/24
+        - cidr: 192.168.0.0/16
+        - cidr: 198.18.0.0/15
+        - cidr: 224.0.0.0/4
+        - cidr: 240.0.0.0/4
+  egress:
+    - toEndpoints:
+        - matchLabels:
+            app.kubernetes.io/name: meilisearch
+      toPorts:
+        - ports:
+            - port: "7700"
+              protocol: TCP
+    - toEndpoints:
+        - matchLabels:
+            app.kubernetes.io/name: karakeep-chrome
+      toPorts:
+        - ports:
+            - port: "9222"
+              protocol: TCP
+    # Login with Pocket ID goes through the Gateway, and Cilium's Envoy checks
+    # the client's egress against the backend pod.
+    - toEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: id
+            app.kubernetes.io/name: pocket-id
+      toPorts:
+        - ports:
+            - port: "1411"
+              protocol: TCP
+    - toEntities:
+        - world
+      toPorts:
+        - ports:
+            - port: "80"
+              protocol: TCP
+            - port: "443"
+              protocol: TCP
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: meilisearch
+  namespace: karakeep
+spec:
+  endpointSelector:
+    matchLabels:
+      app.kubernetes.io/name: meilisearch
+  ingress:
+    - fromEndpoints:
+        - matchLabels:
+            app.kubernetes.io/name: karakeep
+      toPorts:
+        - ports:
+            - port: "7700"
+              protocol: TCP
+  egressDeny:
+    - toEntities:
+        - kube-apiserver
+  egress: []
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: karakeep-chrome
+  namespace: karakeep
+spec:
+  endpointSelector:
+    matchLabels:
+      app.kubernetes.io/name: karakeep-chrome
+  ingress:
+    - fromEndpoints:
+        - matchLabels:
+            app.kubernetes.io/name: karakeep
+      toPorts:
+        - ports:
+            - port: "9222"
+              protocol: TCP
+  egressDeny:
+    - toEntities:
+        - kube-apiserver
+    - toCIDRSet:
+        - cidr: 0.0.0.0/8
+        - cidr: 10.0.0.0/8
+        - cidr: 100.64.0.0/10
+        - cidr: 127.0.0.0/8
+        - cidr: 169.254.0.0/16
+        - cidr: 172.16.0.0/12
+        - cidr: 192.0.0.0/24
+        - cidr: 192.168.0.0/16
+        - cidr: 198.18.0.0/15
+        - cidr: 224.0.0.0/4
+        - cidr: 240.0.0.0/4
+  egress:
+    - toEntities:
+        - world
+      toPorts:
+        - ports:
+            - port: "80"
+              protocol: TCP
+            - port: "443"
+              protocol: TCP
