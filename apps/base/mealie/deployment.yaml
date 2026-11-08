@@ -59,6 +59,9 @@ spec:
               value: Europe/Amsterdam
             - name: ALLOW_SIGNUP
               value: "false"
+            # Pocket ID only; this also locks out the seeded changeme@example.com admin.
+            - name: ALLOW_PASSWORD_LOGIN
+              value: "false"
             - name: DB_ENGINE
               value: postgres
             - name: POSTGRES_URL_OVERRIDE
@@ -77,6 +80,8 @@ spec:
             # Setting a user group adds the groups claim to the requested scopes.
             - name: OIDC_USER_GROUP
               value: mealie_users
+            - name: OIDC_ADMIN_GROUP
+              value: mealie_admins
             - name: OIDC_GROUPS_CLAIM
               value: groups
             - name: OIDC_AUTO_REDIRECT
