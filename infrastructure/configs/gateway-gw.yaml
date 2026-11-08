@@ -30,6 +30,7 @@ spec:
               - key: kubernetes.io/metadata.name
                 operator: In
                 values:
+                  - changedetection
                   - flux-system
                   - hermes
                   - id
