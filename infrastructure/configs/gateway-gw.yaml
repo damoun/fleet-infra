@@ -33,6 +33,7 @@ spec:
                   - flux-system
                   - hermes
                   - id
+                  - karakeep
                   - o11y
                   - paperless
                   - sure
