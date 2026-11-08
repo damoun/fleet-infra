@@ -33,5 +33,6 @@ spec:
                   - flux-system
                   - hermes
                   - id
+                  - mealie
                   - o11y
                   - sure
