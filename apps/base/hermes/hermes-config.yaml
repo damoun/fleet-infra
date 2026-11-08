@@ -88,6 +88,10 @@ mcp_servers:
     url: http://mcp-victoriametrics.o11y.svc.cluster.local:8080/mcp
   victorialogs:
     url: http://mcp-victorialogs.o11y.svc.cluster.local:8081/mcp
+  # Documents: the server drops deletes and admin tools, and the Paperless
+  # user it runs as has no delete permission.
+  paperless:
+    url: http://mcp-auth.paperless.svc.cluster.local:8080/mcp
 streaming:
   enabled: false
 security:

@@ -1,0 +1,160 @@
+---
+# Every Paperless call runs as the client's token, which mcp-auth adds; the
+# Hermes user has no delete permission, so Paperless enforces that too.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: paperless-mcp
+  namespace: paperless
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: paperless-mcp
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: paperless-mcp
+    spec:
+      automountServiceAccountToken: false
+      enableServiceLinks: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: mcp
+          image: ghcr.io/orellbuehler/paperless-mcp:1.6.0@sha256:748b159d042aac578569fb152e096290ec546b2ae4c90fb8c07ca605ff3dd5d9
+          env:
+            - name: PAPERLESS_URL
+              value: http://paperless.paperless.svc.cluster.local
+            - name: PAPERLESS_API_VERSION
+              value: "10"
+            # Leaves out users, mail, sharing (public links) and embeddings search.
+            - name: PAPERLESS_TOOLSETS
+              value: core,workflow,helpers,automation,documents,system
+            - name: PAPERLESS_DISABLED_TOOLS
+              value: >-
+                delete_document,delete_document_note,delete_document_version,delete_correspondent,delete_document_type,delete_tag,delete_storage_path,empty_trash,bulk_set_object_permissions,create_workflow,update_workflow,update_config,run_task,merge_documents,edit_pdf_document,remove_document_password,upload_document_version,set_document_version_label
+            # Required at startup; only used for the embeddings index, which is off.
+            - name: PAPERLESS_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: paperless-mcp
+                  key: PAPERLESS_TOKEN
+          ports:
+            - name: http
+              containerPort: 3001
+          readinessProbe:
+            tcpSocket:
+              port: http
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
+          resources:
+            requests:
+              cpu: 10m
+              memory: 96Mi
+            limits:
+              memory: 256Mi
+          volumeMounts:
+            - name: data
+              mountPath: /data
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        - name: data
+          emptyDir:
+            sizeLimit: 64Mi
+        - name: tmp
+          emptyDir:
+            sizeLimit: 256Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: paperless-mcp
+  namespace: paperless
+spec:
+  selector:
+    app.kubernetes.io/name: paperless-mcp
+  ports:
+    - name: http
+      port: 3001
+      targetPort: http
+---
+# Adds the Hermes token so Hermes holds no credential. Its config (with the
+# token) lives in the mcp-auth Secret and only exposes /mcp.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mcp-auth
+  namespace: paperless
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: mcp-auth
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: mcp-auth
+    spec:
+      automountServiceAccountToken: false
+      enableServiceLinks: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 101
+        runAsGroup: 101
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: nginx
+          image: docker.io/nginxinc/nginx-unprivileged:1.29-alpine-slim@sha256:59678856b05324b7f6371f26eb1520be7fcd8bdc8ab380fc4913db8503e5a842
+          ports:
+            - name: http
+              containerPort: 8080
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
+          resources:
+            requests:
+              cpu: 10m
+              memory: 16Mi
+            limits:
+              memory: 64Mi
+          volumeMounts:
+            - name: config
+              mountPath: /etc/nginx/conf.d
+              readOnly: true
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        - name: config
+          secret:
+            secretName: mcp-auth
+        - name: tmp
+          emptyDir:
+            sizeLimit: 16Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mcp-auth
+  namespace: paperless
+spec:
+  selector:
+    app.kubernetes.io/name: mcp-auth
+  ports:
+    - name: http
+      port: 8080
+      targetPort: http
