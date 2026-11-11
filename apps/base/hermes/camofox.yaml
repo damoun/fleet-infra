@@ -24,7 +24,7 @@ spec:
           type: RuntimeDefault
       containers:
         - name: camofox
-          image: ghcr.io/damoun/camofox:main@sha256:d1845ebd87a0f5561c944dc53d493b05c0ea16842286d318bcd03777cdd56da6
+          image: ghcr.io/damoun/camofox:main@sha256:e4321c1fc0dbf0f6ded7c4d6552625bcc267a8203992967e9db9b4c1206d29dd
           env:
             # The server copies the browser binary to /tmp and runs it from there.
             - name: HOME
