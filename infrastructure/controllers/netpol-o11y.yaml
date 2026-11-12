@@ -129,6 +129,15 @@ spec:
         - ports:
             - port: "8428"
               protocol: TCP
+  egress:
+    # Alerts and rules API proxied to VMAlert (-vmalert.proxyURL).
+    - toEndpoints:
+        - matchLabels:
+            app.kubernetes.io/name: vmalert
+      toPorts:
+        - ports:
+            - port: "8080"
+              protocol: TCP
 ---
 apiVersion: cilium.io/v2
 kind: CiliumNetworkPolicy
@@ -276,6 +285,14 @@ spec:
   endpointSelector:
     matchLabels:
       app.kubernetes.io/name: vmalert
+  ingress:
+    - fromEndpoints:
+        - matchLabels:
+            app.kubernetes.io/name: vmsingle
+      toPorts:
+        - ports:
+            - port: "8080"
+              protocol: TCP
   egress:
     # Rule queries through the stack's internal VMAuth.
     - toEndpoints:
