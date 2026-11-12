@@ -3,6 +3,6 @@
   "private": true,
   "dependencies": {
     "@karakeep/mcp": "0.34.0",
-    "supergateway": "4.2.1"
+    "supergateway": "4.2.2"
   }
 }
