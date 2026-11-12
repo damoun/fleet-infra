@@ -9,3 +9,4 @@ resources:
   - storageclasses.yaml
   - flux-instance.yaml
   - vmscrapes.yaml
+  - vmprobes.yaml
