@@ -129,7 +129,7 @@ spec:
         - ports:
             - port: "8428"
               protocol: TCP
-  # vmalert.proxyURL: /api/v1/alerts and /api/v1/rules are served by VMAlert.
+  # -vmalert.proxyURL: vmsingle proxies /api/v1/alerts and /api/v1/rules to VMAlert.
   egress:
     - toEndpoints:
         - matchLabels:
