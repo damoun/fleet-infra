@@ -39,3 +39,5 @@ NetBird client ── NetBird DNS (A records) ── WireGuard ── rtr pods (
 Attach an `HTTPRoute` to `gw` (namespace `edge`) with a hostname under `*.core.ams.damoun.casa`. No DNS change is needed.
 
 Label the backend pods `edge.damoun.casa/exposed: "true"`. Cilium's Gateway Envoy checks the client's egress policy against the backend pod and port it picks, and enforces that even in policy audit mode; the NetBird routers may only reach pods carrying that label. The backend also needs an ingress allow from entity `ingress` on its port.
+
+Add the hostname to the blackbox exporter's `hostAliases` (`infrastructure/controllers/blackbox-exporter.yaml`) and to the `gateway-routes` VMProbe targets (`infrastructure/configs/vmprobes.yaml`), so the route is probed and alerts when it stops answering.
