@@ -129,8 +129,8 @@ spec:
         - ports:
             - port: "8428"
               protocol: TCP
-  # -vmalert.proxyURL: vmsingle proxies /api/v1/alerts and /api/v1/rules to VMAlert.
   egress:
+    # Alerts and rules API proxied to VMAlert (-vmalert.proxyURL).
     - toEndpoints:
         - matchLabels:
             app.kubernetes.io/name: vmalert
