@@ -11,3 +11,7 @@ misconfigurations:
     paths:
       - infrastructure/controllers/netbird-rtr.yaml
     statement: NetBird routing peers need NET_RAW next to NET_ADMIN and BPF to route traffic.
+  - id: KSV-0014
+    paths:
+      - infrastructure/controllers/netbird-rtr.yaml
+    statement: The NetBird client backs up /etc/resolv.conf next to it when it manages DNS.
