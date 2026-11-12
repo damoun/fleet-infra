@@ -7,3 +7,7 @@ misconfigurations:
     paths:
       - apps/base/home-assistant/home-assistant.yaml
     statement: Home Assistant pip-installs integration requirements into the image at runtime.
+  - id: KSV-0119
+    paths:
+      - infrastructure/controllers/netbird-rtr.yaml
+    statement: NetBird routing peers need NET_RAW next to NET_ADMIN and BPF to route traffic.
