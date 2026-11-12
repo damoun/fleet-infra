@@ -32,7 +32,7 @@ spec:
     # so probes take the same path as a browser. Keep in sync with the VMProbe.
     hostAliases:
       - ip: 172.28.0.10
-        hostnames:
+        hostNames:
           - diff.core.ams.damoun.casa
           - docs.core.ams.damoun.casa
           - flux.core.ams.damoun.casa
