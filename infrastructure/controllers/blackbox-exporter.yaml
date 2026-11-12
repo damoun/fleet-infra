@@ -1,0 +1,57 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: blackbox-exporter
+  namespace: flux-system
+spec:
+  targetNamespace: o11y
+  releaseName: blackbox-exporter
+  interval: 1h
+  chartRef:
+    kind: OCIRepository
+    name: blackbox-exporter
+    namespace: flux-system
+  values:
+    fullnameOverride: blackbox-exporter
+    image:
+      registry: quay.io
+      repository: prometheus/blackbox-exporter
+      tag: v0.29.1@sha256:ea1c7aa3ef3f307cd03e85f34abb604478ccb90b567fc690da0cd9776da76b13
+    podSecurityContext:
+      seccompProfile:
+        type: RuntimeDefault
+    priorityClassName: medium
+    resources:
+      requests:
+        cpu: 10m
+        memory: 32Mi
+      limits:
+        memory: 64Mi
+    # The route names only resolve in NetBird DNS; send them to the Gateway VIP
+    # so probes take the same path as a browser. Keep in sync with the VMProbe.
+    hostAliases:
+      - ip: 172.28.0.10
+        hostnames:
+          - diff.core.ams.damoun.casa
+          - docs.core.ams.damoun.casa
+          - flux.core.ams.damoun.casa
+          - graf.core.ams.damoun.casa
+          - herm.core.ams.damoun.casa
+          - home.core.ams.damoun.casa
+          - id.core.ams.damoun.casa
+          - keep.core.ams.damoun.casa
+          - meal.core.ams.damoun.casa
+          - sure.core.ams.damoun.casa
+    config:
+      modules:
+        # No redirects: OIDC logins answer 302 or 401, which still proves the
+        # Gateway reached the backend.
+        https_gw:
+          prober: http
+          timeout: 10s
+          http:
+            follow_redirects: false
+            valid_status_codes: [200, 301, 302, 303, 307, 308, 401]
+            fail_if_not_ssl: true
+            preferred_ip_protocol: ip4

@@ -26,5 +26,6 @@ resources:
   - alertmanager-notify.yaml
   - vm.yaml
   - netpol-o11y.yaml
+  - blackbox-exporter.yaml
   - namespace-falco.yaml
   - falco.yaml
