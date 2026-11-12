@@ -1,4 +1,4 @@
-FROM ghcr.io/jo-inc/camofox-browser:1.18.1@sha256:cff2c1432b609bde9c9d0b91e5b924dae0799d3c7bc9d468c0bc949325beaf2a
+FROM ghcr.io/jo-inc/camofox-browser:1.19.0@sha256:49f8e02f9fb0e191b406845482745efc72f835db06789e3a34e77a6ff1497046
 
 # The base image keeps the Camoufox bundle under /root (0700), out of reach of
 # a non-root user.
