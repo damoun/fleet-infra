@@ -9,6 +9,7 @@ resources:
   - helm-descheduler.yaml
   - helm-metrics-server.yaml
   - helm-sure.yaml
+  - oci-blackbox-exporter.yaml
   - oci-cert-manager.yaml
   - oci-cert-manager-webhook-bunny.yaml
   - oci-cloudnative-pg.yaml

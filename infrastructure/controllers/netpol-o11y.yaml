@@ -87,6 +87,8 @@ spec:
               protocol: TCP
             - port: "9153"
               protocol: TCP
+            - port: "9115"
+              protocol: TCP
     # Host network: kubelet (cAdvisor, probes, resources), node-exporter,
     # Cilium agent, operator, Envoy and Hubble.
     - toEntities:
@@ -380,4 +382,39 @@ spec:
       toPorts:
         - ports:
             - port: "9428"
+              protocol: TCP
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: blackbox-exporter
+  namespace: o11y
+spec:
+  endpointSelector:
+    matchLabels:
+      app.kubernetes.io/name: prometheus-blackbox-exporter
+  ingress:
+    - fromEndpoints:
+        - matchLabels:
+            app.kubernetes.io/name: vmagent
+      toPorts:
+        - ports:
+            - port: "9115"
+              protocol: TCP
+  # Probes go through the Gateway, whose Envoy checks this egress against the
+  # backend it picks: same allow as the NetBird routers.
+  egress:
+    - toEndpoints:
+        - matchLabels:
+            edge.damoun.casa/exposed: "true"
+          matchExpressions:
+            - key: io.kubernetes.pod.namespace
+              operator: Exists
+    # hostNetwork Home Assistant has the host identity, not the exposed label.
+    - toEntities:
+        - host
+        - remote-node
+      toPorts:
+        - ports:
+            - port: "8123"
               protocol: TCP

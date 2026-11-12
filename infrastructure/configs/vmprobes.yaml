@@ -1,0 +1,51 @@
+---
+# Every Gateway route, through the blackbox exporter's hostAliases.
+# Keep in sync with the exporter's hostAliases in blackbox-exporter.yaml.
+apiVersion: operator.victoriametrics.com/v1beta1
+kind: VMProbe
+metadata:
+  name: gateway-routes
+  namespace: o11y
+spec:
+  vmProberSpec:
+    url: blackbox-exporter.o11y.svc:9115
+  module: https_gw
+  interval: 1m
+  targets:
+    static:
+      targets:
+        - https://diff.core.ams.damoun.casa/
+        - https://docs.core.ams.damoun.casa/
+        - https://flux.core.ams.damoun.casa/
+        - https://graf.core.ams.damoun.casa/
+        - https://herm.core.ams.damoun.casa/
+        - https://home.core.ams.damoun.casa/
+        - https://id.core.ams.damoun.casa/
+        - https://keep.core.ams.damoun.casa/
+        - https://meal.core.ams.damoun.casa/
+        - https://sure.core.ams.damoun.casa/
+---
+apiVersion: operator.victoriametrics.com/v1beta1
+kind: VMRule
+metadata:
+  name: gateway-probes
+  namespace: o11y
+spec:
+  groups:
+    - name: gateway-probes
+      rules:
+        - alert: EndpointDown
+          expr: probe_success == 0
+          for: 5m
+          labels:
+            severity: critical
+          annotations:
+            summary: "{{ $labels.instance }} is unreachable through the Gateway"
+        # cert-manager renews 30 days ahead, so this means renewal has been failing.
+        - alert: CertExpiringSoon
+          expr: probe_ssl_earliest_cert_expiry - time() < 14 * 86400
+          for: 1h
+          labels:
+            severity: warning
+          annotations:
+            summary: "{{ $labels.instance }} certificate expires in {{ $value | humanizeDuration }}"

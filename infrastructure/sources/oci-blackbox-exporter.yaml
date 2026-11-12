@@ -1,0 +1,12 @@
+---
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: OCIRepository
+metadata:
+  name: blackbox-exporter
+  namespace: flux-system
+spec:
+  interval: 24h
+  url: oci://ghcr.io/prometheus-community/charts/prometheus-blackbox-exporter
+  ref:
+    tag: 11.21.3
+    digest: sha256:128e142cda55d0d4ca4cc84dde39c0d325b9805645ba87885e664fecbdfb1599
