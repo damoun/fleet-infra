@@ -119,7 +119,7 @@ variable "talos_installer_image" {
   type        = string
   description = "Talos Image Factory SecureBoot installer (i915, ucode, storage extensions; enrollKeys: force)"
   # renovate: datasource=github-releases depName=siderolabs/talos
-  default = "factory.talos.dev/metal-installer-secureboot/7c67ed0c9d9cd774e2164b84cd41733c8b3432f83e44a7dc3cc23062bc4f89e2:v1.14.5"
+  default = "factory.talos.dev/metal-installer-secureboot/7c67ed0c9d9cd774e2164b84cd41733c8b3432f83e44a7dc3cc23062bc4f89e2:v1.14.6"
 }
 
 variable "nodeid_encryption_nodes" {
