@@ -66,7 +66,7 @@ spec:
     syncJob:
       image:
         repository: ghcr.io/victoriametrics/sync-job
-        tag: v0.0.17@sha256:b6f233532a85cda65e645264d24f995e5ee97f88b60610643f01f170516f444b
+        tag: v0.0.18@sha256:1fdd38d82e100429b138d8500425773d6d319a35a53478a66ee20dff392e6117
       podSecurityContext:
         runAsNonRoot: true
         runAsUser: 65534
@@ -478,7 +478,7 @@ spec:
           env:
             # renovate: datasource=github-releases depName=VictoriaMetrics/victorialogs-datasource
             - name: VICTORIALOGS_PLUGIN_VERSION
-              value: "0.33.1"
+              value: "0.34.0"
           securityContext:
             allowPrivilegeEscalation: false
             readOnlyRootFilesystem: true
