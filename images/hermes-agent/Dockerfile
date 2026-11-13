@@ -1,4 +1,4 @@
-FROM nousresearch/hermes-agent:v0.22.7@sha256:e6d81ae52ebf6a43efa529701405509f20054ba818f179ddd748bed4f8af584c
+FROM nousresearch/hermes-agent:v0.23.0@sha256:adb7890916de63245523492be8f68f9d2095fecbec4e2a6dab7960381f0fc002
 
 # The browser tools that drive the camofox pod left Hermes core for the camofox
 # catalog plugin, which Hermes would otherwise clone into the home at runtime.
