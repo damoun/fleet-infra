@@ -42,7 +42,7 @@ spec:
       # Replaces the image's s6 stage2 setup, which needs root.
       initContainers:
         - name: init
-          image: ghcr.io/damoun/hermes-agent:main@sha256:e81cbe415f3b974e2df3e5614c01d16820a54eb8c596f427e36de31e5ae438b4
+          image: ghcr.io/damoun/hermes-agent:main@sha256:be1594af52cfe6823b065d5625085dd8d145f7f3ed717dd2dc5425c01cbd9df5
           command:
             - /bin/sh
             - -ec
@@ -76,7 +76,7 @@ spec:
               readOnly: true
       containers:
         - name: hermes
-          image: ghcr.io/damoun/hermes-agent:main@sha256:e81cbe415f3b974e2df3e5614c01d16820a54eb8c596f427e36de31e5ae438b4
+          image: ghcr.io/damoun/hermes-agent:main@sha256:be1594af52cfe6823b065d5625085dd8d145f7f3ed717dd2dc5425c01cbd9df5
           command:
             - /opt/hermes/.venv/bin/hermes
             - gateway
