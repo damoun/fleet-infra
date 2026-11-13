@@ -26,7 +26,7 @@ spec:
           type: RuntimeDefault
       containers:
         - name: mcp
-          image: ghcr.io/damoun/karakeep-mcp:main@sha256:10936b344116f344b88f89c227b3cf5b51671fbba6c0590451a6d083b6aef571
+          image: ghcr.io/damoun/karakeep-mcp:main@sha256:dc638eac0e8667608efbf02d2301a4f9f1b01a46bb5ba81671c8c4e2ac1027b0
           env:
             - name: KARAKEEP_API_ADDR
               value: http://karakeep.karakeep.svc.cluster.local:3000
