@@ -62,7 +62,7 @@ spec:
           type: RuntimeDefault
       containers:
         - name: paperless
-          image: ghcr.io/damoun/paperless:main@sha256:d908464d019f47c4068d36cd2250a2b92fa9e83fe87cadbad5f5b2bebadcf278
+          image: ghcr.io/damoun/paperless:main@sha256:71082112e0d1a2481ec408a2e7c66f0655272703757e225b91d07b0fa1073373
           env:
             # s6 refuses a /run it does not own unless told to accept the
             # world-writable emptyDir.
