@@ -36,8 +36,6 @@ COPY signal-data-uri.py /tmp/signal-data-uri.py
 RUN python3 /tmp/signal-data-uri.py /opt/hermes/plugins/platforms/signal/adapter.py \
     && rm /tmp/signal-data-uri.py
 
-# The base image lags the Debian security archive.
-USER root
 RUN apt-get update \
     && apt-get upgrade --yes \
     && rm -rf /var/lib/apt/lists/*
