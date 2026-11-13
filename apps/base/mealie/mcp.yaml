@@ -26,7 +26,7 @@ spec:
           type: RuntimeDefault
       containers:
         - name: mcp
-          image: ghcr.io/damoun/mealie-mcp:main@sha256:36732a33f7421e74d666a7088f7328e155aaba57ede0e4ad02dd409cdf50ea98
+          image: ghcr.io/damoun/mealie-mcp:main@sha256:ea1ac89f9f8d78d8b2077ba477f87869d2d94753ba847d206bc7089aaa83e73c
           env:
             - name: MEALIE_BASE_URL
               value: http://mealie.mealie.svc.cluster.local:9000
