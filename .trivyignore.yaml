@@ -7,3 +7,11 @@ misconfigurations:
     paths:
       - apps/base/home-assistant/home-assistant.yaml
     statement: Home Assistant pip-installs integration requirements into the image at runtime.
+  - id: KSV-0119
+    paths:
+      - infrastructure/controllers/netbird-rtr.yaml
+    statement: NetBird's kernel WireGuard proxy sends through SOCK_RAW sockets.
+  - id: KSV-0014
+    paths:
+      - infrastructure/controllers/netbird-rtr.yaml
+    statement: NetBird writes /etc/resolv.conf.original.netbird when it manages DNS, and an emptyDir cannot cover one file in /etc.
