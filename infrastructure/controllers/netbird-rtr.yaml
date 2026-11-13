@@ -32,7 +32,7 @@ spec:
               app.kubernetes.io/name: rtr
       containers:
         - name: netbird
-          image: netbirdio/netbird:0.82.0@sha256:eca5b274c635bfbb04ec6724a0712d1146190dd450eea199eeb83916fdd94965
+          image: netbirdio/netbird:0.83.0@sha256:5258db864905c4a06eb55a7d14f742afeeecc740659e2b687f56e0047820a9ec
           env:
             - name: NB_SETUP_KEY
               valueFrom:
