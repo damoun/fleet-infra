@@ -5,3 +5,5 @@ resources:
   - namespace.yaml
   - home-assistant.yaml
   - httproute.yaml
+  - database.yaml
+  - netpol.yaml
