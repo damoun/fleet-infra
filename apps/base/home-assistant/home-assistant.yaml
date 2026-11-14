@@ -37,6 +37,11 @@ spec:
           type: RuntimeDefault
       hostNetwork: true # nosemgrep: yaml.kubernetes.security.hostnetwork-pod.hostnetwork-pod
       dnsPolicy: ClusterFirstWithHostNet
+      # The Pocket ID issuer only resolves in NetBird DNS.
+      hostAliases:
+        - ip: 172.28.0.10
+          hostnames:
+            - id.core.ams.damoun.casa
       automountServiceAccountToken: false
       enableServiceLinks: false
       containers:
