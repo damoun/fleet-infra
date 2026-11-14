@@ -51,6 +51,17 @@ spec:
                 secretKeyRef:
                   name: home-assistant-db-app
                   key: uri
+            # Read by the auth_oidc custom component through `!env_var`.
+            - name: OIDC_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: home-assistant-oidc
+                  key: OIDC_CLIENT_ID
+            - name: OIDC_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: home-assistant-oidc
+                  key: OIDC_CLIENT_SECRET
           securityContext:
             allowPrivilegeEscalation: false
           ports:
