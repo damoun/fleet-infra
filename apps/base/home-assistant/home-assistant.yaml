@@ -37,11 +37,43 @@ spec:
           type: RuntimeDefault
       hostNetwork: true # nosemgrep: yaml.kubernetes.security.hostnetwork-pod.hostnetwork-pod
       dnsPolicy: ClusterFirstWithHostNet
+      # The Pocket ID issuer only resolves in NetBird DNS.
+      hostAliases:
+        - ip: 172.28.0.10
+          hostnames:
+            - id.core.ams.damoun.casa
       automountServiceAccountToken: false
       enableServiceLinks: false
+      initContainers:
+        - name: init
+          image: &image ghcr.io/damoun/home-assistant:main@sha256:53b2d39672374fad18b6998f94bfc25f0cf3a973fd38a6c33d5d2bf7601ca07a
+          command:
+            - /bin/sh
+            - -ec
+            - |
+              cd /config
+              cp /etc/home-assistant/configuration.yaml configuration.yaml
+              # Home Assistant only loads custom components from /config.
+              mkdir -p custom_components
+              rm -rf custom_components/auth_oidc
+              cp -r /opt/custom_components/auth_oidc custom_components/
+              # Home Assistant only creates these with its own default
+              # configuration.yaml, which this one replaces.
+              [ -e automations.yaml ] || echo '[]' > automations.yaml
+              touch scripts.yaml scenes.yaml
+          securityContext:
+            allowPrivilegeEscalation: false
+          resources:
+            limits:
+              memory: 64Mi
+          volumeMounts:
+            - name: config
+              mountPath: /config
+            - name: configuration
+              mountPath: /etc/home-assistant
       containers:
         - name: home-assistant
-          image: ghcr.io/home-assistant/home-assistant:2026.11.0@sha256:c6c1ca9931036bf3a2c4cc088d8db25dfea3b33935a5ecc83c40349462e2f69e
+          image: *image
           env:
             - name: TZ
               value: Europe/Amsterdam
@@ -51,6 +83,17 @@ spec:
                 secretKeyRef:
                   name: home-assistant-db-app
                   key: uri
+            # Read by the auth_oidc custom component through `!env_var`.
+            - name: OIDC_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: home-assistant-oidc
+                  key: OIDC_CLIENT_ID
+            - name: OIDC_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: home-assistant-oidc
+                  key: OIDC_CLIENT_SECRET
           securityContext:
             allowPrivilegeEscalation: false
           ports:
@@ -69,6 +112,9 @@ spec:
         - name: config
           persistentVolumeClaim:
             claimName: home-assistant
+        - name: configuration
+          configMap:
+            name: home-assistant-config
 ---
 apiVersion: v1
 kind: Service
