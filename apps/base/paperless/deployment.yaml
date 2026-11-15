@@ -126,6 +126,20 @@ spec:
               value: "true"
             - name: PAPERLESS_REDIRECT_LOGIN_TO_SSO
               value: "true"
+            # Mistral's EU regional endpoint keeps documents in its EU data boundary.
+            - name: PAPERLESS_AI_ENABLED
+              value: "true"
+            - name: PAPERLESS_AI_LLM_BACKEND
+              value: openai-like
+            - name: PAPERLESS_AI_LLM_ENDPOINT
+              value: https://api.eu.mistral.ai/v1
+            - name: PAPERLESS_AI_LLM_MODEL
+              value: ministral-8b-2512
+            - name: PAPERLESS_AI_LLM_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: paperless-ai
+                  key: PAPERLESS_AI_LLM_API_KEY
           ports:
             - name: http
               containerPort: 8000

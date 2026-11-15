@@ -50,6 +50,13 @@ spec:
         - ports:
             - port: "1411"
               protocol: TCP
+    # AI suggestions.
+    - toFQDNs:
+        - matchName: api.eu.mistral.ai
+      toPorts:
+        - ports:
+            - port: "443"
+              protocol: TCP
 ---
 apiVersion: cilium.io/v2
 kind: CiliumNetworkPolicy
