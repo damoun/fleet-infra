@@ -15,4 +15,5 @@ resources:
   - oci-cloudnative-pg.yaml
   - oci-falco.yaml
   - oci-flux-operator.yaml
+  - oci-forgejo.yaml
   - oci-victoria-metrics-k8s-stack.yaml

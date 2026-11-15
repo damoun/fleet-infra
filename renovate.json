@@ -80,6 +80,17 @@
     },
     {
       "customType": "regex",
+      "description": "Helm values image.fullOverride",
+      "managerFilePatterns": [
+        "/^apps/.+\\.ya?ml$/"
+      ],
+      "matchStrings": [
+        "fullOverride: (?<depName>[^:\\s]+):(?<currentValue>[^@\\s]+)@(?<currentDigest>sha256:[a-f0-9]{64})"
+      ],
+      "datasourceTemplate": "docker"
+    },
+    {
+      "customType": "regex",
       "description": "Digest-pinned images in workflow env",
       "managerFilePatterns": [
         "/^\\.github/workflows/.+\\.ya?ml$/"
