@@ -34,3 +34,12 @@ scene: !include scenes.yaml
 
 recorder:
   db_url: !env_var DB_URL
+
+auth_oidc:
+  client_id: !env_var OIDC_CLIENT_ID
+  client_secret: !env_var OIDC_CLIENT_SECRET
+  discovery_url: https://id.core.ams.damoun.casa/.well-known/openid-configuration
+  display_name: Pocket ID
+  roles:
+    user: hass_users
+    admin: hass_admins

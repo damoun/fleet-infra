@@ -46,13 +46,17 @@ spec:
       enableServiceLinks: false
       initContainers:
         - name: init
-          image: ghcr.io/home-assistant/home-assistant:2026.11.0@sha256:c6c1ca9931036bf3a2c4cc088d8db25dfea3b33935a5ecc83c40349462e2f69e
+          image: ghcr.io/damoun/home-assistant:main@sha256:53b2d39672374fad18b6998f94bfc25f0cf3a973fd38a6c33d5d2bf7601ca07a
           command:
             - /bin/sh
             - -ec
             - |
               cd /config
               cp /etc/home-assistant/configuration.yaml configuration.yaml
+              # Home Assistant only loads custom components from /config.
+              mkdir -p custom_components
+              rm -rf custom_components/auth_oidc
+              cp -r /opt/custom_components/auth_oidc custom_components/
               # Home Assistant only creates these with its own default
               # configuration.yaml, which this one replaces.
               [ -e automations.yaml ] || echo '[]' > automations.yaml
@@ -69,7 +73,7 @@ spec:
               mountPath: /etc/home-assistant
       containers:
         - name: home-assistant
-          image: ghcr.io/home-assistant/home-assistant:2026.11.0@sha256:c6c1ca9931036bf3a2c4cc088d8db25dfea3b33935a5ecc83c40349462e2f69e
+          image: ghcr.io/damoun/home-assistant:main@sha256:53b2d39672374fad18b6998f94bfc25f0cf3a973fd38a6c33d5d2bf7601ca07a
           env:
             - name: TZ
               value: Europe/Amsterdam
