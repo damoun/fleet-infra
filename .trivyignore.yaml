@@ -7,6 +7,10 @@ misconfigurations:
     paths:
       - apps/base/home-assistant/home-assistant.yaml
     statement: Home Assistant pip-installs integration requirements into the image at runtime.
+  - id: DS-0002
+    paths:
+      - images/home-assistant/Dockerfile
+    statement: Home Assistant's s6-overlay init runs as root.
   - id: KSV-0119
     paths:
       - infrastructure/controllers/netbird-rtr.yaml
