@@ -32,6 +32,7 @@ spec:
                 values:
                   - changedetection
                   - flux-system
+                  - forgejo
                   - hermes
                   - home-assistant
                   - id
