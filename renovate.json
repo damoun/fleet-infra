@@ -90,6 +90,16 @@
     },
     {
       "customType": "regex",
+      "description": "Checksum-pinned release downloads in own images",
+      "managerFilePatterns": [
+        "/^images/.+/Dockerfile$/"
+      ],
+      "matchStrings": [
+        "# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)\\nADD --checksum=sha256:[a-f0-9]{64} https://\\S+/releases/download/(?<currentValue>[^/\\s]+)/"
+      ]
+    },
+    {
+      "customType": "regex",
       "description": "Talos and Kubernetes versions in tofu/baremetal",
       "managerFilePatterns": [
         "/^tofu/baremetal/variables\\.tf$/"
@@ -383,6 +393,13 @@
       ],
       "minimumReleaseAge": null,
       "automerge": true
+    },
+    {
+      "description": "Renovate bumps the version but not the ADD checksum next to it.",
+      "matchDepNames": [
+        "christiaangoossens/hass-oidc-auth"
+      ],
+      "automerge": false
     },
     {
       "description": "Restated after the rules above: update types without release timestamps skip the cooldown, as in the shared preset.",
