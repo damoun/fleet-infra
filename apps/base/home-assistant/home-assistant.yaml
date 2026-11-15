@@ -46,7 +46,7 @@ spec:
       enableServiceLinks: false
       initContainers:
         - name: init
-          image: ghcr.io/damoun/home-assistant:main@sha256:53b2d39672374fad18b6998f94bfc25f0cf3a973fd38a6c33d5d2bf7601ca07a
+          image: &image ghcr.io/damoun/home-assistant:main@sha256:53b2d39672374fad18b6998f94bfc25f0cf3a973fd38a6c33d5d2bf7601ca07a
           command:
             - /bin/sh
             - -ec
@@ -73,7 +73,7 @@ spec:
               mountPath: /etc/home-assistant
       containers:
         - name: home-assistant
-          image: ghcr.io/damoun/home-assistant:main@sha256:53b2d39672374fad18b6998f94bfc25f0cf3a973fd38a6c33d5d2bf7601ca07a
+          image: *image
           env:
             - name: TZ
               value: Europe/Amsterdam
