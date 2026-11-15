@@ -4,6 +4,8 @@ Forgejo at `git.core.ams.damoun.casa` keeps pull mirrors of the GitHub repos. Wh
 
 Pushing over HTTPS needs a Forgejo access token, since accounts log in through Pocket ID. The `breakglass` local admin (password in `apps/base/forgejo/admin-secret.yaml`) covers the case where Pocket ID is down too.
 
+Flux needs a `forgejo-pull` Secret in `flux-system` (`username` plus a read-only Forgejo token as `password`). Create it ahead of time, SOPS-encrypted under `infrastructure/configs/`; it sits unused until step 3.
+
 ## During the Outage
 
 1. In Forgejo, open the repo, then Settings, Danger Zone, **Convert to regular repository**. This is one-way: the repo stops mirroring.
@@ -18,10 +20,13 @@ Pushing over HTTPS needs a Forgejo access token, since accounts log in through P
      url: http://forgejo-http.forgejo.svc.cluster.local:3000/damoun/fleet-infra.git
      pullSecret: forgejo-pull
    ```
-   Commit, push to `forgejo`, then patch the live object to match:
+   Commit and push to `forgejo`. Suspend `infra-configs` so it cannot re-apply the old artifact, patch the live object to match, and resume once Flux has fetched the Forgejo revision:
    ```bash
+   flux --context admin@dapl-prd-hom-ams-core suspend kustomization infra-configs
    kubectl --context admin@dapl-prd-hom-ams-core -n flux-system patch fluxinstance flux --type merge \
      -p '{"spec":{"sync":{"url":"http://forgejo-http.forgejo.svc.cluster.local:3000/damoun/fleet-infra.git","pullSecret":"forgejo-pull"}}}'
+   flux --context admin@dapl-prd-hom-ams-core get sources git flux-system
+   flux --context admin@dapl-prd-hom-ams-core resume kustomization infra-configs
    ```
 4. Keep working against `forgejo`.
 
