@@ -12,7 +12,7 @@ spec:
     name: forgejo
     namespace: flux-system
   # deployment.labels also lands in the immutable selector, and the chart has no
-  # hostAliases, automount or service links values.
+  # automount or service links values.
   postRenderers:
     - kustomize:
         patches:
@@ -24,13 +24,6 @@ spec:
               - op: add
                 path: /spec/template/metadata/labels/edge.damoun.casa~1exposed
                 value: "true"
-              # The Pocket ID issuer only resolves in NetBird DNS.
-              - op: add
-                path: /spec/template/spec/hostAliases
-                value:
-                  - ip: 172.28.0.10
-                    hostnames:
-                      - id.core.ams.damoun.casa
               - op: add
                 path: /spec/template/spec/automountServiceAccountToken
                 value: false
@@ -38,6 +31,12 @@ spec:
                 path: /spec/template/spec/enableServiceLinks
                 value: false
   values:
+    global:
+      # The Pocket ID issuer only resolves in NetBird DNS.
+      hostAliases:
+        - ip: 172.28.0.10
+          hostnames:
+            - id.core.ams.damoun.casa
     # The chart appends -rootless after a digest in tag, so the pinned ref goes
     # in fullOverride, tracked by a Renovate custom manager.
     image:
