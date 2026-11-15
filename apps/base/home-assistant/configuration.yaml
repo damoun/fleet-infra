@@ -1,0 +1,36 @@
+# Copied over /config/configuration.yaml on every start; edit it here.
+# Two settings live in .storage and must be set in the UI on a fresh volume:
+# Settings > System > Network: X-Forwarded-For on, trusted proxy 172.20.0.0/20
+# (the Gateway's Envoy), and the first admin user from onboarding.
+
+# default_config without cloud and homeassistant_alerts.
+assist_pipeline:
+bluetooth:
+conversation:
+dhcp:
+energy:
+file:
+go2rtc:
+history:
+logbook:
+media_source:
+mobile_app:
+my:
+ssdp:
+stream:
+sun:
+usage_prediction:
+usb:
+webhook:
+zeroconf:
+
+frontend:
+  themes: !include_dir_merge_named themes
+
+# The UI owns these files on the volume.
+automation: !include automations.yaml
+script: !include scripts.yaml
+scene: !include scenes.yaml
+
+recorder:
+  db_url: !env_var DB_URL

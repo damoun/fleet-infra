@@ -44,6 +44,29 @@ spec:
             - id.core.ams.damoun.casa
       automountServiceAccountToken: false
       enableServiceLinks: false
+      initContainers:
+        - name: config
+          image: ghcr.io/home-assistant/home-assistant:2026.11.0@sha256:c6c1ca9931036bf3a2c4cc088d8db25dfea3b33935a5ecc83c40349462e2f69e
+          command:
+            - /bin/sh
+            - -ec
+            - |
+              cd /config
+              cp /etc/home-assistant/configuration.yaml configuration.yaml
+              # Home Assistant only creates these with its own default
+              # configuration.yaml, which this one replaces.
+              [ -e automations.yaml ] || echo '[]' > automations.yaml
+              touch scripts.yaml scenes.yaml
+          securityContext:
+            allowPrivilegeEscalation: false
+          resources:
+            limits:
+              memory: 64Mi
+          volumeMounts:
+            - name: config
+              mountPath: /config
+            - name: configuration
+              mountPath: /etc/home-assistant
       containers:
         - name: home-assistant
           image: ghcr.io/home-assistant/home-assistant:2026.11.0@sha256:c6c1ca9931036bf3a2c4cc088d8db25dfea3b33935a5ecc83c40349462e2f69e
@@ -85,6 +108,9 @@ spec:
         - name: config
           persistentVolumeClaim:
             claimName: home-assistant
+        - name: configuration
+          configMap:
+            name: home-assistant-config
 ---
 apiVersion: v1
 kind: Service
