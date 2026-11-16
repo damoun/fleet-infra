@@ -49,8 +49,9 @@ spec:
             requests:
               cpu: 100m
               memory: 512Mi
+            # The memory-backed /dev/shm counts against this limit.
             limits:
-              memory: 1536Mi
+              memory: 2Gi
           volumeMounts:
             - name: tmp
               mountPath: /tmp
