@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: Secret
+metadata:
+    name: forgejo-pull
+    namespace: flux-system
+stringData:
+    username: ENC[AES256_GCM,data:Bgjglvup,iv:0AJ3YoG0ahP0uGHfGuBJ/4T4HP5viMEGgGVP/xHvqHs=,tag:EyEQ2hSY190YBkbUADigWA==,type:str]
+    password: ENC[AES256_GCM,data:D8bz5967hhbXldALPBP821h3hJLXg06BGsqXi2poTbjIpSI7bNnl1A==,iv:M4v3LgkFJNt5YI2t9wcNMm15CiihBQWEOXBH640lKSM=,tag:QejNEsCnwGPh1F8eIjJl4Q==,type:str]
+sops:
+    age:
+        - enc: |
+            -----BEGIN AGE ENCRYPTED FILE-----
+            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSAwRFJWS2MvZDZaQ3VxS3VK
+            WWQrcTFTZkJWQWVlMmVQeXc5RGpCTTZUSTFFCnZCYnlTWTE1RU5IZVMvQXgxQjF3
+            eDhzYzZWZEZxVXovWjZkeEd4R2tEaFEKLS0tIDJ2eUNVUUdlb2NCK1JyZ1NVNjh6
+            UWtCNEtxZlZTSTQyb25TeUF6MUhLZ28KsCDA0tnsm1VD3muXpCsS4wioZDGl3R8w
+            rYAc1lC+ng+AhkxOO+UZghSPHEPN37dKFzrqGbbi9sejSC24Oc8YYg==
+            -----END AGE ENCRYPTED FILE-----
+          recipient: age12lruudqcn688pr9njrldp6haehncnuw7e2fdk84j3csqder0auhqqdcgkm
+    encrypted_regex: ^(data|stringData)$
+    lastmodified: "2026-11-16T09:41:27Z"
+    mac: ENC[AES256_GCM,data:hxADulpCSQ7u89EJQA2kF07nmJ2NlJitjmeAK0QjShmlGYsFo9R+x4hEKTdItrBLEuo3Gbvec1ctF5tL3QvM/T4y2atXVjadU43Bd8DkDQDKeM3dRgZmIoYRlDNazduc6fYQsxQVttSHlWHazy7hB7fFOBV+CoqiJ9W3Planu0o=,iv:PY7SAZmqqTecBg68HJb9IGBrN/fUCL6mRvDwMNbWO+Y=,tag:fHLp0wsWX8tSRXcq5l3f4A==,type:str]
+    version: 3.13.3

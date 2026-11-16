@@ -4,7 +4,7 @@ Forgejo at `git.core.ams.damoun.casa` keeps pull mirrors of the GitHub repos. Wh
 
 Pushing over HTTPS needs a Forgejo access token, since accounts log in through Pocket ID. The `breakglass` local admin (password in `apps/base/forgejo/admin-secret.yaml`) covers the case where Pocket ID is down too.
 
-Flux needs a `forgejo-pull` Secret in `flux-system` (`username` plus a read-only Forgejo token as `password`). Create it ahead of time, SOPS-encrypted under `infrastructure/configs/`; it sits unused until step 3.
+Flux reads Forgejo with the `forgejo-pull` Secret in `flux-system` (`infrastructure/configs/forgejo-pull.yaml`): `damoun` plus a `read:repository` token named `flux-pull`. It sits unused until step 3.
 
 ## During the Outage
 
