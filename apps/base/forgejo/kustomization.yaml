@@ -5,6 +5,7 @@ resources:
   - namespace.yaml
   - admin-secret.yaml
   - oidc-secret.yaml
+  - database.yaml
   - helmrelease.yaml
   - httproute.yaml
   - netpol.yaml

@@ -85,7 +85,19 @@ spec:
           scopes: openid,email,profile,groups
           groupClaimName: groups
           adminGroup: forgejo_admins
+      additionalConfigFromEnvs:
+        - name: FORGEJO__DATABASE__PASSWD
+          valueFrom:
+            secretKeyRef:
+              name: forgejo-db-app
+              key: password
       config:
+        database:
+          DB_TYPE: postgres
+          HOST: forgejo-db-rw:5432
+          NAME: forgejo
+          USER: forgejo
+          SSL_MODE: require
         server:
           DOMAIN: git.core.ams.damoun.casa
           ROOT_URL: https://git.core.ams.damoun.casa/
