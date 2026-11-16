@@ -1,4 +1,5 @@
 ---
+# Public internet only, never the LAN, cluster or NetBird.
 apiVersion: cilium.io/v2
 kind: CiliumNetworkPolicy
 metadata:
@@ -7,18 +8,25 @@ spec:
   endpointSelector:
     matchLabels:
       app.kubernetes.io/name: egress-proxy
+  # Overrides the cluster baseline's kube-apiserver allow; this pod never needs it.
+  egressDeny:
+    - toEntities:
+        - kube-apiserver
+    - toCIDRSet:
+        - cidr: 0.0.0.0/8
+        - cidr: 10.0.0.0/8
+        - cidr: 100.64.0.0/10
+        - cidr: 127.0.0.0/8
+        - cidr: 169.254.0.0/16
+        - cidr: 172.16.0.0/12
+        - cidr: 192.0.0.0/24
+        - cidr: 192.168.0.0/16
+        - cidr: 198.18.0.0/15
+        - cidr: 224.0.0.0/4
+        - cidr: 240.0.0.0/4
   egress:
-    - toFQDNs:
-        - matchName: api.deepseek.com
-        - matchName: generativelanguage.googleapis.com
-        - matchName: mcp.exa.ai
-        - matchName: search.parallel.ai
-        - matchName: api.firecrawl.dev
-        - matchName: api.keenable.ai
-        - matchName: nominatim.openstreetmap.org
-        - matchName: overpass-api.de
-        - matchName: router.project-osrm.org
-        - matchName: www.youtube.com
+    - toEntities:
+        - world
       toPorts:
         - ports:
             - port: "443"
