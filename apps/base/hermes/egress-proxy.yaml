@@ -1,20 +1,9 @@
 transforms:
   - name: allowlist
     config:
+      # Any host; egress-proxy-upstreams keeps the proxy off private ranges.
       domains:
-        - api.deepseek.com
-        - generativelanguage.googleapis.com
-        # Hermes' keyless web search ring: anonymous free tiers, no credential.
-        - mcp.exa.ai
-        - search.parallel.ai
-        - api.firecrawl.dev
-        - api.keenable.ai
-        # maps skill: OpenStreetMap community services (fair use).
-        - nominatim.openstreetmap.org
-        - overpass-api.de
-        - router.project-osrm.org
-        # youtube-content skill: transcripts.
-        - www.youtube.com
+        - "*"
   - name: secrets
     config:
       secrets:
@@ -45,4 +34,3 @@ transforms:
               methods:
                 - GET
                 - POST
-
