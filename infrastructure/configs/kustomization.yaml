@@ -7,7 +7,7 @@ resources:
   - certificate-wild.yaml
   - gateway-gw.yaml
   - storageclasses.yaml
+  - forgejo-pull.yaml
   - flux-instance.yaml
-  - forgejo-pull-secret.yaml
   - vmscrapes.yaml
   - vmprobes.yaml
