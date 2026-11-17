@@ -32,6 +32,9 @@ spec:
             # Crash reports are filed as public GitHub issues.
             - name: CAMOFOX_CRASH_REPORT_ENABLED
               value: "false"
+            # The image default of 128 MB Node heap ran out after ~16h.
+            - name: MAX_OLD_SPACE_SIZE
+              value: "512"
           ports:
             - name: http
               containerPort: 9377
