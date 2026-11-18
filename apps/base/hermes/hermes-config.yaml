@@ -137,6 +137,9 @@ mcp_servers:
         - upload_recipe_*_file
 streaming:
   enabled: false
+# Search only; web_extract keeps its own backend.
+web:
+  search_backend: searxng
 security:
   allow_lazy_installs: false
 cron:
