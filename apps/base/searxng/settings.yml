@@ -3,10 +3,6 @@ use_default_settings: true
 # Wikimedia and OSM engines refuse to load without a contact.
 general:
   contact_url: https://github.com/damoun/fleet-infra
-server:
-  limiter: false
-  public_instance: false
-  image_proxy: false
 search:
   formats:
     - html
