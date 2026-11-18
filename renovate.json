@@ -58,6 +58,16 @@
     },
     {
       "customType": "regex",
+      "description": "Git sources pinned by commit in image Dockerfiles",
+      "managerFilePatterns": [
+        "/^images/.+/Dockerfile$/"
+      ],
+      "matchStrings": [
+        "# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+) tag=(?<currentValue>\\S+)\\n\\s*ADD https://github\\.com/\\S+\\.git#(?<currentDigest>[a-f0-9]{40})"
+      ]
+    },
+    {
+      "customType": "regex",
       "managerFilePatterns": [
         "/^infrastructure/controllers/vm\\.yaml$/"
       ],
@@ -387,7 +397,8 @@
         "/falco/",
         "/iron-proxy/",
         "/pocket-id/",
-        "/hermes-agent/"
+        "/hermes-agent/",
+        "/proton-bridge/"
       ],
       "minimumReleaseAge": "7 days",
       "automerge": false
