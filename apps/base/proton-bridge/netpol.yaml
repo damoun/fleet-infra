@@ -1,0 +1,31 @@
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: proton-bridge
+  namespace: proton-bridge
+spec:
+  endpointSelector:
+    matchLabels:
+      app.kubernetes.io/name: proton-bridge
+  ingress:
+    - fromEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: paperless
+            app.kubernetes.io/name: paperless
+      toPorts:
+        - ports:
+            - port: "1143"
+              protocol: TCP
+  egressDeny:
+    - toEntities:
+        - kube-apiserver
+  # The API only, whose TLS keys Bridge pins. Updates, TLS reports and
+  # alternative routing through third-party proxies stay blocked.
+  egress:
+    - toFQDNs:
+        - matchName: mail-api.proton.me
+      toPorts:
+        - ports:
+            - port: "443"
+              protocol: TCP

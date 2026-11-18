@@ -11,5 +11,6 @@ resources:
   - o11y-mcp
   - paperless
   - pocket-id
+  - proton-bridge
   - searxng
   - sure

@@ -1,0 +1,167 @@
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: proton-bridge
+  namespace: proton-bridge
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: local-retain
+  resources:
+    requests:
+      storage: 2Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: proton-bridge
+  namespace: proton-bridge
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: proton-bridge
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: proton-bridge
+    spec:
+      automountServiceAccountToken: false
+      enableServiceLinks: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        fsGroupChangePolicy: OnRootMismatch
+        seccompProfile:
+          type: RuntimeDefault
+      # The vault and the pass store sit on the PVC; the GPG key that opens
+      # them only ever lives in memory.
+      initContainers:
+        - name: init
+          image: ghcr.io/damoun/proton-bridge:main
+          command:
+            - sh
+            - -eu
+            - -c
+            - |
+              gpg --batch --quiet --import /etc/proton-bridge/gpg/key.asc
+              fpr=$(gpg --list-secret-keys --with-colons | awk -F: '/^fpr/{print $10; exit}')
+              echo "$fpr:6:" | gpg --batch --quiet --import-ownertrust
+              [ -f "$HOME/.password-store/.gpg-id" ] || pass init "$fpr"
+          env:
+            - name: HOME
+              value: /data
+            - name: GNUPGHOME
+              value: /gnupg
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
+          resources:
+            requests:
+              cpu: 10m
+              memory: 16Mi
+            limits:
+              memory: 64Mi
+          volumeMounts:
+            - name: data
+              mountPath: /data
+            - name: gnupg
+              mountPath: /gnupg
+            - name: gpg-key
+              mountPath: /etc/proton-bridge/gpg
+              readOnly: true
+      containers:
+        # Log in once with `kubectl attach -it`, detach with Ctrl-P Ctrl-Q.
+        - name: bridge
+          image: ghcr.io/damoun/proton-bridge:main
+          command:
+            - bridge
+            - --cli
+          stdin: true
+          tty: true
+          env:
+            - name: HOME
+              value: /data
+            - name: GNUPGHOME
+              value: /gnupg
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
+          resources:
+            requests:
+              cpu: 20m
+              memory: 128Mi
+            limits:
+              memory: 768Mi
+          volumeMounts:
+            - name: data
+              mountPath: /data
+            - name: gnupg
+              mountPath: /gnupg
+            - name: tmp
+              mountPath: /tmp
+        # Bridge only listens on 127.0.0.1. SMTP is deliberately not forwarded.
+        - name: imap
+          image: ghcr.io/damoun/proton-bridge:main
+          command:
+            - socat
+            - TCP-LISTEN:1143,bind=$(POD_IP),fork,reuseaddr
+            - TCP:127.0.0.1:1143
+          env:
+            - name: POD_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP
+          ports:
+            - name: imap
+              containerPort: 1143
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
+          resources:
+            requests:
+              cpu: 5m
+              memory: 8Mi
+            limits:
+              memory: 32Mi
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: proton-bridge
+        - name: gnupg
+          emptyDir:
+            medium: Memory
+            sizeLimit: 16Mi
+        - name: tmp
+          emptyDir:
+            sizeLimit: 64Mi
+        - name: gpg-key
+          secret:
+            secretName: proton-bridge-gpg
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: proton-bridge
+  namespace: proton-bridge
+spec:
+  selector:
+    app.kubernetes.io/name: proton-bridge
+  ports:
+    - name: imap
+      port: 1143
+      targetPort: imap
