@@ -112,6 +112,8 @@ spec:
               value: http://signal-cli.hermes.svc.cluster.local:8080
             - name: CAMOFOX_URL
               value: http://camofox.hermes.svc.cluster.local:9377
+            - name: SEARXNG_URL
+              value: http://searxng.searxng.svc.cluster.local:8080
           envFrom:
             - secretRef:
                 name: hermes-signal
@@ -238,4 +240,12 @@ spec:
       toPorts:
         - ports:
             - port: "8081"
+              protocol: TCP
+    - toEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: searxng
+            app.kubernetes.io/name: searxng
+      toPorts:
+        - ports:
+            - port: "8080"
               protocol: TCP
