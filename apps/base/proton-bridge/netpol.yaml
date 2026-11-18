@@ -15,7 +15,7 @@ spec:
             app.kubernetes.io/name: paperless
       toPorts:
         - ports:
-            - port: "1143"
+            - port: "10143"
               protocol: TCP
   egressDeny:
     - toEntities:

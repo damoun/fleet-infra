@@ -112,11 +112,13 @@ spec:
             - name: tmp
               mountPath: /tmp
         # Bridge only listens on 127.0.0.1. SMTP is deliberately not forwarded.
+        # Not on 1143: Bridge takes the first port from 1143 that is free on
+        # every interface when it creates its vault.
         - name: imap
           image: *image
           command:
             - socat
-            - TCP-LISTEN:1143,bind=$(POD_IP),fork,reuseaddr
+            - TCP-LISTEN:10143,bind=$(POD_IP),fork,reuseaddr
             - TCP:127.0.0.1:1143
           env:
             - name: POD_IP
@@ -125,7 +127,7 @@ spec:
                   fieldPath: status.podIP
           ports:
             - name: imap
-              containerPort: 1143
+              containerPort: 10143
           securityContext:
             allowPrivilegeEscalation: false
             readOnlyRootFilesystem: true
