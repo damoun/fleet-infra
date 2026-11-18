@@ -43,7 +43,7 @@ spec:
       # them only ever lives in memory.
       initContainers:
         - name: init
-          image: ghcr.io/damoun/proton-bridge:main
+          image: &image ghcr.io/damoun/proton-bridge:main
           command:
             - sh
             - -eu
@@ -81,7 +81,7 @@ spec:
       containers:
         # Log in once with `kubectl attach -it`, detach with Ctrl-P Ctrl-Q.
         - name: bridge
-          image: ghcr.io/damoun/proton-bridge:main
+          image: *image
           command:
             - bridge
             - --cli
@@ -113,7 +113,7 @@ spec:
               mountPath: /tmp
         # Bridge only listens on 127.0.0.1. SMTP is deliberately not forwarded.
         - name: imap
-          image: ghcr.io/damoun/proton-bridge:main
+          image: *image
           command:
             - socat
             - TCP-LISTEN:1143,bind=$(POD_IP),fork,reuseaddr
