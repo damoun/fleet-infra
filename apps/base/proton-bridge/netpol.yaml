@@ -20,9 +20,9 @@ spec:
   egressDeny:
     - toEntities:
         - kube-apiserver
-  # The API only, whose TLS keys Bridge pins. Updates, TLS reports and
-  # alternative routing through third-party proxies stay blocked.
   egress:
+    # The Proton API only. Updates, TLS reports and alternative routing
+    # through third-party proxies stay blocked.
     - toFQDNs:
         - matchName: mail-api.proton.me
       toPorts:
