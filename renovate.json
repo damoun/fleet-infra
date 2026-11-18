@@ -63,7 +63,7 @@
         "/^images/.+/Dockerfile$/"
       ],
       "matchStrings": [
-        "# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+) tag=(?<currentValue>\\S+)\\n\\s*ADD https://github\\.com/\\S+\\.git#(?<currentDigest>[a-f0-9]{40})"
+        "# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+) tag=(?<currentValue>\\S+)\\nADD https://github\\.com/\\S+\\.git#(?<currentDigest>[a-f0-9]{40})"
       ]
     },
     {
