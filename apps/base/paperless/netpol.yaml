@@ -57,6 +57,15 @@ spec:
         - ports:
             - port: "443"
               protocol: TCP
+    # Mail consumption from the Proton bot mailbox.
+    - toEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: proton-bridge
+            app.kubernetes.io/name: proton-bridge
+      toPorts:
+        - ports:
+            - port: "1143"
+              protocol: TCP
 ---
 apiVersion: cilium.io/v2
 kind: CiliumNetworkPolicy
