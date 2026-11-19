@@ -41,7 +41,7 @@ spec:
           type: RuntimeDefault
       containers:
         - name: changedetection
-          image: ghcr.io/dgtlmoon/changedetection.io:0.70.2@sha256:36ebb3586e9a6b14af6fb488c6e29b60eceb79ee414ecdb6ac2b91dd25b1c7ba
+          image: ghcr.io/dgtlmoon/changedetection.io:0.70.4@sha256:b6aae2572a0bf1a671b1b202365ddcfe16a31fa8a60be89df606705731b55f8b
           env:
             - name: BASE_URL
               value: https://diff.core.ams.damoun.casa
