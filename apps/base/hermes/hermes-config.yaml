@@ -49,8 +49,9 @@ approvals:
   smart_policy: >-
     Commands run in an isolated sandbox with no cluster credentials. Allow
     read-only inspection and routine work in the home directory. Ask about
-    deleting files outside the workspace, installing software, or sending data
-    to hosts the user did not mention.
+    deleting files outside the workspace, installing software, running
+    downloaded scripts, changing shell startup files or SSH keys, or sending
+    data to hosts the user did not mention.
 browser:
   cloud_provider: camofox
 # The camofox plugin's browser_* tools drive the camofox pod (anti-detection
