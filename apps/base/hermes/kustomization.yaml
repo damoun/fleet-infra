@@ -5,6 +5,7 @@ namespace: hermes
 resources:
   - namespace.yaml
   - egress-proxy-secret.yaml
+  - webhook-secret.yaml
   - egress-proxy-netpol.yaml
   - gateway-ssh-secret.yaml
   - sandbox-host-key-secret.yaml
