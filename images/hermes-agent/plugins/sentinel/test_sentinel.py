@@ -11,7 +11,8 @@ spec.loader.exec_module(sentinel)
 
 class NeedsReview(unittest.TestCase):
     def test_writes_are_reviewed(self):
-        for name in ("mcp__sure__update_transaction", "mcp__karakeep__create_bookmark", "mcp__mealie__delete_recipe"):
+        for name in ("mcp__sure__update_transaction", "mcp__karakeep__create_bookmark", "mcp__mealie__delete_recipe",
+                     "mcp__sure__readjust_budget", "mcp__mealie__listen_events"):
             self.assertTrue(sentinel.needs_review(name), name)
 
     def test_reads_and_other_tools_pass(self):

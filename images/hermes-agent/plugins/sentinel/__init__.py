@@ -8,7 +8,7 @@ import json
 
 TASK = "sentinel"
 READ_ONLY_SERVERS = {"victoriametrics", "victorialogs"}
-READ_PREFIXES = ("get", "list", "search", "query", "preview", "read", "find", "count", "describe", "show")
+READ_VERBS = {"get", "list", "search", "query", "preview", "read", "find", "count", "describe", "show"}
 MAX_CALL_CHARS = 8000
 
 SYSTEM = """You review one tool call that an AI assistant wants to make on its \
@@ -30,7 +30,7 @@ def needs_review(tool_name):
     if not tool_name.startswith("mcp__"):
         return False
     server, _, tool = tool_name.removeprefix("mcp__").partition("__")
-    return server not in READ_ONLY_SERVERS and not tool.lower().startswith(READ_PREFIXES)
+    return server not in READ_ONLY_SERVERS and tool.lower().split("_")[0] not in READ_VERBS
 
 
 def directive(text):
