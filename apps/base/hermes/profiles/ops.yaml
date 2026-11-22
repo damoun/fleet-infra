@@ -1,3 +1,7 @@
+# Reads alert payloads, which it must treat as untrusted: it cannot schedule
+# jobs of its own.
+cron:
+  allow_agent_scheduling: false
 mcp_servers:
   - victoriametrics
   - victorialogs
