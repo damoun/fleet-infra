@@ -28,6 +28,13 @@ RUN set -eu; \
       echo "$name plugin: $repo@$sha"; \
     done
 
+# Reviews write-capable MCP tool calls with a second model; its tests run
+# here so a broken verdict mapping fails the build.
+COPY plugins/sentinel /opt/hermes/plugins/sentinel
+RUN cd /opt/hermes/plugins/sentinel \
+    && /opt/hermes/.venv/bin/python -m unittest -q test_sentinel \
+    && rm -rf test_sentinel.py __pycache__
+
 # The Claude subscription provider drives the official Claude Code binary,
 # unmodified, as its model client. On a version bump, take the linux-x64
 # checksum from that release's manifest.json.

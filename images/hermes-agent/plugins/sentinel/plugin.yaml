@@ -1,0 +1,5 @@
+name: sentinel
+version: 1.0.0
+description: A second model reviews write-capable MCP tool calls before they run.
+provides_hooks:
+  - pre_tool_call
