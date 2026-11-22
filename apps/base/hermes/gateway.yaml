@@ -59,7 +59,22 @@ spec:
               mkdir -p -m 0700 /vol/hermes
               cd /vol/hermes
               mkdir -p backups cron sessions logs/gateways hooks memories skills skins plans workspace home pairing platforms/pairing plugins .ssh
-              cp /etc/hermes-config/config.yaml config.yaml
+              # Each profile is the base config plus its overlay. Personas,
+              # memories and cron belong to the profiles and stay untouched.
+              cd /etc/hermes-config
+              /opt/hermes/.venv/bin/python merge.py config.yaml profile-default.yaml > /vol/hermes/config.yaml
+              for overlay in profile-*.yaml; do
+                name=${overlay#profile-}
+                name=${name%.yaml}
+                [ "$name" = default ] && continue
+                home=/vol/hermes/profiles/$name
+                mkdir -p "$home/memories" "$home/sessions" "$home/skills" "$home/skins" "$home/logs" "$home/plans" "$home/workspace" "$home/cron" "$home/home"
+                /opt/hermes/.venv/bin/python merge.py config.yaml "$overlay" > "$home/config.yaml"
+                env=deepseek.env
+                [ -f "$name.env" ] && env=$name.env
+                install -m 0600 "$env" "$home/.env"
+              done
+              cd /vol/hermes
               rm -rf plugins/hermex-push
               cp -r /opt/hermex-push plugins/hermex-push
               install -m 0600 /etc/hermes-ssh/id_ed25519 .ssh/id_ed25519

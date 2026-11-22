@@ -1,0 +1,19 @@
+# Chief of staff: plans the day and hands work to the other profiles.
+plugins:
+  enabled:
+    - camofox
+    - hermex-push
+    - advanced-delegation
+delegation:
+  backend: profile_routes
+  backends:
+    profile_routes:
+      profiles:
+        - name: family
+          description: Family and care admin, school, household paperwork and family finances.
+        - name: content
+          description: Social media content ideas, captions and planning.
+        - name: vexa
+          description: Building a game server hosting business from scratch.
+        - name: ops
+          description: Homelab operations, alert triage and fix suggestions.
