@@ -124,17 +124,12 @@ spec:
               value: proxy-deepseek
             - name: GEMINI_API_KEY
               value: proxy-gemini
-            - name: SIGNAL_HTTP_URL
-              value: http://signal-cli.hermes.svc.cluster.local:8080
             - name: CAMOFOX_URL
               value: http://camofox.hermes.svc.cluster.local:9377
             - name: SEARXNG_URL
               value: http://searxng.searxng.svc.cluster.local:8080
             - name: HERMEX_PUSH_RELAY_URL
               value: https://hermex-relay.hermex-relay.workers.dev
-          envFrom:
-            - secretRef:
-                name: hermes-signal
           securityContext: *securityContext
           resources:
             requests:
@@ -270,13 +265,6 @@ spec:
       toPorts:
         - ports:
             - port: "1411"
-              protocol: TCP
-    - toEndpoints:
-        - matchLabels:
-            app.kubernetes.io/name: signal-cli
-      toPorts:
-        - ports:
-            - port: "8080"
               protocol: TCP
     - toEndpoints:
         - matchLabels:

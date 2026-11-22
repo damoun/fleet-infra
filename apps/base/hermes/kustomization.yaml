@@ -6,7 +6,6 @@ resources:
   - namespace.yaml
   - egress-proxy-secret.yaml
   - egress-proxy-netpol.yaml
-  - signal-secret.yaml
   - gateway-ssh-secret.yaml
   - sandbox-host-key-secret.yaml
   - gateway.yaml
@@ -14,7 +13,6 @@ resources:
   - httproute.yaml
   - sandbox.yaml
   - camofox.yaml
-  - signal.yaml
   - obsidian-secret.yaml
   - obsidian.yaml
   - alerts.yaml
