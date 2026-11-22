@@ -1,3 +1,18 @@
+# Sees family data: the main model and the side tasks that read the
+# conversation run on the Claude subscription, not DeepSeek.
+model:
+  provider: claude-subscription-directsdk-experimental
+  default: claude-sonnet-5-5
+auxiliary:
+  compression:
+    provider: claude-subscription-directsdk-experimental
+    model: claude-haiku-5-5
+  title_generation:
+    provider: claude-subscription-directsdk-experimental
+    model: claude-haiku-5-5
+delegation:
+  provider: claude-subscription-directsdk-experimental
+  model: claude-haiku-5-5
 mcp_servers:
   - sure
   - paperless

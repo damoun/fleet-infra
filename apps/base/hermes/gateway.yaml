@@ -139,6 +139,11 @@ spec:
               value: proxy-deepseek
             - name: GEMINI_API_KEY
               value: proxy-gemini
+            - name: CLAUDE_CODE_OAUTH_TOKEN
+              value: proxy-claude
+            # Claude Code is not Python; it reads its extra CA from here.
+            - name: NODE_EXTRA_CA_CERTS
+              value: /etc/egress-ca/ca.crt
             - name: CAMOFOX_URL
               value: http://camofox.hermes.svc.cluster.local:9377
             - name: SEARXNG_URL
@@ -196,6 +201,10 @@ spec:
               value: proxy-deepseek
             - name: GEMINI_API_KEY
               value: proxy-gemini
+            - name: CLAUDE_CODE_OAUTH_TOKEN
+              value: proxy-claude
+            - name: NODE_EXTRA_CA_CERTS
+              value: /etc/ca-bundle/ca.crt
             - name: CAMOFOX_URL
               value: http://camofox.hermes.svc.cluster.local:9377
             - name: SEARXNG_URL
