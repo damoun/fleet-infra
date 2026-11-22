@@ -48,7 +48,7 @@ spec:
       # Replaces the image's s6 stage2 setup, which needs root.
       initContainers:
         - name: init
-          image: &image ghcr.io/damoun/hermes-agent:main@sha256:be1594af52cfe6823b065d5625085dd8d145f7f3ed717dd2dc5425c01cbd9df5
+          image: &image ghcr.io/damoun/hermes-agent:main@sha256:24dd43ca4cf2b97777bb349e7123adf20bf0baefae6ad0b937a999455f870626
           command:
             - /bin/sh
             - -ec
@@ -58,8 +58,10 @@ spec:
               # subdirectory instead.
               mkdir -p -m 0700 /vol/hermes
               cd /vol/hermes
-              mkdir -p backups cron sessions logs/gateways hooks memories skills skins plans workspace home pairing platforms/pairing .ssh
+              mkdir -p backups cron sessions logs/gateways hooks memories skills skins plans workspace home pairing platforms/pairing plugins .ssh
               cp /etc/hermes-config/config.yaml config.yaml
+              rm -rf plugins/hermex-push
+              cp -r /opt/hermex-push plugins/hermex-push
               install -m 0600 /etc/hermes-ssh/id_ed25519 .ssh/id_ed25519
               install -m 0644 /etc/hermes-ssh/known_hosts .ssh/known_hosts
               # The dashboard reaches Pocket ID directly (public certificate)
@@ -128,6 +130,8 @@ spec:
               value: http://camofox.hermes.svc.cluster.local:9377
             - name: SEARXNG_URL
               value: http://searxng.searxng.svc.cluster.local:8080
+            - name: HERMEX_PUSH_RELAY_URL
+              value: https://hermex-relay.hermex-relay.workers.dev
           envFrom:
             - secretRef:
                 name: hermes-signal
@@ -186,6 +190,8 @@ spec:
               value: http://camofox.hermes.svc.cluster.local:9377
             - name: SEARXNG_URL
               value: http://searxng.searxng.svc.cluster.local:8080
+            - name: HERMEX_PUSH_RELAY_URL
+              value: https://hermex-relay.hermex-relay.workers.dev
           ports:
             - name: http
               containerPort: 9119
