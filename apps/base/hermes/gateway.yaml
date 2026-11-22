@@ -90,7 +90,7 @@ spec:
                 - ALL
           resources:
             limits:
-              memory: 64Mi
+              memory: 128Mi
           volumeMounts:
             - name: data
               mountPath: /vol
