@@ -27,8 +27,14 @@ spec:
       labels:
         app.kubernetes.io/name: hermes
         egress.damoun.casa/client: "true"
+        edge.damoun.casa/exposed: "true"
     spec:
       automountServiceAccountToken: false
+      # The Pocket ID issuer only resolves in NetBird DNS.
+      hostAliases:
+        - ip: 172.28.0.10
+          hostnames:
+            - id.core.ams.damoun.casa
       # Python runs as PID 1 without an init; let the pause container reap
       # ssh children.
       shareProcessNamespace: true
@@ -42,7 +48,7 @@ spec:
       # Replaces the image's s6 stage2 setup, which needs root.
       initContainers:
         - name: init
-          image: ghcr.io/damoun/hermes-agent:main@sha256:be1594af52cfe6823b065d5625085dd8d145f7f3ed717dd2dc5425c01cbd9df5
+          image: &image ghcr.io/damoun/hermes-agent:main@sha256:be1594af52cfe6823b065d5625085dd8d145f7f3ed717dd2dc5425c01cbd9df5
           command:
             - /bin/sh
             - -ec
@@ -76,7 +82,7 @@ spec:
               readOnly: true
       containers:
         - name: hermes
-          image: ghcr.io/damoun/hermes-agent:main@sha256:be1594af52cfe6823b065d5625085dd8d145f7f3ed717dd2dc5425c01cbd9df5
+          image: *image
           command:
             - /opt/hermes/.venv/bin/hermes
             - gateway
@@ -133,11 +139,75 @@ spec:
             - name: egress-ca
               mountPath: /etc/egress-ca
               readOnly: true
+        # Hermex chats run their turns in the dashboard process, so it needs the
+        # same LLM, proxy, sandbox and MCP reach as the gateway.
+        - name: dashboard
+          image: *image
+          command:
+            - /opt/hermes/.venv/bin/hermes
+            - dashboard
+            - --host
+            - 0.0.0.0
+            - --port
+            - "9119"
+            - --no-open
+            - --skip-build
+          workingDir: /opt/data
+          env:
+            - name: HOME
+              value: /opt/data
+            - name: XDG_RUNTIME_DIR
+              value: /tmp
+            - name: TMPDIR
+              value: /tmp
+            - name: HTTPS_PROXY
+              value: http://egress-proxy.hermes.svc.cluster.local:8080
+            - name: NO_PROXY
+              value: localhost,127.0.0.1,.cluster.local
+            - name: SSL_CERT_FILE
+              value: /etc/egress-ca/ca.crt
+            - name: REQUESTS_CA_BUNDLE
+              value: /etc/egress-ca/ca.crt
+            - name: CURL_CA_BUNDLE
+              value: /etc/egress-ca/ca.crt
+            - name: DEEPSEEK_API_KEY
+              value: proxy-deepseek
+            - name: GEMINI_API_KEY
+              value: proxy-gemini
+            - name: CAMOFOX_URL
+              value: http://camofox.hermes.svc.cluster.local:9377
+            - name: SEARXNG_URL
+              value: http://searxng.searxng.svc.cluster.local:8080
+          ports:
+            - name: http
+              containerPort: 9119
+          readinessProbe:
+            tcpSocket:
+              port: http
+          securityContext: *securityContext
+          resources:
+            requests:
+              cpu: 50m
+              memory: 384Mi
+            limits:
+              memory: 1Gi
+          volumeMounts:
+            - name: data
+              mountPath: /opt/data
+              subPath: hermes
+            - name: dashboard-tmp
+              mountPath: /tmp
+            - name: egress-ca
+              mountPath: /etc/egress-ca
+              readOnly: true
       volumes:
         - name: data
           persistentVolumeClaim:
             claimName: hermes-data
         - name: tmp
+          emptyDir:
+            sizeLimit: 512Mi
+        - name: dashboard-tmp
           emptyDir:
             sizeLimit: 512Mi
         - name: config
@@ -166,7 +236,24 @@ spec:
   egressDeny:
     - toEntities:
         - kube-apiserver
+  ingress:
+    - fromEntities:
+        - ingress
+      toPorts:
+        - ports:
+            - port: "9119"
+              protocol: TCP
   egress:
+    # Dashboard login with Pocket ID goes through the Gateway, and Cilium's
+    # Envoy checks the client's egress against the backend pod.
+    - toEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: id
+            app.kubernetes.io/name: pocket-id
+      toPorts:
+        - ports:
+            - port: "1411"
+              protocol: TCP
     - toEndpoints:
         - matchLabels:
             app.kubernetes.io/name: signal-cli
