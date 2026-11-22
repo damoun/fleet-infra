@@ -1,25 +1,29 @@
 FROM nousresearch/hermes-agent:v0.23.0@sha256:adb7890916de63245523492be8f68f9d2095fecbec4e2a6dab7960381f0fc002
 
-# The browser tools that drive the camofox pod left Hermes core for the camofox
-# catalog plugin, which Hermes would otherwise clone into the home at runtime.
-# Bake it into the bundled plugin dir at the commit the base image's catalog
-# pins, so a base image bump carries the plugin with it. Its pyproject only
-# declares dependencies the venv already has; Hermes would still count it as a
+# Catalog plugins Hermes would otherwise clone into the home at runtime: the
+# browser tools that drive the camofox pod, and delegation to named profiles.
+# Bake them into the bundled plugin dir at the commits the base image's catalog
+# pins, so a base image bump carries them. A pyproject only declares
+# dependencies the venv already has; Hermes would still count the plugin as a
 # venv member and warn at every start that the sealed venv needs a rebuild, so
 # the build checks each dependency against the venv and drops the file.
 RUN set -eu; \
-    catalog=/opt/hermes/plugin-catalog/camofox.yaml; \
-    repo=$(sed -n 's/^repo: //p' "$catalog"); \
-    sha=$(sed -n 's/^sha: //p' "$catalog"); \
-    subdir=$(sed -n 's/^subdir: //p' "$catalog"); \
-    echo "$sha" | grep -qxE '[0-9a-f]{40}'; \
-    git init -q /tmp/plugin; \
-    git -C /tmp/plugin fetch -q --depth 1 "$repo" "$sha"; \
-    git -C /tmp/plugin -c advice.detachedHead=false checkout -q FETCH_HEAD; \
-    cp -r "/tmp/plugin/$subdir" /opt/hermes/plugins/camofox; \
-    /opt/hermes/.venv/bin/python -c 'import sys, tomllib; from importlib.metadata import version; from packaging.requirements import Requirement; reqs = [Requirement(s) for s in tomllib.load(open(sys.argv[1], "rb"))["project"].get("dependencies", [])]; bad = [str(r) for r in reqs if not r.specifier.contains(version(r.name), prereleases=True)]; sys.exit(f"venv does not satisfy {bad}" if bad else 0)' /opt/hermes/plugins/camofox/pyproject.toml; \
-    rm -rf /opt/hermes/plugins/camofox/tests /opt/hermes/plugins/camofox/pyproject.toml /tmp/plugin; \
-    echo "camofox plugin: $repo@$sha"
+    for name in camofox advanced-delegation; do \
+      catalog=/opt/hermes/plugin-catalog/$name.yaml; \
+      repo=$(sed -n 's/^repo: //p' "$catalog"); \
+      sha=$(sed -n 's/^sha: //p' "$catalog"); \
+      subdir=$(sed -n 's/^subdir: //p' "$catalog"); \
+      echo "$sha" | grep -qxE '[0-9a-f]{40}'; \
+      git init -q /tmp/plugin; \
+      git -C /tmp/plugin fetch -q --depth 1 "$repo" "$sha"; \
+      git -C /tmp/plugin -c advice.detachedHead=false checkout -q FETCH_HEAD; \
+      cp -r "/tmp/plugin/$subdir" "/opt/hermes/plugins/$name"; \
+      if [ -f "/opt/hermes/plugins/$name/pyproject.toml" ]; then \
+        /opt/hermes/.venv/bin/python -c 'import sys, tomllib; from importlib.metadata import version; from packaging.requirements import Requirement; reqs = [Requirement(s) for s in tomllib.load(open(sys.argv[1], "rb"))["project"].get("dependencies", [])]; bad = [str(r) for r in reqs if not r.specifier.contains(version(r.name), prereleases=True)]; sys.exit(f"venv does not satisfy {bad}" if bad else 0)' "/opt/hermes/plugins/$name/pyproject.toml"; \
+      fi; \
+      rm -rf "/opt/hermes/plugins/$name/tests" "/opt/hermes/plugins/$name/pyproject.toml" /tmp/plugin; \
+      echo "$name plugin: $repo@$sha"; \
+    done
 
 # Push notifications for the Hermex app: hooks seal each preview with a key only
 # the phone holds before posting it to the relay. Hermes loads bundled platform
