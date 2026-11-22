@@ -48,7 +48,7 @@ spec:
       # Replaces the image's s6 stage2 setup, which needs root.
       initContainers:
         - name: init
-          image: &image ghcr.io/damoun/hermes-agent:main@sha256:24dd43ca4cf2b97777bb349e7123adf20bf0baefae6ad0b937a999455f870626
+          image: &image ghcr.io/damoun/hermes-agent:main@sha256:77fb6306ffc13e7d173d2b592ad8d3d1f368ca34962bdb00cdc57c437eb8ff26
           command:
             - /bin/sh
             - -ec
@@ -59,7 +59,22 @@ spec:
               mkdir -p -m 0700 /vol/hermes
               cd /vol/hermes
               mkdir -p backups cron sessions logs/gateways hooks memories skills skins plans workspace home pairing platforms/pairing plugins .ssh
-              cp /etc/hermes-config/config.yaml config.yaml
+              # Each profile is the base config plus its overlay. Personas,
+              # memories and cron belong to the profiles and stay untouched.
+              cd /etc/hermes-config
+              /opt/hermes/.venv/bin/python merge.py config.yaml default.yaml > /vol/hermes/config.yaml
+              for overlay in profile-*.yaml; do
+                name=${overlay#profile-}
+                name=${name%.yaml}
+                home=/vol/hermes/profiles/$name
+                mkdir -p "$home"
+                (cd "$home" && mkdir -p memories sessions skills skins logs plans workspace cron home)
+                /opt/hermes/.venv/bin/python merge.py config.yaml "$overlay" > "$home/config.yaml"
+                env=deepseek.env
+                [ -f "$name.env" ] && env=$name.env
+                install -m 0600 "$env" "$home/.env"
+              done
+              cd /vol/hermes
               rm -rf plugins/hermex-push
               cp -r /opt/hermex-push plugins/hermex-push
               install -m 0600 /etc/hermes-ssh/id_ed25519 .ssh/id_ed25519
@@ -75,7 +90,7 @@ spec:
                 - ALL
           resources:
             limits:
-              memory: 64Mi
+              memory: 128Mi
           volumeMounts:
             - name: data
               mountPath: /vol

@@ -1,0 +1,38 @@
+# Other owners' personal data: every model call stays with Mistral (EU), and
+# the profile gets no MCP servers, terminal, files or browser (the sandbox
+# mounts the personal vault).
+providers:
+  mistral:
+    api: https://api.eu.mistral.ai/v1
+    key_env: MISTRAL_API_KEY
+    transport: chat_completions
+model:
+  provider: custom:mistral
+  default: mistral-large-latest
+auxiliary:
+  compression:
+    provider: custom:mistral
+    model: mistral-small-latest
+  title_generation:
+    provider: custom:mistral
+    model: mistral-small-latest
+  vision:
+    provider: custom:mistral
+    model: mistral-medium-latest
+    fallback_chain: []
+delegation:
+  provider: custom:mistral
+  model: mistral-small-latest
+agent:
+  disabled_toolsets:
+    - image_gen
+    - tts
+    - browser
+    - terminal
+    - file
+    - code_execution
+    - delegation
+plugins:
+  enabled:
+    - hermex-push
+mcp_servers: []
