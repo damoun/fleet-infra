@@ -35,6 +35,10 @@ spec:
             # The image default of 128 MB Node heap ran out after ~16h.
             - name: MAX_OLD_SPACE_SIZE
               value: "512"
+            # The 1500 MB default restarted the browser mid session build, which
+            # left that user's tab creates timing out until the server restarted.
+            - name: BROWSER_RSS_RESTART_THRESHOLD_MB
+              value: "2300"
           ports:
             - name: http
               containerPort: 9377
@@ -52,9 +56,9 @@ spec:
             requests:
               cpu: 100m
               memory: 512Mi
-            # The memory-backed /dev/shm counts against this limit.
+            # Browser RSS threshold + /dev/shm + the Node server, plus margin.
             limits:
-              memory: 2Gi
+              memory: 3Gi
           volumeMounts:
             - name: tmp
               mountPath: /tmp
