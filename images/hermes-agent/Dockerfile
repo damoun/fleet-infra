@@ -29,7 +29,8 @@ RUN set -eu; \
     done
 
 # The Claude subscription provider drives the official Claude Code binary,
-# unmodified, as its model client.
+# unmodified, as its model client. On a version bump, take the linux-x64
+# checksum from that release's manifest.json.
 # renovate: datasource=npm depName=@anthropic-ai/claude-code
 ARG CLAUDE_CODE_VERSION=2.1.323
 ADD --chmod=755 --checksum=sha256:604d29a6869409106b6a1110bdadcc8b72e8654a5a865d23258f938a696e348e https://downloads.claude.ai/claude-code-releases/${CLAUDE_CODE_VERSION}/linux-x64/claude /usr/local/bin/claude
