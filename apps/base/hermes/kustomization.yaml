@@ -24,7 +24,7 @@ configMapGenerator:
     files:
       - config.yaml=hermes-config.yaml
       - merge.py=profiles/merge.py
-      - profile-default.yaml=profiles/default.yaml
+      - default.yaml=profiles/default.yaml
       - profile-family.yaml=profiles/family.yaml
       - profile-vve.yaml=profiles/vve.yaml
       - profile-content.yaml=profiles/content.yaml

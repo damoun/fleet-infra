@@ -62,11 +62,10 @@ spec:
               # Each profile is the base config plus its overlay. Personas,
               # memories and cron belong to the profiles and stay untouched.
               cd /etc/hermes-config
-              /opt/hermes/.venv/bin/python merge.py config.yaml profile-default.yaml > /vol/hermes/config.yaml
+              /opt/hermes/.venv/bin/python merge.py config.yaml default.yaml > /vol/hermes/config.yaml
               for overlay in profile-*.yaml; do
                 name=${overlay#profile-}
                 name=${name%.yaml}
-                [ "$name" = default ] && continue
                 home=/vol/hermes/profiles/$name
                 mkdir -p "$home/memories" "$home/sessions" "$home/skills" "$home/skins" "$home/logs" "$home/plans" "$home/workspace" "$home/cron" "$home/home"
                 /opt/hermes/.venv/bin/python merge.py config.yaml "$overlay" > "$home/config.yaml"
