@@ -64,7 +64,7 @@ spec:
               install -m 0644 /etc/hermes-ssh/known_hosts .ssh/known_hosts
               # The dashboard reaches Pocket ID directly (public certificate)
               # and everything else through the proxy (its own CA).
-              cat /etc/ssl/certs/ca-certificates.crt /etc/egress-ca/ca.crt > /ca-bundle/ca.crt
+              cat /etc/ssl/certs/ca-certificates.crt /etc/egress-ca/ca.crt > /etc/ca-bundle/ca.crt
           securityContext: &securityContext
             allowPrivilegeEscalation: false
             readOnlyRootFilesystem: true
@@ -87,7 +87,7 @@ spec:
               mountPath: /etc/egress-ca
               readOnly: true
             - name: ca-bundle
-              mountPath: /ca-bundle
+              mountPath: /etc/ca-bundle
       containers:
         - name: hermes
           image: *image
