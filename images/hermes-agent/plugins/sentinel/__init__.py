@@ -35,7 +35,8 @@ def directive(text):
     """Map the reviewer's reply to a pre_tool_call directive; None lets the call run."""
     try:
         reply = json.loads(text[text.index("{"):text.rindex("}") + 1])
-        verdict, reason = reply["verdict"], str(reply.get("reason") or "no reason given")
+        verdict = reply["verdict"]
+        reason = str(reply.get("reason") or "no reason given")
     except (AttributeError, ValueError, KeyError, TypeError):
         return {"action": "approve", "message": "Sentinel could not read its review; please confirm."}
     if verdict == "allow":
