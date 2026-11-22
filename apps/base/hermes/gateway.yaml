@@ -70,7 +70,7 @@ spec:
                 mkdir -p "$home"
                 (cd "$home" && mkdir -p memories sessions skills skins logs plans workspace cron home)
                 /opt/hermes/.venv/bin/python merge.py config.yaml "$overlay" > "$home/config.yaml"
-                env=deepseek.env
+                env=profile.env
                 [ -f "$name.env" ] && env=$name.env
                 install -m 0600 "$env" "$home/.env"
               done
