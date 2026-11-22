@@ -35,8 +35,7 @@ spec:
             # The image default of 128 MB Node heap ran out after ~16h.
             - name: MAX_OLD_SPACE_SIZE
               value: "512"
-            # The 1500 MB default restarted the browser mid session build, which
-            # left that user's tab creates timing out until the server restarted.
+            # The 1500 MB default restarted the browser mid session, hanging new tabs.
             - name: BROWSER_RSS_RESTART_THRESHOLD_MB
               value: "2000"
           ports:
