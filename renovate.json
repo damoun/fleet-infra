@@ -278,7 +278,8 @@
         "github-tags"
       ],
       "matchDepNames": [
-        "!https://github.com/rfmoz/grafana-dashboards"
+        "!https://github.com/rfmoz/grafana-dashboards",
+        "!https://github.com/uzairansaruzi/hermex-push"
       ],
       "matchUpdateTypes": [
         "digest"
@@ -398,6 +399,7 @@
         "/iron-proxy/",
         "/pocket-id/",
         "/hermes-agent/",
+        "/hermex-push/",
         "/proton-bridge/"
       ],
       "minimumReleaseAge": "7 days",
