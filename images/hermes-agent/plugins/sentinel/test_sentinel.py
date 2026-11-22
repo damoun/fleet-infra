@@ -1,4 +1,5 @@
 import importlib.util
+import json
 import unittest
 from pathlib import Path
 from types import SimpleNamespace
@@ -29,7 +30,7 @@ class Directive(unittest.TestCase):
 
     def test_review_and_unknown_verdicts_ask(self):
         for verdict in ("review", "maybe"):
-            self.assertEqual(sentinel.directive(f'{{"verdict": "{verdict}", "reason": "bulk"}}')["action"], "approve")
+            self.assertEqual(sentinel.directive(json.dumps({"verdict": verdict, "reason": "bulk"}))["action"], "approve")
 
     def test_unreadable_reply_asks(self):
         for text in ("", "sure, looks fine", '{"reason": "no verdict"}'):
