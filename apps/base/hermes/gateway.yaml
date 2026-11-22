@@ -67,7 +67,8 @@ spec:
                 name=${overlay#profile-}
                 name=${name%.yaml}
                 home=/vol/hermes/profiles/$name
-                mkdir -p "$home/memories" "$home/sessions" "$home/skills" "$home/skins" "$home/logs" "$home/plans" "$home/workspace" "$home/cron" "$home/home"
+                mkdir -p "$home"
+                (cd "$home" && mkdir -p memories sessions skills skins logs plans workspace cron home)
                 /opt/hermes/.venv/bin/python merge.py config.yaml "$overlay" > "$home/config.yaml"
                 env=deepseek.env
                 [ -f "$name.env" ] && env=$name.env
