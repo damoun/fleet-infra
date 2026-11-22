@@ -21,6 +21,9 @@ plugins:
     - hermex-push
     - advanced-delegation
 delegation:
+  # Unused by profile_routes; keeps a fallback route off DeepSeek.
+  provider: claude-subscription-directsdk-experimental
+  model: claude-haiku-5-5
   backend: profile_routes
   backends:
     profile_routes:
