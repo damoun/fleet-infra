@@ -27,7 +27,7 @@ spec:
           type: RuntimeDefault
       containers:
         - name: mcp
-          image: ghcr.io/orellbuehler/paperless-mcp:1.6.0@sha256:748b159d042aac578569fb152e096290ec546b2ae4c90fb8c07ca605ff3dd5d9
+          image: ghcr.io/orellbuehler/paperless-mcp:1.8.0@sha256:81d6e00f60f99dfc4ad10b01203f3f8f7fbeab8537acc6a8913f501e8d7f9a4d
           env:
             - name: PAPERLESS_URL
               value: http://paperless.paperless.svc.cluster.local
