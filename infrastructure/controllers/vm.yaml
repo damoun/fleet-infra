@@ -306,6 +306,7 @@ spec:
         # Credentials only, mounted at /etc/vm/secrets/alertmanager-notify/.
         secrets:
           - alertmanager-notify
+          - alertmanager-hermes
         priorityClassName: medium
         resources:
           requests:
@@ -331,6 +332,10 @@ spec:
           group_interval: 5m
           repeat_interval: 4h
           routes:
+            # Hermes' ops profile triages alerts; continue keeps Pushover paging.
+            - matchers: ['severity =~ "warning|critical"']
+              receiver: hermes-ops
+              continue: true
             # Dead-man's switch: Watchdog always fires, healthchecks.io pages when the pings stop.
             - matchers: ['alertname = "Watchdog"']
               receiver: healthchecks
@@ -352,6 +357,17 @@ spec:
             equal: [namespace]
         receivers:
           - name: blackhole
+          - name: hermes-ops
+            webhook_configs:
+              - url: http://hermes-webhook.hermes.svc.cluster.local:8644/p/ops/webhooks/alertmanager
+                send_resolved: false
+                max_alerts: 20
+                http_config:
+                  # Hermes webhooks only read signature headers; this one is a plain token.
+                  http_headers:
+                    X-Gitlab-Token:
+                      files:
+                        - /etc/vm/secrets/alertmanager-hermes/token
           - name: healthchecks
             webhook_configs:
               - url_file: /etc/vm/secrets/alertmanager-notify/hc-ping-url
