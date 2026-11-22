@@ -353,6 +353,8 @@ spec:
               receiver: blackhole
             - matchers: ['severity = "critical"']
               receiver: pushover-critical
+            # Once hermes-ops matched, the root receiver no longer applies.
+            - receiver: pushover
         inhibit_rules:
           - source_matchers: ['severity = "critical"']
             target_matchers: ['severity =~ "warning|info"']
