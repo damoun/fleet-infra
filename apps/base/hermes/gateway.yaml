@@ -48,7 +48,7 @@ spec:
       # Replaces the image's s6 stage2 setup, which needs root.
       initContainers:
         - name: init
-          image: ghcr.io/damoun/hermes-agent:main@sha256:be1594af52cfe6823b065d5625085dd8d145f7f3ed717dd2dc5425c01cbd9df5
+          image: &image ghcr.io/damoun/hermes-agent:main@sha256:be1594af52cfe6823b065d5625085dd8d145f7f3ed717dd2dc5425c01cbd9df5
           command:
             - /bin/sh
             - -ec
@@ -82,7 +82,7 @@ spec:
               readOnly: true
       containers:
         - name: hermes
-          image: ghcr.io/damoun/hermes-agent:main@sha256:be1594af52cfe6823b065d5625085dd8d145f7f3ed717dd2dc5425c01cbd9df5
+          image: *image
           command:
             - /opt/hermes/.venv/bin/hermes
             - gateway
@@ -142,7 +142,7 @@ spec:
         # Hermex chats run their turns in the dashboard process, so it needs the
         # same LLM, proxy, sandbox and MCP reach as the gateway.
         - name: dashboard
-          image: ghcr.io/damoun/hermes-agent:main@sha256:be1594af52cfe6823b065d5625085dd8d145f7f3ed717dd2dc5425c01cbd9df5
+          image: *image
           command:
             - /opt/hermes/.venv/bin/hermes
             - dashboard
