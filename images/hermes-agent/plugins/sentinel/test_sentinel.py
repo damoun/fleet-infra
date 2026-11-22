@@ -52,6 +52,18 @@ class Hook(unittest.TestCase):
             directive = self.hook(complete)(tool_name="mcp__sure__update_transaction", args={})
             self.assertEqual(directive["action"], "approve")
 
+    def test_oversized_call_asks_without_review(self):
+        def raises(*a, **k):
+            raise AssertionError("reviewer called")
+        directive = self.hook(raises)(tool_name="mcp__sure__update_transaction", args={"notes": "x" * 9000})
+        self.assertEqual(directive["action"], "approve")
+
+    def test_unserialisable_args_ask(self):
+        loop = {}
+        loop["self"] = loop
+        directive = self.hook(lambda *a, **k: None)(tool_name="mcp__sure__update_transaction", args=loop)
+        self.assertEqual(directive["action"], "approve")
+
     def test_reads_skip_the_reviewer(self):
         def raises(*a, **k):
             raise AssertionError("reviewer called")

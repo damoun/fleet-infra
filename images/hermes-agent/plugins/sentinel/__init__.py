@@ -55,10 +55,12 @@ def register(ctx):
     def review(tool_name, args, **_):
         if not needs_review(tool_name):
             return None
-        call = json.dumps({"tool": tool_name, "arguments": args}, ensure_ascii=False, default=str)
-        messages = [{"role": "system", "content": SYSTEM},
-                    {"role": "user", "content": call[:MAX_CALL_CHARS]}]
         try:
+            call = json.dumps({"tool": tool_name, "arguments": args}, ensure_ascii=False, default=str)
+            # Truncating could hide the harmful part from the reviewer.
+            if len(call) > MAX_CALL_CHARS:
+                return {"action": "approve", "message": "Sentinel: call too large to review; please confirm."}
+            messages = [{"role": "system", "content": SYSTEM}, {"role": "user", "content": call}]
             # Under the 30s hook timeout, which would block the call instead of asking.
             text = ctx.llm.complete(messages, task=TASK, timeout=20, purpose="sentinel review").text
         except Exception as exc:
