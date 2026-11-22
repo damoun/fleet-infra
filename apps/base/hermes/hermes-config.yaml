@@ -17,6 +17,10 @@ auxiliary:
   title_generation:
     provider: deepseek
     model: deepseek-flash
+  # A different vendor from the models that act.
+  approval:
+    provider: gemini
+    model: gemini-3.6-flash
   # DeepSeek has no vision; images sent to Hermes are described by Gemini.
   vision:
     provider: gemini
@@ -37,8 +41,16 @@ terminal:
   ssh_user: agent
   ssh_key: /opt/data/.ssh/id_ed25519
   cwd: "~"
+# A second model judges terminal and execute_code calls; the sentinel plugin
+# sends MCP writes to the same auxiliary.approval model. Mode off would skip
+# every approval card, including the ones Sentinel asks for.
 approvals:
-  mode: manual
+  mode: smart
+  smart_policy: >-
+    Commands run in an isolated sandbox with no cluster credentials. Allow
+    read-only inspection and routine work in the home directory. Ask about
+    deleting files outside the workspace, installing software, or sending data
+    to hosts the user did not mention.
 browser:
   cloud_provider: camofox
 # The camofox plugin's browser_* tools drive the camofox pod (anti-detection
@@ -47,6 +59,7 @@ plugins:
   enabled:
     - camofox
     - hermex-push
+    - sentinel
   # Claude Code skips its telemetry and feature-flag calls.
   entries:
     claude-subscription-directsdk-experimental:
