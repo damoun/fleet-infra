@@ -4,6 +4,10 @@
 model:
   provider: claude-subscription-directsdk-experimental
   default: claude-sonnet-5-5
+# Every turn re-reads the whole context from the $20 monthly credit; compact
+# at about 200K tokens instead of the base's 85% of 1M.
+compression:
+  threshold: 0.2
 auxiliary:
   compression:
     provider: claude-subscription-directsdk-experimental
