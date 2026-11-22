@@ -14,6 +14,9 @@ def merge(base, overlay):
     merged = dict(base)
     for key, value in overlay.items():
         if key == "mcp_servers" and isinstance(value, list):
+            unknown = set(value) - set(base[key])
+            if unknown:
+                sys.exit(f"{sys.argv[2]}: unknown mcp_servers {sorted(unknown)}")
             merged[key] = {name: base[key][name] for name in value}
         elif isinstance(value, dict) and isinstance(base.get(key), dict):
             merged[key] = merge(base[key], value)
