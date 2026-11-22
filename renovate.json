@@ -410,7 +410,8 @@
         "/pocket-id/",
         "/hermes-agent/",
         "/hermex-push/",
-        "/proton-bridge/"
+        "/proton-bridge/",
+        "@ni-c/imap-mcp"
       ],
       "minimumReleaseAge": "7 days",
       "automerge": false
