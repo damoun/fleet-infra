@@ -53,7 +53,9 @@ transforms:
             type: file
             path: /etc/iron-proxy/secrets/claude
           replace:
-            proxy_value: proxy-claude
+            # Shaped like an OAuth token: Hermes probes Anthropic /v1/models with
+            # x-api-key for anything else.
+            proxy_value: sk-ant-oat01-proxy-claude
             match_headers:
               - Authorization
             require: true

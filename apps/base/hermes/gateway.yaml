@@ -143,7 +143,7 @@ spec:
             - name: GEMINI_API_KEY
               value: proxy-gemini
             - name: CLAUDE_CODE_OAUTH_TOKEN
-              value: proxy-claude
+              value: sk-ant-oat01-proxy-claude
             - name: CAMOFOX_URL
               value: http://camofox.hermes.svc.cluster.local:9377
             - name: SEARXNG_URL
@@ -212,7 +212,7 @@ spec:
             - name: GEMINI_API_KEY
               value: proxy-gemini
             - name: CLAUDE_CODE_OAUTH_TOKEN
-              value: proxy-claude
+              value: sk-ant-oat01-proxy-claude
             - name: CAMOFOX_URL
               value: http://camofox.hermes.svc.cluster.local:9377
             - name: SEARXNG_URL
