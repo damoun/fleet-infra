@@ -48,7 +48,7 @@ spec:
       # Replaces the image's s6 stage2 setup, which needs root.
       initContainers:
         - name: init
-          image: &image ghcr.io/damoun/hermes-agent:main@sha256:6cb5a649fc455c7c267703e877e7f4f917428af8d353c7f9c5fdec616054354d
+          image: &image ghcr.io/damoun/hermes-agent:main@sha256:7a4df0413794a0ed90382ef274d6819aa46f2a4cfe0887d2d9fed18ae0d95883
           command:
             - /bin/sh
             - -ec
