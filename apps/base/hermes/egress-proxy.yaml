@@ -47,3 +47,16 @@ transforms:
               methods:
                 - GET
                 - POST
+        - source:
+            type: file
+            path: /etc/iron-proxy/secrets/claude
+          replace:
+            proxy_value: proxy-claude
+            match_headers:
+              - Authorization
+            require: true
+          rules:
+            - host: api.anthropic.com
+              methods:
+                - GET
+                - POST
