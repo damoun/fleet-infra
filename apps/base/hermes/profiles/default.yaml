@@ -20,6 +20,7 @@ plugins:
     - camofox
     - hermex-push
     - advanced-delegation
+    - sentinel
 delegation:
   # Unused by profile_routes; keeps a fallback route off DeepSeek.
   provider: claude-subscription-directsdk-experimental
