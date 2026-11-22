@@ -3,10 +3,10 @@ FROM nousresearch/hermes-agent:v0.23.0@sha256:adb7890916de63245523492be8f68f9d20
 # Catalog plugins Hermes would otherwise clone into the home at runtime: the
 # browser tools that drive the camofox pod, and delegation to named profiles.
 # Bake them into the bundled plugin dir at the commits the base image's catalog
-# pins, so a base image bump carries them. A pyproject only declares
-# dependencies the venv already has; Hermes would still count the plugin as a
-# venv member and warn at every start that the sealed venv needs a rebuild, so
-# the build checks each dependency against the venv and drops the file.
+# pins, so a base image bump carries them. Where a plugin ships a pyproject, it
+# only declares dependencies the venv already has; Hermes would still count the
+# plugin as a venv member and warn at every start that the sealed venv needs a
+# rebuild, so the build checks each dependency against the venv and drops it.
 RUN set -eu; \
     for name in camofox advanced-delegation; do \
       catalog=/opt/hermes/plugin-catalog/$name.yaml; \
