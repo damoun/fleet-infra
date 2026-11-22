@@ -34,3 +34,16 @@ transforms:
               methods:
                 - GET
                 - POST
+        - source:
+            type: file
+            path: /etc/iron-proxy/secrets/mistral
+          replace:
+            proxy_value: proxy-mistral
+            match_headers:
+              - Authorization
+            require: true
+          rules:
+            - host: api.mistral.ai
+              methods:
+                - GET
+                - POST
