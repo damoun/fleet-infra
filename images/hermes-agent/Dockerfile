@@ -1,14 +1,17 @@
 FROM nousresearch/hermes-agent:v0.23.0@sha256:adb7890916de63245523492be8f68f9d2095fecbec4e2a6dab7960381f0fc002
 
 # Catalog plugins Hermes would otherwise clone into the home at runtime: the
-# browser tools that drive the camofox pod, and delegation to named profiles.
-# Bake them into the bundled plugin dir at the commits the base image's catalog
-# pins, so a base image bump carries them. Where a plugin ships a pyproject, it
-# only declares dependencies the venv already has; Hermes would still count the
-# plugin as a venv member and warn at every start that the sealed venv needs a
-# rebuild, so the build checks each dependency against the venv and drops it.
+# browser tools that drive the camofox pod, delegation to named profiles, and
+# the Claude subscription model provider. Bake them into the bundled plugin dir,
+# under the subdirectory where Hermes discovers their kind, at the commits the
+# base image's catalog pins, so a base image bump carries them. Where a plugin
+# ships a pyproject, it only declares dependencies the venv already has; Hermes
+# would still count the plugin as a venv member and warn at every start that
+# the sealed venv needs a rebuild, so the build checks each dependency against
+# the venv and drops it.
 RUN set -eu; \
-    for name in camofox advanced-delegation; do \
+    for dest in camofox advanced-delegation model-providers/claude-subscription-directsdk; do \
+      name=${dest##*/}; \
       catalog=/opt/hermes/plugin-catalog/$name.yaml; \
       repo=$(sed -n 's/^repo: //p' "$catalog"); \
       sha=$(sed -n 's/^sha: //p' "$catalog"); \
@@ -17,13 +20,20 @@ RUN set -eu; \
       git init -q /tmp/plugin; \
       git -C /tmp/plugin fetch -q --depth 1 "$repo" "$sha"; \
       git -C /tmp/plugin -c advice.detachedHead=false checkout -q FETCH_HEAD; \
-      cp -r "/tmp/plugin/$subdir" "/opt/hermes/plugins/$name"; \
-      if [ -f "/opt/hermes/plugins/$name/pyproject.toml" ]; then \
-        /opt/hermes/.venv/bin/python -c 'import sys, tomllib; from importlib.metadata import version; from packaging.requirements import Requirement; reqs = [Requirement(s) for s in tomllib.load(open(sys.argv[1], "rb"))["project"].get("dependencies", [])]; bad = [str(r) for r in reqs if not r.specifier.contains(version(r.name), prereleases=True)]; sys.exit(f"venv does not satisfy {bad}" if bad else 0)' "/opt/hermes/plugins/$name/pyproject.toml"; \
+      cp -r "/tmp/plugin/$subdir" "/opt/hermes/plugins/$dest"; \
+      if [ -f "/opt/hermes/plugins/$dest/pyproject.toml" ]; then \
+        /opt/hermes/.venv/bin/python -c 'import sys, tomllib; from importlib.metadata import version; from packaging.requirements import Requirement; reqs = [Requirement(s) for s in tomllib.load(open(sys.argv[1], "rb"))["project"].get("dependencies", [])]; bad = [str(r) for r in reqs if not r.specifier.contains(version(r.name), prereleases=True)]; sys.exit(f"venv does not satisfy {bad}" if bad else 0)' "/opt/hermes/plugins/$dest/pyproject.toml"; \
       fi; \
-      rm -rf "/opt/hermes/plugins/$name/tests" "/opt/hermes/plugins/$name/pyproject.toml" /tmp/plugin; \
+      rm -rf "/opt/hermes/plugins/$dest/tests" "/opt/hermes/plugins/$dest/pyproject.toml" /tmp/plugin; \
       echo "$name plugin: $repo@$sha"; \
     done
+
+# The Claude subscription provider drives the official Claude Code binary,
+# unmodified, as its model client. On a version bump, take the linux-x64
+# checksum from that release's manifest.json.
+# renovate: datasource=npm depName=@anthropic-ai/claude-code
+ARG CLAUDE_CODE_VERSION=2.1.323
+ADD --chmod=755 --checksum=sha256:604d29a6869409106b6a1110bdadcc8b72e8654a5a865d23258f938a696e348e https://downloads.claude.ai/claude-code-releases/${CLAUDE_CODE_VERSION}/linux-x64/claude /usr/local/bin/claude
 
 # Push notifications for the Hermex app: hooks seal each preview with a key only
 # the phone holds before posting it to the relay. Hermes loads bundled platform
