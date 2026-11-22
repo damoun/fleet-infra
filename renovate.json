@@ -278,7 +278,8 @@
         "github-tags"
       ],
       "matchDepNames": [
-        "!https://github.com/rfmoz/grafana-dashboards"
+        "!https://github.com/rfmoz/grafana-dashboards",
+        "!https://github.com/uzairansaruzi/hermex-push"
       ],
       "matchUpdateTypes": [
         "digest"
