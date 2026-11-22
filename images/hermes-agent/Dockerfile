@@ -22,14 +22,15 @@ RUN set -eu; \
     echo "camofox plugin: $repo@$sha"
 
 # Push notifications for the Hermex app: hooks seal each preview with a key only
-# the phone holds before posting it to the relay. A bundled plugin is the only
-# kind every profile reaches, and they must share one pairing.
+# the phone holds before posting it to the relay. Hermes loads bundled platform
+# plugins lazily, which would leave the hooks unregistered, so the init installs
+# this copy as a user plugin; one copy serves every profile.
 # renovate: datasource=git-refs depName=https://github.com/uzairansaruzi/hermex-push tag=main
 ADD https://github.com/uzairansaruzi/hermex-push.git#2da6f660bb86e9470ea56c85dc554aba45ce7fdf /tmp/hermex-push
 RUN set -eu; \
     /opt/hermes/.venv/bin/python -c 'import sys, tomllib; from importlib.metadata import version; from packaging.requirements import Requirement; reqs = [Requirement(s) for s in tomllib.load(open(sys.argv[1], "rb"))["project"].get("dependencies", [])]; bad = [str(r) for r in reqs if not r.specifier.contains(version(r.name), prereleases=True)]; sys.exit(f"venv does not satisfy {bad}" if bad else 0)' /tmp/hermex-push/plugin/pyproject.toml; \
-    cp -r /tmp/hermex-push/plugin /opt/hermes/plugins/hermex-push; \
-    rm -rf /opt/hermes/plugins/hermex-push/hermex_push_tests /opt/hermes/plugins/hermex-push/pyproject.toml /tmp/hermex-push
+    cp -r /tmp/hermex-push/plugin /opt/hermex-push; \
+    rm -rf /opt/hermex-push/hermex_push_tests /opt/hermex-push/pyproject.toml /tmp/hermex-push
 
 # browser_exec runs model-written Python in the gateway through the Browser Use
 # harness. Config keeps it off; removing the harness leaves nothing to run even
