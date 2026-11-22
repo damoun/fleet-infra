@@ -1,4 +1,5 @@
-FROM docker.io/library/node:22-bookworm-slim@sha256:e9f565d32859f0cbfb52125eafe8be39390f24dac302dc3cdf566e8ba3ab21ee
+# imap-mcp requires Node 24; karakeep-mcp stays on 22.
+FROM docker.io/library/node:24-bookworm-slim@sha256:dc26ae92c9fb15cf6b1d63e20f0944b2efe0f115b20e00be48fb23fceb061c54
 
 # imap-mcp only speaks stdio; supergateway serves it as Streamable HTTP on
 # :8000/mcp. The npm package carries SLSA provenance from its release tag.
