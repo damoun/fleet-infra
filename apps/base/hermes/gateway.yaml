@@ -48,7 +48,7 @@ spec:
       # Replaces the image's s6 stage2 setup, which needs root.
       initContainers:
         - name: init
-          image: &image ghcr.io/damoun/hermes-agent:main@sha256:77fb6306ffc13e7d173d2b592ad8d3d1f368ca34962bdb00cdc57c437eb8ff26
+          image: &image ghcr.io/damoun/hermes-agent:main@sha256:849ca2d1d09cd7be407994d67e13aa2d656e9cdeed77875f5e81eb49f0533b68
           command:
             - /bin/sh
             - -ec
@@ -134,11 +134,16 @@ spec:
               value: /etc/egress-ca/ca.crt
             - name: CURL_CA_BUNDLE
               value: /etc/egress-ca/ca.crt
+            # Claude Code is not Python; it reads its extra CA from here.
+            - name: NODE_EXTRA_CA_CERTS
+              value: /etc/egress-ca/ca.crt
             # Dummy tokens, swapped for the real keys by the egress proxy.
             - name: DEEPSEEK_API_KEY
               value: proxy-deepseek
             - name: GEMINI_API_KEY
               value: proxy-gemini
+            - name: CLAUDE_CODE_OAUTH_TOKEN
+              value: proxy-claude
             - name: CAMOFOX_URL
               value: http://camofox.hermes.svc.cluster.local:9377
             - name: SEARXNG_URL
@@ -151,7 +156,7 @@ spec:
               cpu: 100m
               memory: 384Mi
             limits:
-              memory: 1Gi
+              memory: 2Gi
           volumeMounts:
             - name: data
               mountPath: /opt/data
@@ -192,10 +197,14 @@ spec:
               value: /etc/ca-bundle/ca.crt
             - name: CURL_CA_BUNDLE
               value: /etc/ca-bundle/ca.crt
+            - name: NODE_EXTRA_CA_CERTS
+              value: /etc/ca-bundle/ca.crt
             - name: DEEPSEEK_API_KEY
               value: proxy-deepseek
             - name: GEMINI_API_KEY
               value: proxy-gemini
+            - name: CLAUDE_CODE_OAUTH_TOKEN
+              value: proxy-claude
             - name: CAMOFOX_URL
               value: http://camofox.hermes.svc.cluster.local:9377
             - name: SEARXNG_URL
@@ -214,7 +223,7 @@ spec:
               cpu: 50m
               memory: 384Mi
             limits:
-              memory: 1Gi
+              memory: 2Gi
           volumeMounts:
             - name: data
               mountPath: /opt/data

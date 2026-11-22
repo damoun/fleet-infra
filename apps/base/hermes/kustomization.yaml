@@ -32,6 +32,7 @@ configMapGenerator:
       - profile-ops.yaml=profiles/ops.yaml
       - deepseek.env=profiles/deepseek.env
       - vve.env=profiles/vve.env
+      - family.env=profiles/family.env
   - name: egress-proxy
     files:
       - proxy.yaml=egress-proxy.yaml

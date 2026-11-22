@@ -1,10 +1,29 @@
 # Chief of staff: plans the day and hands work to the other profiles.
+# Sees family data: the main model and the side tasks that read the
+# conversation run on the Claude subscription, not DeepSeek.
+model:
+  provider: claude-subscription-directsdk-experimental
+  default: claude-sonnet-5-5
+# Every turn re-reads the whole context from the $20 monthly credit; compact
+# at about 200K tokens instead of the base's 85% of 1M.
+compression:
+  threshold: 0.2
+auxiliary:
+  compression:
+    provider: claude-subscription-directsdk-experimental
+    model: claude-haiku-5-5
+  title_generation:
+    provider: claude-subscription-directsdk-experimental
+    model: claude-haiku-5-5
 plugins:
   enabled:
     - camofox
     - hermex-push
     - advanced-delegation
 delegation:
+  # Unused by profile_routes; keeps a fallback route off DeepSeek.
+  provider: claude-subscription-directsdk-experimental
+  model: claude-haiku-5-5
   backend: profile_routes
   backends:
     profile_routes:
