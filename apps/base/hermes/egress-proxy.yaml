@@ -28,6 +28,8 @@ transforms:
             proxy_value: proxy-gemini
             match_headers:
               - x-goog-api-key
+            # The dashboard checks the key with ?key= on /v1beta/models.
+            match_query: true
             require: true
           rules:
             - host: generativelanguage.googleapis.com
