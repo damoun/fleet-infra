@@ -341,6 +341,15 @@ spec:
             - port: "9093"
               protocol: TCP
   egress:
+    # Alerts for Hermes' ops profile to triage.
+    - toEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: hermes
+            app.kubernetes.io/name: hermes
+      toPorts:
+        - ports:
+            - port: "8644"
+              protocol: TCP
     # Notifications and the dead-man's switch ping.
     - toFQDNs:
         - matchName: api.pushover.net

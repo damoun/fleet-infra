@@ -24,6 +24,7 @@ resources:
   - namespace-o11y.yaml
   - grafana-oidc.yaml
   - alertmanager-notify.yaml
+  - alertmanager-hermes.yaml
   - vm.yaml
   - netpol-o11y.yaml
   - blackbox-exporter.yaml

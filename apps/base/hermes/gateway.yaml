@@ -150,6 +150,14 @@ spec:
               value: http://searxng.searxng.svc.cluster.local:8080
             - name: HERMEX_PUSH_RELAY_URL
               value: https://hermex-relay.hermex-relay.workers.dev
+            - name: WEBHOOK_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: hermes-webhook
+                  key: WEBHOOK_SECRET
+          ports:
+            - name: webhook
+              containerPort: 8644
           securityContext: *securityContext
           resources:
             requests:
@@ -279,6 +287,14 @@ spec:
         - ports:
             - port: "9119"
               protocol: TCP
+    - fromEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: o11y
+            app.kubernetes.io/name: vmalertmanager
+      toPorts:
+        - ports:
+            - port: "8644"
+              protocol: TCP
   egress:
     # Dashboard login with Pocket ID goes through the Gateway, and Cilium's
     # Envoy checks the client's egress against the backend pod.
@@ -365,3 +381,15 @@ spec:
         - ports:
             - port: "8080"
               protocol: TCP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: hermes-webhook
+spec:
+  selector:
+    app.kubernetes.io/name: hermes
+  ports:
+    - name: webhook
+      port: 8644
+      targetPort: webhook
