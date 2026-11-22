@@ -333,9 +333,14 @@ spec:
           repeat_interval: 4h
           routes:
             # Hermes' ops profile triages alerts; continue keeps Pushover paging.
-            - matchers: ['severity =~ "warning|critical"']
+            # Hermes' own alerts stay out: it would be triaging itself.
+            - matchers: ['severity =~ "warning|critical"', 'namespace != "hermes"']
               receiver: hermes-ops
               continue: true
+              # One run per namespace, and a lasting alert at most daily.
+              group_by: [namespace]
+              group_wait: 1m
+              repeat_interval: 24h
             # Dead-man's switch: Watchdog always fires, healthchecks.io pages when the pings stop.
             - matchers: ['alertname = "Watchdog"']
               receiver: healthchecks
