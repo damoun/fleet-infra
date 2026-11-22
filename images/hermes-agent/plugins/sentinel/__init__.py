@@ -36,7 +36,7 @@ def directive(text):
     try:
         reply = json.loads(text[text.index("{"):text.rindex("}") + 1])
         verdict, reason = reply["verdict"], str(reply.get("reason") or "no reason given")
-    except (ValueError, KeyError, TypeError):
+    except (AttributeError, ValueError, KeyError, TypeError):
         return {"action": "approve", "message": "Sentinel could not read its review; please confirm."}
     if verdict == "allow":
         return None
@@ -59,9 +59,9 @@ def register(ctx):
                     {"role": "user", "content": call[:MAX_CALL_CHARS]}]
         try:
             # Under the 30s hook timeout, which would block the call instead of asking.
-            result = ctx.llm.complete(messages, task=TASK, timeout=20, purpose="sentinel review")
+            text = ctx.llm.complete(messages, task=TASK, timeout=20, purpose="sentinel review").text
         except Exception as exc:
             return {"action": "approve", "message": f"Sentinel review failed ({type(exc).__name__}); please confirm."}
-        return directive(result.text)
+        return directive(text)
 
     ctx.register_hook("pre_tool_call", review)

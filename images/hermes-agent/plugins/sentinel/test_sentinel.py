@@ -1,6 +1,7 @@
 import importlib.util
 import unittest
 from pathlib import Path
+from types import SimpleNamespace
 
 spec = importlib.util.spec_from_file_location("sentinel", Path(__file__).with_name("__init__.py"))
 sentinel = importlib.util.module_from_spec(spec)
@@ -33,6 +34,27 @@ class Directive(unittest.TestCase):
     def test_unreadable_reply_asks(self):
         for text in ("", "sure, looks fine", '{"reason": "no verdict"}'):
             self.assertEqual(sentinel.directive(text)["action"], "approve")
+
+
+class Hook(unittest.TestCase):
+    def hook(self, complete):
+        ctx = SimpleNamespace(llm=SimpleNamespace(complete=complete), hooks={},
+                              register_auxiliary_task=lambda *a, **k: None,
+                              register_hook=lambda name, fn: ctx.hooks.__setitem__(name, fn))
+        sentinel.register(ctx)
+        return ctx.hooks["pre_tool_call"]
+
+    def test_failed_review_asks(self):
+        def raises(*a, **k):
+            raise TimeoutError
+        for complete in (raises, lambda *a, **k: SimpleNamespace(text=None), lambda *a, **k: object()):
+            directive = self.hook(complete)(tool_name="mcp__sure__update_transaction", args={})
+            self.assertEqual(directive["action"], "approve")
+
+    def test_reads_skip_the_reviewer(self):
+        def raises(*a, **k):
+            raise AssertionError("reviewer called")
+        self.assertIsNone(self.hook(raises)(tool_name="mcp__sure__get_accounts", args={}))
 
 
 if __name__ == "__main__":
