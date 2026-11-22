@@ -9,9 +9,10 @@ search:
     - json
 outgoing:
   request_timeout: 5.0
-# Off upstream; more engines answering raises the score of results they agree on.
 engines:
-  - name: google
-    disabled: false
-  - name: bing
-    disabled: false
+  # Off upstream because solving its proof-of-work CAPTCHA costs CPU.
+  - name: mojeek
+    inactive: false
+  # Returns cloaked /go/v1/ links instead of result URLs (searxng#6967).
+  - name: brave
+    disabled: true
