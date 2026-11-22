@@ -156,7 +156,7 @@ spec:
               cpu: 100m
               memory: 384Mi
             limits:
-              memory: 1Gi
+              memory: 2Gi
           volumeMounts:
             - name: data
               mountPath: /opt/data
@@ -223,7 +223,7 @@ spec:
               cpu: 50m
               memory: 384Mi
             limits:
-              memory: 1Gi
+              memory: 2Gi
           volumeMounts:
             - name: data
               mountPath: /opt/data
