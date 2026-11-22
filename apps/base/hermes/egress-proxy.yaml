@@ -43,7 +43,7 @@ transforms:
               - Authorization
             require: true
           rules:
-            - host: api.mistral.ai
+            - host: api.eu.mistral.ai
               methods:
                 - GET
                 - POST

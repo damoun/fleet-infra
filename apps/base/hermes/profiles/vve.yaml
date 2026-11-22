@@ -3,7 +3,7 @@
 # mounts the personal vault).
 providers:
   mistral:
-    api: https://api.mistral.ai/v1
+    api: https://api.eu.mistral.ai/v1
     key_env: MISTRAL_API_KEY
     transport: chat_completions
 model:
