@@ -121,6 +121,16 @@
     },
     {
       "customType": "regex",
+      "description": "Checksum-pinned downloads versioned through a Dockerfile ARG",
+      "managerFilePatterns": [
+        "/^images/.+/Dockerfile$/"
+      ],
+      "matchStrings": [
+        "# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)\\nARG \\S+=(?<currentValue>\\S+)\\nADD (?:--\\S+ )*--checksum=sha256:[a-f0-9]{64} "
+      ]
+    },
+    {
+      "customType": "regex",
       "description": "Talos and Kubernetes versions in tofu/baremetal",
       "managerFilePatterns": [
         "/^tofu/baremetal/variables\\.tf$/"
@@ -431,9 +441,17 @@
     {
       "description": "Renovate bumps the version but not the ADD checksum next to it.",
       "matchDepNames": [
-        "christiaangoossens/hass-oidc-auth"
+        "christiaangoossens/hass-oidc-auth",
+        "@anthropic-ai/claude-code"
       ],
       "automerge": false
+    },
+    {
+      "description": "Claude Code's stable channel trails latest by about a week.",
+      "matchDepNames": [
+        "@anthropic-ai/claude-code"
+      ],
+      "followTag": "stable"
     },
     {
       "description": "Restated after the rules above: update types without release timestamps skip the cooldown, as in the shared preset.",
