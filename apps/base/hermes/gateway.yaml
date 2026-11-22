@@ -62,6 +62,9 @@ spec:
               cp /etc/hermes-config/config.yaml config.yaml
               install -m 0600 /etc/hermes-ssh/id_ed25519 .ssh/id_ed25519
               install -m 0644 /etc/hermes-ssh/known_hosts .ssh/known_hosts
+              # The dashboard reaches Pocket ID directly (public certificate)
+              # and everything else through the proxy (its own CA).
+              cat /etc/ssl/certs/ca-certificates.crt /etc/egress-ca/ca.crt > /ca-bundle/ca.crt
           securityContext: &securityContext
             allowPrivilegeEscalation: false
             readOnlyRootFilesystem: true
@@ -80,6 +83,11 @@ spec:
             - name: ssh
               mountPath: /etc/hermes-ssh
               readOnly: true
+            - name: egress-ca
+              mountPath: /etc/egress-ca
+              readOnly: true
+            - name: ca-bundle
+              mountPath: /ca-bundle
       containers:
         - name: hermes
           image: *image
@@ -163,13 +171,13 @@ spec:
             - name: HTTPS_PROXY
               value: http://egress-proxy.hermes.svc.cluster.local:8080
             - name: NO_PROXY
-              value: localhost,127.0.0.1,.cluster.local
+              value: localhost,127.0.0.1,.cluster.local,id.core.ams.damoun.casa
             - name: SSL_CERT_FILE
-              value: /etc/egress-ca/ca.crt
+              value: /etc/ca-bundle/ca.crt
             - name: REQUESTS_CA_BUNDLE
-              value: /etc/egress-ca/ca.crt
+              value: /etc/ca-bundle/ca.crt
             - name: CURL_CA_BUNDLE
-              value: /etc/egress-ca/ca.crt
+              value: /etc/ca-bundle/ca.crt
             - name: DEEPSEEK_API_KEY
               value: proxy-deepseek
             - name: GEMINI_API_KEY
@@ -197,8 +205,8 @@ spec:
               subPath: hermes
             - name: dashboard-tmp
               mountPath: /tmp
-            - name: egress-ca
-              mountPath: /etc/egress-ca
+            - name: ca-bundle
+              mountPath: /etc/ca-bundle
               readOnly: true
       volumes:
         - name: data
@@ -210,6 +218,9 @@ spec:
         - name: dashboard-tmp
           emptyDir:
             sizeLimit: 512Mi
+        - name: ca-bundle
+          emptyDir:
+            sizeLimit: 2Mi
         - name: config
           configMap:
             name: hermes-config
