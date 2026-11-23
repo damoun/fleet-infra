@@ -22,9 +22,23 @@ spec:
         - ports:
             - port: "8000"
               protocol: TCP
+  # The special-use ranges keep mail consumption off the LAN, NetBird and the
+  # LB VIPs.
   egressDeny:
     - toEntities:
         - kube-apiserver
+    - toCIDRSet:
+        - cidr: 0.0.0.0/8
+        - cidr: 10.0.0.0/8
+        - cidr: 100.64.0.0/10
+        - cidr: 127.0.0.0/8
+        - cidr: 169.254.0.0/16
+        - cidr: 172.16.0.0/12
+        - cidr: 192.0.0.0/24
+        - cidr: 192.168.0.0/16
+        - cidr: 198.18.0.0/15
+        - cidr: 224.0.0.0/4
+        - cidr: 240.0.0.0/4
   egress:
     - toEndpoints:
         - matchLabels:
@@ -65,6 +79,13 @@ spec:
       toPorts:
         - ports:
             - port: "10143"
+              protocol: TCP
+    # Mail consumption from external IMAPS accounts.
+    - toEntities:
+        - world
+      toPorts:
+        - ports:
+            - port: "993"
               protocol: TCP
 ---
 apiVersion: cilium.io/v2
