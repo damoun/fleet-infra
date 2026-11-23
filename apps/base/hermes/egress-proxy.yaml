@@ -26,8 +26,10 @@ transforms:
             path: /etc/iron-proxy/secrets/gemini
           replace:
             proxy_value: proxy-gemini
+            # Hermes' generic model listing sends the key as a Bearer token.
             match_headers:
               - x-goog-api-key
+              - Authorization
             # The dashboard checks the key with ?key= on /v1beta/models.
             match_query: true
             require: true
