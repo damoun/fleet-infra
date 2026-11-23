@@ -27,7 +27,7 @@ spec:
           type: RuntimeDefault
       containers:
         - name: mcp
-          image: &image ghcr.io/damoun/imap-mcp:main@sha256:6398ba007b4eba1ec21d3c5dc5f583bab10fd054dc47b7952b990065480e255d
+          image: &image ghcr.io/damoun/imap-mcp:main@sha256:006e9a5a9378d200f48270baacef168cc34c4fd7973fc275f4d408cc9d25a65f
           env:
             - name: IMAP_READ_ONLY
               value: "false"
