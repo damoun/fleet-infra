@@ -11,7 +11,8 @@ RUN npm ci --omit=dev --ignore-scripts --no-audit --no-fund \
 
 USER 1000:1000
 EXPOSE 8000
+# supergateway's default level logs every message in full, mail included.
 ENTRYPOINT ["/app/node_modules/.bin/supergateway", \
     "--stdio", "/app/node_modules/.bin/imap-mcp", \
     "--outputTransport", "streamableHttp", "--stateful", "--sessionTimeout", "900000", \
-    "--port", "8000", "--healthEndpoint", "/healthz"]
+    "--port", "8000", "--healthEndpoint", "/healthz", "--logLevel", "none"]
