@@ -1,0 +1,109 @@
+---
+# imap-mcp behind supergateway (images/imap-mcp). It holds the mailbox
+# password, so Hermes holds no credential. It can read, tag new mail and save
+# drafts; it has no send path, and moving or deleting mail is not loaded.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: imap-mcp
+  namespace: imap-mcp
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: imap-mcp
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: imap-mcp
+    spec:
+      automountServiceAccountToken: false
+      enableServiceLinks: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: mcp
+          image: &image ghcr.io/damoun/imap-mcp:main@sha256:IMAGE_DIGEST
+          env:
+            - name: IMAP_READ_ONLY
+              value: "false"
+            - name: IMAP_ALLOW_TOOLS
+              value: list_mailboxes,list_messages,list_new_messages,get_message,get_attachments,save_draft
+            - name: IMAP_SEEN_KEYWORD
+              value: $Indexed
+          envFrom:
+            - secretRef:
+                name: imap-mcp
+          ports:
+            - name: http
+              containerPort: 8000
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+          securityContext: &securityContext
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
+          resources:
+            requests:
+              cpu: 10m
+              memory: 128Mi
+            # Each session runs its own imap-mcp process for up to 15 minutes,
+            # and attachment text extraction runs in a child process.
+            limits:
+              memory: 1Gi
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+        # Hermes' cron polls this; the agent only runs when the answer changes.
+        - name: monitor
+          image: *image
+          command:
+            - node
+            - /monitor/monitor.mjs
+          envFrom:
+            - secretRef:
+                name: imap-mcp
+          ports:
+            - name: monitor
+              containerPort: 8080
+          securityContext: *securityContext
+          resources:
+            requests:
+              cpu: 5m
+              memory: 32Mi
+            limits:
+              memory: 128Mi
+          volumeMounts:
+            - name: monitor
+              mountPath: /monitor
+      volumes:
+        - name: tmp
+          emptyDir:
+            sizeLimit: 64Mi
+        - name: monitor
+          configMap:
+            name: imap-mcp-monitor
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: imap-mcp
+  namespace: imap-mcp
+spec:
+  selector:
+    app.kubernetes.io/name: imap-mcp
+  ports:
+    - name: http
+      port: 8000
+      targetPort: http
+    - name: monitor
+      port: 8080
+      targetPort: monitor
