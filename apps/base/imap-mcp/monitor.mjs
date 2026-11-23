@@ -10,7 +10,7 @@ createServer(async (req, res) => {
   // Hermes gives up on the request after 30 seconds.
   const client = new ImapFlow({
     host, port: 993, secure: true, auth: { user, pass }, logger: false,
-    greetingTimeout: 10_000, socketTimeout: 20_000,
+    connectionTimeout: 10_000, greetingTimeout: 10_000, socketTimeout: 20_000,
   });
   client.on('error', () => {});
   try {
