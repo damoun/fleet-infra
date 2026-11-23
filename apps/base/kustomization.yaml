@@ -6,6 +6,7 @@ resources:
   - forgejo
   - hermes
   - home-assistant
+  - imap-mcp
   - karakeep
   - mealie
   - o11y-mcp

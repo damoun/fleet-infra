@@ -373,6 +373,17 @@ spec:
         - ports:
             - port: "8081"
               protocol: TCP
+    # The mail MCP and its new-mail check.
+    - toEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: imap-mcp
+            app.kubernetes.io/name: imap-mcp
+      toPorts:
+        - ports:
+            - port: "8000"
+              protocol: TCP
+            - port: "8080"
+              protocol: TCP
     - toEndpoints:
         - matchLabels:
             io.kubernetes.pod.namespace: searxng
