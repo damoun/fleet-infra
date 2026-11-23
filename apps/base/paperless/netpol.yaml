@@ -66,6 +66,13 @@ spec:
         - ports:
             - port: "10143"
               protocol: TCP
+    # Mail consumption from external IMAPS accounts.
+    - toEntities:
+        - world
+      toPorts:
+        - ports:
+            - port: "993"
+              protocol: TCP
 ---
 apiVersion: cilium.io/v2
 kind: CiliumNetworkPolicy
