@@ -179,6 +179,9 @@ security:
 tools:
   connectors:
     enabled: false
+# No free-tier Nous identity, so nothing can mint that guest token.
+nous:
+  guest: false
 cron:
   allow_agent_scheduling: true
 # Curated model picker; the DeepSeek models are set explicitly, and the fetch
