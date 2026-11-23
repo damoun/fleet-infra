@@ -155,6 +155,18 @@ mcp_servers:
       exclude:
         - delete_*
         - upload_recipe_*_file
+  # One mailbox: read, list new mail and save drafts. The server loads only
+  # these tools; this list keeps it that way if the server's list grows.
+  mail:
+    url: http://imap-mcp.imap-mcp.svc.cluster.local:8000/mcp
+    tools:
+      include:
+        - list_mailboxes
+        - list_messages
+        - list_new_messages
+        - get_message
+        - get_attachments
+        - save_draft
 streaming:
   enabled: false
 # Search only; web_extract keeps its own backend.

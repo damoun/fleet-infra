@@ -37,6 +37,13 @@ delegation:
           description: Building a game server hosting business from scratch.
         - name: ops
           description: Homelab operations, alert triage and fix suggestions.
+mcp_servers:
+  - sure
+  - victoriametrics
+  - victorialogs
+  - paperless
+  - karakeep
+  - mealie
 # Alertmanager posts here (only the default profile may listen); the route
 # runs ops' alert-triage cron job, which reports in ops' Bot Chat. The secret
 # is WEBHOOK_SECRET, which Alertmanager sends as a static X-Gitlab-Token.
