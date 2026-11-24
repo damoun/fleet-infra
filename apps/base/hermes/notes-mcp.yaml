@@ -80,7 +80,7 @@ spec:
       port: 8000
       targetPort: http
 ---
-# Only Hermes reaches the server, and it reaches nothing.
+# Only Hermes reaches the server; the server reaches only DNS.
 apiVersion: cilium.io/v2
 kind: CiliumNetworkPolicy
 metadata:
@@ -97,7 +97,7 @@ spec:
         - ports:
             - port: "8000"
               protocol: TCP
-  # Overrides the cluster baseline's kube-apiserver allow.
+  # Overrides the cluster baseline's kube-apiserver allow; this pod never needs it.
   egressDeny:
     - toEntities:
         - kube-apiserver
