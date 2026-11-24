@@ -16,6 +16,8 @@ resources:
   - camofox.yaml
   - obsidian-secret.yaml
   - obsidian.yaml
+  - notes-mcp-secret.yaml
+  - notes-mcp.yaml
   - alerts.yaml
 components:
   - ../../components/egress-proxy
