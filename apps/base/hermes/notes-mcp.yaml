@@ -1,0 +1,103 @@
+---
+# The filesystem MCP (images/notes-mcp) on one folder of the synced vault. The
+# folder is the only part of the vault mounted, so nothing else is reachable.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: notes-mcp
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: notes-mcp
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: notes-mcp
+    spec:
+      automountServiceAccountToken: false
+      enableServiceLinks: false
+      # Same uid as the obsidian sync, which owns the vault files.
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        runAsGroup: 10001
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: mcp
+          image: ghcr.io/damoun/notes-mcp:main@sha256:25ff6c5c38875517e32944acf6da0a82f0c31d96d2f6798ac25798586952cede
+          env:
+            - name: NOTES_DIR
+              valueFrom:
+                secretKeyRef:
+                  name: notes-mcp
+                  key: NOTES_DIR
+          ports:
+            - name: http
+              containerPort: 8000
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
+          resources:
+            requests:
+              cpu: 10m
+              memory: 64Mi
+            # Each session runs its own server process for up to 15 minutes.
+            limits:
+              memory: 512Mi
+          volumeMounts:
+            - name: vault
+              mountPath: /notes
+              subPathExpr: vault/$(NOTES_DIR)
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        # Synced by the obsidian Deployment.
+        - name: vault
+          persistentVolumeClaim:
+            claimName: obsidian
+        - name: tmp
+          emptyDir:
+            sizeLimit: 64Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: notes-mcp
+spec:
+  selector:
+    app.kubernetes.io/name: notes-mcp
+  ports:
+    - name: http
+      port: 8000
+      targetPort: http
+---
+# Only Hermes reaches the server; the server reaches only DNS.
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: notes-mcp
+spec:
+  endpointSelector:
+    matchLabels:
+      app.kubernetes.io/name: notes-mcp
+  ingress:
+    - fromEndpoints:
+        - matchLabels:
+            app.kubernetes.io/name: hermes
+      toPorts:
+        - ports:
+            - port: "8000"
+              protocol: TCP
+  # Overrides the cluster baseline's kube-apiserver allow; this pod never needs it.
+  egressDeny:
+    - toEntities:
+        - kube-apiserver

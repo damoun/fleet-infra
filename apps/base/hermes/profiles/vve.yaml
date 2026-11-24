@@ -1,7 +1,7 @@
 # Other owners' personal data: every model call stays with Mistral (EU), and
-# the profile gets only the mail server: no terminal, files, browser (the
-# sandbox mounts the personal vault) or web search (queries reach search
-# engines).
+# the profile gets only the mail server and one folder of the vault: no
+# terminal, files, browser (the sandbox mounts the whole personal vault) or web
+# search (queries reach search engines).
 providers:
   mistral:
     api: https://api.eu.mistral.ai/v1
@@ -44,3 +44,4 @@ plugins:
     - sentinel
 mcp_servers:
   - mail
+  - notes
