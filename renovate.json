@@ -411,7 +411,8 @@
         "/hermes-agent/",
         "/hermex-push/",
         "/proton-bridge/",
-        "@ni-c/imap-mcp"
+        "@ni-c/imap-mcp",
+        "@modelcontextprotocol/server-filesystem"
       ],
       "minimumReleaseAge": "7 days",
       "automerge": false
