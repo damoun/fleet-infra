@@ -50,6 +50,7 @@ spec:
           livenessProbe:
             exec:
               command: ["netbird", "status", "--check", "ready"]
+            initialDelaySeconds: 60
             periodSeconds: 30
             timeoutSeconds: 5
             failureThreshold: 3
