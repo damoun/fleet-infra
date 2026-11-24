@@ -45,6 +45,14 @@ spec:
                   fieldPath: metadata.name
             - name: NB_LOG_LEVEL
               value: info
+          # Fails only when the daemon is logged out (NeedsLogin, SessionExpired).
+          # A NetBird cloud outage reports Connecting and passes.
+          livenessProbe:
+            exec:
+              command: ["netbird", "status", "--check", "ready"]
+            periodSeconds: 30
+            timeoutSeconds: 5
+            failureThreshold: 3
           securityContext:
             allowPrivilegeEscalation: false
             capabilities:
