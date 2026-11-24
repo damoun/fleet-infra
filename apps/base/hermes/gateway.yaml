@@ -320,6 +320,13 @@ spec:
         - ports:
             - port: "9377"
               protocol: TCP
+    - toEndpoints:
+        - matchLabels:
+            app.kubernetes.io/name: notes-mcp
+      toPorts:
+        - ports:
+            - port: "8000"
+              protocol: TCP
     # Sure's MCP, through the injector that holds its token.
     - toEndpoints:
         - matchLabels:
