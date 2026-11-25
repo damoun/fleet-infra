@@ -62,3 +62,36 @@ spec:
     - toEntities:
         - kube-apiserver
   egress: []
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: immich-ml
+  namespace: immich
+spec:
+  endpointSelector:
+    matchLabels:
+      app.kubernetes.io/name: immich-ml
+  ingress:
+    - fromEndpoints:
+        - matchLabels:
+            app.kubernetes.io/name: immich
+      toPorts:
+        - ports:
+            - port: "3003"
+              protocol: TCP
+  egressDeny:
+    - toEntities:
+        - kube-apiserver
+  egress:
+    # Models download from Hugging Face on first use; the large files are
+    # served from the xet CDN under hf.co.
+    - toFQDNs:
+        - matchName: huggingface.co
+        - matchPattern: "*.huggingface.co"
+        - matchName: hf.co
+        - matchPattern: "*.hf.co"
+      toPorts:
+        - ports:
+            - port: "443"
+              protocol: TCP

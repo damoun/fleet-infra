@@ -5,4 +5,5 @@ resources:
   - namespace.yaml
   - database.yaml
   - valkey.yaml
+  - machine-learning.yaml
   - netpol.yaml
