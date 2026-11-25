@@ -43,6 +43,7 @@ spec:
           - id.core.ams.damoun.casa
           - keep.core.ams.damoun.casa
           - meal.core.ams.damoun.casa
+          - pics.core.ams.damoun.casa
           - sure.core.ams.damoun.casa
     config:
       modules:
