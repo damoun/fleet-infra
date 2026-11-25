@@ -8,6 +8,8 @@ from . import plan
 from .immich import Immich
 from .models import CarouselSpec, ReelSpec
 
+PREVIEW_TIMEOUT, STEP_TIMEOUT = 90, 30
+
 
 async def run(argv: list[str], timeout: int = 600) -> bytes:
     proc = await asyncio.create_subprocess_exec(
@@ -15,10 +17,12 @@ async def run(argv: list[str], timeout: int = 600) -> bytes:
     )
     try:
         out, err = await asyncio.wait_for(proc.communicate(), timeout)
-    except TimeoutError:
+    except BaseException as e:  # includes cancellation: never leave ffmpeg running
         proc.kill()
         await proc.wait()
-        raise RuntimeError(f"{argv[0]} timed out after {timeout}s") from None
+        if isinstance(e, TimeoutError):
+            raise RuntimeError(f"{argv[0]} timed out after {timeout}s") from None
+        raise
     if proc.returncode:
         raise RuntimeError(f"{argv[0]} exited {proc.returncode}: {err.decode()[-800:]}")
     return out
@@ -91,6 +95,14 @@ async def carousel(immich: Immich, spec: CarouselSpec, work: Path) -> list[str]:
 
 async def preview(immich: Immich, ids: list[str], work: Path) -> tuple[str, bytes]:
     """A contact sheet JPEG of the assets and the legend that maps tiles back to ids."""
+    try:
+        async with asyncio.timeout(PREVIEW_TIMEOUT):
+            return await _preview(immich, ids, work)
+    except TimeoutError:
+        raise RuntimeError(f"preview timed out after {PREVIEW_TIMEOUT}s") from None
+
+
+async def _preview(immich: Immich, ids: list[str], work: Path) -> tuple[str, bytes]:
     assets = []
     for asset_id in ids:
         info = await immich.asset(asset_id)
@@ -108,11 +120,11 @@ async def preview(immich: Immich, ids: list[str], work: Path) -> tuple[str, byte
     tiles = work / "tiles"
     tiles.mkdir()
     for argv in plan.tile_argvs(assets, str(tiles)):
-        await run(argv)
+        await run(argv, STEP_TIMEOUT)
         out = Path(argv[-1])
         # ffmpeg exits 0 without a frame when -ss lands past the last one; keep the slot.
         if not out.exists() or not out.stat().st_size:
-            await run(plan.black_argv(argv[-1]))
+            await run(plan.black_argv(argv[-1]), STEP_TIMEOUT)
     sheet = work / "sheet.jpg"
-    await run(plan.sheet_argv(str(tiles), len(assets), str(sheet)))
+    await run(plan.sheet_argv(str(tiles), len(assets), str(sheet)), STEP_TIMEOUT)
     return plan.legend(assets), sheet.read_bytes()
