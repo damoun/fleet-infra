@@ -40,3 +40,25 @@ spec:
               protocol: TCP
             - port: "8000"
               protocol: TCP
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: immich-valkey
+  namespace: immich
+spec:
+  endpointSelector:
+    matchLabels:
+      app.kubernetes.io/name: immich-valkey
+  ingress:
+    - fromEndpoints:
+        - matchLabels:
+            app.kubernetes.io/name: immich
+      toPorts:
+        - ports:
+            - port: "6379"
+              protocol: TCP
+  egressDeny:
+    - toEntities:
+        - kube-apiserver
+  egress: []
