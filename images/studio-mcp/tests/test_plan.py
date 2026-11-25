@@ -113,9 +113,9 @@ def test_reel_argv_trims_normalizes_and_concats():
     assert "fps=30" in g
     assert "[1:v:0]" in g and "zscale=t=linear" in g  # HDR clip only
     assert g.count("zscale=t=linear") == 1
-    assert "[0:a:0]" in g and "loudnorm" in g
+    assert "[0:a:0]" in g and g.count("loudnorm") == 1
     assert "anullsrc" in g  # clip b has no audio
-    assert g.endswith("[v0][a0][v1][a1]concat=n=2:v=1:a=1[v][a]")
+    assert "[v0][a0][v1][a1]concat=n=2:v=1:a=1[v][ac];[ac]loudnorm=I=-16:TP=-1.5:LRA=11" in g
     assert argv[-1] == "out.mp4"
     for flag in ("libx264", "high", "yuv420p", "aac", "+faststart"):
         assert flag in argv
@@ -123,7 +123,7 @@ def test_reel_argv_trims_normalizes_and_concats():
 
 def test_reel_argv_silence_when_audio_not_kept():
     g = graph(plan.reel_argv([("a", 0, 2, SDR)], False, "o.mp4"))
-    assert "anullsrc" in g and "loudnorm" not in g
+    assert "anullsrc" in g and "[0:a:0]" not in g
 
 
 def test_reel_argv_clamps_end_and_rejects_start_past_end():

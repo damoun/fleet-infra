@@ -143,13 +143,19 @@ def reel_argv(
         if keep_audio and probe.has_audio:
             audio = (
                 f"[{i}:a:0]aresample=48000,aformat=channel_layouts=stereo,"
-                f"loudnorm=I=-16:TP=-1.5:LRA=11,aresample=48000,atrim=duration={length:.3f}[a{i}]"
+                f"atrim=duration={length:.3f}[a{i}]"
             )
         else:
             audio = f"anullsrc=r=48000:cl=stereo,atrim=duration={length:.3f}[a{i}]"
         chains += [video, audio]
         joined += f"[v{i}][a{i}]"
-    graph = ";".join([*chains, f"{joined}concat=n={len(segments)}:v=1:a=1[v][a]"])
+    graph = ";".join(
+        [
+            *chains,
+            f"{joined}concat=n={len(segments)}:v=1:a=1[v][ac]",
+            "[ac]loudnorm=I=-16:TP=-1.5:LRA=11,aresample=48000[a]",
+        ]
+    )
     return [
         "ffmpeg", "-hide_banner", "-nostdin", "-y", *inputs,
         "-filter_complex", graph, "-map", "[v]", "-map", "[a]",
