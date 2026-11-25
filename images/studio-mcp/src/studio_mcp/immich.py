@@ -56,7 +56,10 @@ class Immich:
         return (await self._json("POST", "/albums", json={"albumName": name}))["id"]
 
     async def add_to_album(self, album_id: str, asset_ids: list[str]) -> None:
-        await self._json("PUT", f"/albums/{album_id}/assets", json={"ids": asset_ids})
+        results = await self._json("PUT", f"/albums/{album_id}/assets", json={"ids": asset_ids})
+        if failed := [r for r in results if not r["success"]]:
+            detail = ", ".join(f"{r['id']}: {r.get('error')}" for r in failed)
+            raise RuntimeError(f"Immich refused album additions: {detail}")
 
     async def tag(self, asset_ids: list[str], names: list[str]) -> None:
         """Upsert tags by full path (used/2026-W48 creates the parent too) and assign them."""
