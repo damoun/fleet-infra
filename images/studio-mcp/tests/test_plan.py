@@ -111,6 +111,7 @@ def test_reel_argv_trims_normalizes_and_concats():
     g = graph(argv)
     assert "scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920,setsar=1" in g
     assert "fps=30" in g
+    assert g.count("v:0]setpts=PTS-STARTPTS") == 2 and g.count(",asetpts=PTS-STARTPTS") == 2
     assert "[1:v:0]" in g and "zscale=t=linear" in g  # HDR clip only
     assert g.count("zscale=t=linear") == 1
     assert "[0:a:0]" in g and g.count("loudnorm") == 1

@@ -135,7 +135,7 @@ def reel_argv(
         length = min(end, probe.duration) - start
         inputs += ["-ss", f"{start:.3f}", "-t", f"{length:.3f}", "-i", path]
         video = (
-            f"[{i}:v:0]fps={FPS},scale={REEL_W}:{REEL_H}:force_original_aspect_ratio=increase,"
+            f"[{i}:v:0]setpts=PTS-STARTPTS,fps={FPS},scale={REEL_W}:{REEL_H}:force_original_aspect_ratio=increase,"
             f"crop={REEL_W}:{REEL_H},setsar=1,"
             + (TONEMAP if probe.hdr else "format=yuv420p")
             + f"[v{i}]"
@@ -143,10 +143,10 @@ def reel_argv(
         if keep_audio and probe.has_audio:
             audio = (
                 f"[{i}:a:0]aresample=48000,aformat=channel_layouts=stereo,"
-                f"atrim=duration={length:.3f}[a{i}]"
+                f"atrim=duration={length:.3f},asetpts=PTS-STARTPTS[a{i}]"
             )
         else:
-            audio = f"anullsrc=r=48000:cl=stereo,atrim=duration={length:.3f}[a{i}]"
+            audio = f"anullsrc=r=48000:cl=stereo,atrim=duration={length:.3f},asetpts=PTS-STARTPTS[a{i}]"
         chains += [video, audio]
         joined += f"[v{i}][a{i}]"
     graph = ";".join(
