@@ -100,10 +100,14 @@ def test_parse_probe_detects_hdr_and_audio():
 def test_segment_argv_trims_and_normalizes_one_clip():
     argv = plan.segment_argv("a", 1, 4, SDR, True, "seg01.mkv")
     start = argv.index("-ss")
-    assert argv[start : start + 6] == ["-ss", "1.000", "-t", "3.000", "-i", "a"]
+    assert argv[start : start + 6] == ["-ss", "1.000", "-t", "3.000000", "-i", "a"]
     g = graph(argv)
     assert "scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920,setsar=1" in g
-    assert "fps=30" in g and "[0:v:0]setpts=PTS-STARTPTS" in g and ",asetpts=PTS-STARTPTS[a]" in g
+    assert (
+        "fps=30" in g
+        and "[0:v:0]setpts=PTS-STARTPTS" in g
+        and "apad=whole_dur=3.000000,atrim=duration=3.000000,asetpts=PTS-STARTPTS[a]" in g
+    )
     assert "zscale" not in g and "[0:a:0]" in g and "loudnorm" not in g
     assert argv[-1] == "seg01.mkv"
 
@@ -126,14 +130,27 @@ def test_segment_argv_tonemaps_only_hdr():
 def test_segment_argv_silence_when_no_audio_or_not_kept():
     for probe, keep in [(SDR, False), (HDR, True)]:
         g = graph(plan.segment_argv("a", 0, 2, probe, keep, "o.mkv"))
-        assert "anullsrc=r=48000:cl=stereo,atrim=duration=2.000" in g and "[0:a:0]" not in g
+        assert "anullsrc=r=48000:cl=stereo,atrim=duration=2.000000" in g and "[0:a:0]" not in g
 
 
 def test_segment_argv_clamps_end_and_rejects_start_past_end():
     argv = plan.segment_argv("a", 15, 99, SDR, True, "o.mkv")
-    assert argv[argv.index("-t") + 1] == "5.000"
+    assert argv[argv.index("-t") + 1] == "5.000000"
     with pytest.raises(ValueError):
         plan.segment_argv("a", 25, 30, SDR, True, "o.mkv")
+
+
+def test_segment_argv_cuts_on_whole_frames():
+    argv = plan.segment_argv("a", 0, 1.01, SDR, True, "o.mkv")  # 30.3 frames -> 30
+    assert argv[argv.index("-t") + 1] == "1.000000"
+    argv = plan.segment_argv("a", 0, 0.05, SDR, True, "o.mkv")  # 1.5 frames -> 2
+    assert argv[argv.index("-t") + 1] == f"{2 / 30:.6f}"
+    assert f"atrim=duration={2 / 30:.6f}" in graph(argv)
+
+
+def test_segment_argv_rejects_sub_frame_segments():
+    with pytest.raises(ValueError, match="shorter than one frame"):
+        plan.segment_argv("a", 1, 1.01, SDR, True, "o.mkv")
 
 
 def test_concat_list_and_argv_copy_video_and_normalize_audio_once():

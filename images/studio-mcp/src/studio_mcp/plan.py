@@ -137,7 +137,11 @@ def segment_argv(
     """
     if start >= probe.duration:
         raise ValueError(f"{path} starts after the clip ends ({probe.duration:.1f}s)")
-    length = min(end, probe.duration) - start
+    # Whole frames: 48000/30 = 1600 samples per frame, so audio and video lengths match exactly.
+    frames = round((min(end, probe.duration) - start) * FPS)
+    if frames < 1:
+        raise ValueError(f"{path}: segment is shorter than one frame")
+    length = frames / FPS
     color = TONEMAP if probe.hdr else "format=yuv420p"
     video = (
         f"[0:v:0]setpts=PTS-STARTPTS,fps={FPS},"
@@ -147,12 +151,12 @@ def segment_argv(
     if keep_audio and probe.has_audio:
         audio = (
             "[0:a:0]aresample=48000,aformat=channel_layouts=stereo,"
-            f"atrim=duration={length:.3f},asetpts=PTS-STARTPTS[a]"
+            f"apad=whole_dur={length:.6f},atrim=duration={length:.6f},asetpts=PTS-STARTPTS[a]"
         )
     else:
-        audio = f"anullsrc=r=48000:cl=stereo,atrim=duration={length:.3f},asetpts=PTS-STARTPTS[a]"
+        audio = f"anullsrc=r=48000:cl=stereo,atrim=duration={length:.6f},asetpts=PTS-STARTPTS[a]"
     return [
-        *FFMPEG, "-ss", f"{start:.3f}", "-t", f"{length:.3f}", "-i", path,
+        *FFMPEG, "-ss", f"{start:.3f}", "-t", f"{length:.6f}", "-i", path,
         "-filter_complex", f"{video};{audio}", "-map", "[v]", "-map", "[a]",
         "-c:v", "libx264", "-profile:v", "high", "-pix_fmt", "yuv420p", "-crf", "16",
         "-preset", "veryfast", "-r", str(FPS),
