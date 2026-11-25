@@ -117,7 +117,7 @@ async def create_carousel(spec: CarouselSpec) -> str:
 
     A slide is a photo (or a video still at t), or Typst markup with an optional
     background asset. Typst markup has the brand kit imported: cover, point, data and cta
-    (each takes handle, n, of, bg), the colours night, gold and snow, and `bg` set to the
+    (each takes handle, of and bg; point, data and cta also take n), the colours night, gold and snow, and `bg` set to the
     background ("bg.jpg") or none. Free-form markup gets a 1080pt x 1350pt navy page with
     Inter in white. Returns a job id.
     """
