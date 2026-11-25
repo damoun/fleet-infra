@@ -4,6 +4,8 @@ kind: Kustomization
 resources:
   - namespace.yaml
   - database.yaml
+  - config-secret.yaml
   - valkey.yaml
   - machine-learning.yaml
+  - immich.yaml
   - netpol.yaml
