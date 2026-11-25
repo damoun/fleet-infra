@@ -36,6 +36,7 @@ spec:
                   - hermes
                   - home-assistant
                   - id
+                  - immich
                   - karakeep
                   - mealie
                   - o11y

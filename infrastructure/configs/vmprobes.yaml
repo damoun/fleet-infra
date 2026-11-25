@@ -24,6 +24,7 @@ spec:
         - https://id.core.ams.damoun.casa/
         - https://keep.core.ams.damoun.casa/
         - https://meal.core.ams.damoun.casa/
+        - https://pics.core.ams.damoun.casa/
         - https://sure.core.ams.damoun.casa/
 ---
 apiVersion: operator.victoriametrics.com/v1beta1

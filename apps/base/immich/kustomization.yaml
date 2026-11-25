@@ -8,4 +8,5 @@ resources:
   - valkey.yaml
   - machine-learning.yaml
   - immich.yaml
+  - httproute.yaml
   - netpol.yaml
