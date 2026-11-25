@@ -116,10 +116,9 @@ async def create_carousel(spec: CarouselSpec) -> str:
     """Render 1 to 10 1080x1350 slides and upload them to the album in order.
 
     A slide is a photo (or a video still at t), or Typst markup with an optional
-    background asset. Typst markup has the brand kit imported: cover, point, data and cta
-    (each takes handle, of and bg; point, data and cta also take n), the colours night, gold and snow, and `bg` set to the
-    background ("bg.jpg") or none. Free-form markup gets a 1080pt x 1350pt navy page with
-    Inter in white. Returns a job id.
+    background asset. Typst markup must start with one brand call: #cover, #point, #data or
+    #cta (each takes handle, of and bg; point, data and cta also take n). Pass bg: bg when the
+    slide has a background asset. Each image goes on one slide only. Returns a job id.
     """
     return jobs.submit(lambda work: pipeline.carousel(immich, spec, work))
 

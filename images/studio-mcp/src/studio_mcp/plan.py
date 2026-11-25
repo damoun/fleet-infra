@@ -299,7 +299,7 @@ BRAND = Path(__file__).with_name("brand.typ")
 
 
 def typst_source(markup: str, has_background: bool) -> str:
-    """The brand kit, brand-coloured defaults for free-form markup, and `bg` for the background."""
+    """The brand kit import, page defaults, and `bg` bound to the background or none."""
     bg = '"bg.jpg"' if has_background else "none"
     return (
         '#import "brand.typ": *\n'
