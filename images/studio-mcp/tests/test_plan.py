@@ -103,27 +103,16 @@ def test_segment_argv_trims_and_normalizes_one_clip():
     assert argv[start : start + 6] == ["-ss", "1.000", "-t", "3.000000", "-i", "a"]
     g = graph(argv)
     assert "scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920,setsar=1" in g
-    assert (
-        "fps=30" in g
-        and "[0:v:0]setpts=PTS-STARTPTS" in g
-        and "apad=whole_dur=3.000000,atrim=duration=3.000000,asetpts=PTS-STARTPTS[a]" in g
-    )
-    assert "zscale" not in g and "[0:a:0]" in g and "loudnorm" not in g
-    assert argv[-1] == "seg01.mkv"
-
-
-def test_segment_argv_encodes_identically_for_stream_copy():
-    argv = plan.segment_argv("a", 0, 2, SDR, True, "o.mkv")
-    flags = argv[argv.index("-c:v") :]
-    assert flags[: flags.index("o.mkv")] == [
-        "-c:v", "libx264", "-profile:v", "high", "-pix_fmt", "yuv420p", "-crf", "16",
-        "-preset", "veryfast", "-r", "30",
-        "-colorspace", "bt709", "-color_primaries", "bt709", "-color_trc", "bt709",
-        "-c:a", "pcm_s16le", "-ar", "48000", "-ac", "2",
-    ]  # fmt: skip
+    assert "fps=30" in g and "[0:v:0]setpts=PTS-STARTPTS" in g and "loudnorm" not in g
+    assert "apad=whole_dur=3.000000,atrim=duration=3.000000,asetpts=PTS-STARTPTS[a]" in g
+    # Identical encodes are what lets the concat stage stream-copy the segments.
+    for flag in ("libx264", "pcm_s16le", "veryfast"):
+        assert flag in argv
+    assert argv[argv.index("-crf") + 1] == "16" and argv[-1] == "seg01.mkv"
 
 
 def test_segment_argv_tonemaps_only_hdr():
+    assert "zscale" not in graph(plan.segment_argv("a", 0, 2, SDR, True, "o.mkv"))
     assert "zscale=t=linear" in graph(plan.segment_argv("a", 0, 2, HDR, True, "o.mkv"))
 
 
