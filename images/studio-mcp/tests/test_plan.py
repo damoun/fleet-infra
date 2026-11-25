@@ -94,7 +94,8 @@ def test_parse_probe_detects_hdr_and_audio():
 
 def test_reel_argv_trims_normalizes_and_concats():
     argv = plan.reel_argv([("a", 1, 4, SDR), ("b", 0, 2, HDR)], True, "out.mp4")
-    assert argv[4:16] == [
+    start = argv.index("-ss")
+    assert argv[start : start + 12] == [
         "-ss",
         "1.000",
         "-t",
@@ -156,6 +157,10 @@ def test_typst_source_page_and_background():
     assert "width: 1080pt, height: 1350pt" in plain and "image(" not in plain
     assert plain.endswith("= Hi\n")
     assert 'image("bg.jpg"' in plan.typst_source("= Hi", True)
+
+
+def test_asset_ids_are_lowercased():
+    assert Segment(asset_id=ID.upper(), start=0, end=1).asset_id == ID
 
 
 def test_slide_needs_exactly_one_kind():

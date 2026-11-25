@@ -11,6 +11,7 @@ TONEMAP = (
     "tonemap=hable:desat=0,zscale=t=bt709:m=bt709:r=tv,format=yuv420p"
 )
 USED = "used/"
+FFMPEG = ["ffmpeg", "-hide_banner", "-nostdin", "-loglevel", "error", "-nostats", "-y"]
 
 
 def iso_week(day: date) -> str:
@@ -157,7 +158,7 @@ def reel_argv(
         ]
     )
     return [
-        "ffmpeg", "-hide_banner", "-nostdin", "-y", *inputs,
+        *FFMPEG, *inputs,
         "-filter_complex", graph, "-map", "[v]", "-map", "[a]",
         "-c:v", "libx264", "-profile:v", "high", "-pix_fmt", "yuv420p", "-crf", "18",
         "-r", str(FPS), "-colorspace", "bt709", "-color_primaries", "bt709", "-color_trc", "bt709",
@@ -174,7 +175,7 @@ def still_argv(src: str, out: str, t: float = 0, hdr: bool = False) -> list[str]
     if hdr:
         vf += f",{TONEMAP},format=yuvj420p"
     return [
-        "ffmpeg", "-hide_banner", "-nostdin", "-y", "-ss", f"{t:.3f}", "-i", src,
+        *FFMPEG, "-ss", f"{t:.3f}", "-i", src,
         "-vf", vf,
         "-frames:v", "1", "-q:v", "2", out,
     ]  # fmt: skip

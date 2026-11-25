@@ -5,7 +5,7 @@ from typing import Annotated, Self
 from pydantic import BaseModel, Field, StringConstraints, model_validator
 
 UUID = r"^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
-AssetId = Annotated[str, StringConstraints(pattern=UUID)]
+AssetId = Annotated[str, StringConstraints(pattern=UUID, to_lower=True)]
 Week = Annotated[str, StringConstraints(pattern=r"^\d{4}-W(0[1-9]|[1-4]\d|5[0-3])$")]
 
 

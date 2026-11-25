@@ -51,7 +51,7 @@ async def find_assets(
     after/before are dates or date-times. place is an exact city or country name.
     tags are full tag paths, all required. Usage is tracked by used/<ISO week> tags:
     not_used_within_weeks=N skips assets used in the current week or the N-1 before it.
-    Clips are never retired; use_count is the number of used/ tags.
+    limit is clamped to 1..1000. Clips are never retired; use_count is the number of used/ tags.
     """
     by_value = {t["value"]: t["id"] for t in await immich.tags()}
     if any(t not in by_value for t in tags or []):
@@ -65,7 +65,7 @@ async def find_assets(
         type,
         [by_value[t] for t in tags or []],
         [by_value[v] for w in recent if (v := f"{plan.USED}{w}") in by_value],
-        limit,
+        max(1, min(limit, 1000)),
     )
     items = await immich.search(path, body)
     # Search results may omit tags; the asset endpoint always has them.
