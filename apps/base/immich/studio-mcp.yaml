@@ -29,7 +29,7 @@ spec:
           type: RuntimeDefault
       containers:
         - name: mcp
-          image: ghcr.io/damoun/studio-mcp:main@sha256:d556470fc23ed6d6c70bcdeff106a90d5e5eae889070cd82e76e0cf27ef7b730
+          image: ghcr.io/damoun/studio-mcp:main@sha256:1d2ed45fd3f8462caf0d6d949aa444692de67dd799478efff075b9f78147ee68
           env:
             - name: IMMICH_URL
               value: http://immich.immich.svc.cluster.local:2283/api
