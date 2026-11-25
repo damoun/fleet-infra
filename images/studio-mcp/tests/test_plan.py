@@ -166,11 +166,17 @@ def test_still_argv_seeks_and_crops():
     assert "crop=1080:1350" in still[still.index("-vf") + 1]
 
 
-def test_typst_source_page_and_background():
+def test_typst_source_imports_brand_and_sets_bg():
     plain = plan.typst_source("= Hi", False)
-    assert "width: 1080pt, height: 1350pt" in plain and "image(" not in plain
+    assert plain.startswith('#import "brand.typ": *\n')
+    assert "width: 1080pt, height: 1350pt" in plain and "#let bg = none" in plain
     assert plain.endswith("= Hi\n")
-    assert 'image("bg.jpg"' in plan.typst_source("= Hi", True)
+    assert '#let bg = "bg.jpg"' in plan.typst_source("#cover(bg: bg)", True)
+
+
+def test_typst_source_rejects_an_unused_background():
+    with pytest.raises(ValueError, match="never uses bg"):
+        plan.typst_source("= Hi", True)
 
 
 VIDEO_PREVIEW = plan.Preview(ID, "/w/v", True, 2.0, "portrait")

@@ -5,6 +5,7 @@ docker run --rm -v $PWD/tests:/t --entrypoint python studio-mcp:test /t/smoke.py
 
 import json
 import os
+import shutil
 import subprocess
 import tempfile
 from pathlib import Path
@@ -88,12 +89,29 @@ hdr_still = work / "hdr.jpg"
 sh(plan.still_argv(str(hdr), str(hdr_still), 1, hdr=True))
 size = ffprobe(hdr_still, "stream=width,height,pix_fmt")["streams"][0]
 assert (size["width"], size["height"]) == (1080, 1350), size
-src, png = work / "slide.typ", work / "slide.png"
-src.write_text(plan.typst_source("#align(center + horizon)[= Hello]", True))
-sh(plan.typst_argv(str(work), str(src), str(png)))
-size = ffprobe(png, "stream=width,height")["streams"][0]
-assert (size["width"], size["height"]) == (1080, 1350)
-print(sh(["typst", "fonts"]).split())
+# Typst slides: free-form markup and a brand cover over the background, in a slide dir as the
+# pipeline lays it out (brand.typ and bg.jpg next to the source).
+assert "Lilita One" in sh(["typst", "fonts"]), "brand font missing"
+slide = work / "slide1"
+slide.mkdir()
+shutil.copy(plan.BRAND, slide / "brand.typ")
+shutil.copy(bg, slide / "bg.jpg")
+rows = '(("Lundi", "low", "Calme"), ("Samedi", "peak", "Très chargé"))'
+for name, markup, has_bg in (
+    ("free", "#align(center + horizon)[= Hello]", False),
+    ("cover", '#cover(handle: "@t", of: 4, bg: bg, kick: "Efteling", title: "Hi", sub: "s")', True),
+    ("cover-bare", '#cover(title: "Hi")', False),
+    ("point", '#point(handle: "@t", n: 2, of: 4, bg: bg, num: "02", title: "T", body: "B")', True),
+    ("point-bare", '#point(title: "T")', False),
+    ("data", f'#data(handle: "@t", n: 3, of: 4, title: "T", rows: {rows})', False),
+    ("data-empty", "#data(title: \"T\")", False),
+    ("cta", '#cta(handle: "@t", n: 4, of: 4, bg: bg, title: "T", ask: "A")', True),
+):
+    src, png = slide / f"{name}.typ", slide / f"{name}.png"
+    src.write_text(plan.typst_source(markup, has_bg))
+    sh(plan.typst_argv(str(slide), str(src), str(png)))
+    size = ffprobe(png, "stream=width,height")["streams"][0]
+    assert (size["width"], size["height"]) == (1080, 1350), (name, size)
 
 # Contact sheet: two clips and a photo. Needs drawtext (libfreetype + fontconfig) and Inter.
 sh([*gen, "testsrc2=size=360x640:rate=25:duration=2", "-c:v", "libx264", str(work / "tall.mp4")])

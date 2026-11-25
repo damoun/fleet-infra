@@ -32,9 +32,9 @@ class ReelSpec(BaseModel):
 class Slide(BaseModel):
     photo: AssetId | None = Field(None, description="Photo, or video still taken at t")
     t: float = Field(0, ge=0, description="Seconds into a video for the still")
-    typst: str | None = Field(None, description="Typst markup, rendered on a 1080x1350pt page")
+    typst: str | None = Field(None, description="Typst markup on a 1080x1350pt page, with the brand kit imported")
     background: AssetId | None = Field(
-        None, description='Typst only: asset exposed to the markup as image("bg.jpg")'
+        None, description="Typst only: asset exposed to the markup as the variable bg"
     )
 
     @model_validator(mode="after")
