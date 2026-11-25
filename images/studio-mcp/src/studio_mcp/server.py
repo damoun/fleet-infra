@@ -39,7 +39,7 @@ async def healthz(_: Request) -> PlainTextResponse:
     return PlainTextResponse("ok")
 
 
-@mcp.tool()
+@mcp.tool(structured_output=False)
 async def find_assets(
     query: str | None = None,
     after: str | None = None,
@@ -80,16 +80,14 @@ async def find_assets(
     return [plan.compact_asset(i) for i in items]
 
 
-@mcp.tool()
+@mcp.tool(structured_output=False)
 async def tag_assets(ids: list[AssetId], tags: list[str]) -> str:
     """Upsert tags (full paths such as trip/ibiza) and assign them to the assets."""
     await immich.tag(ids, tags)
     return "ok"
 
 
-# The return annotation must stay a bare list: a typed list makes FastMCP build an output
-# schema that rejects Image.
-@mcp.tool()
+@mcp.tool(structured_output=False)
 async def preview_assets(ids: Annotated[list[AssetId], Field(min_length=1, max_length=8)]) -> list:
     """See assets: one contact sheet JPEG and a legend, in a single call.
 
@@ -102,7 +100,7 @@ async def preview_assets(ids: Annotated[list[AssetId], Field(min_length=1, max_l
     return [legend, Image(data=jpeg, format="jpeg")]
 
 
-@mcp.tool()
+@mcp.tool(structured_output=False)
 async def create_reel(spec: ReelSpec) -> str:
     """Render a 1080x1920 30 fps reel from trimmed segments and upload it to the album.
 
@@ -111,7 +109,7 @@ async def create_reel(spec: ReelSpec) -> str:
     return jobs.submit(lambda work: pipeline.reel(immich, spec, work))
 
 
-@mcp.tool()
+@mcp.tool(structured_output=False)
 async def create_carousel(spec: CarouselSpec) -> str:
     """Render 1 to 10 1080x1350 slides and upload them to the album in order.
 
@@ -122,7 +120,7 @@ async def create_carousel(spec: CarouselSpec) -> str:
     return jobs.submit(lambda work: pipeline.carousel(immich, spec, work))
 
 
-@mcp.tool()
+@mcp.tool(structured_output=False)
 async def job_status(job_id: str) -> dict:
     """Status of a create_* job: queued, running, done (asset_ids) or failed (error)."""
     return jobs.status(job_id)
