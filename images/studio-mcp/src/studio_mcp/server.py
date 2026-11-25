@@ -1,11 +1,13 @@
 """MCP server: find Immich assets and render Instagram reels and carousels from them."""
 
 import os
+import tempfile
 from datetime import date
 from pathlib import Path
-from typing import Literal
+from typing import Annotated, Literal
 
-from mcp.server.fastmcp import FastMCP
+from mcp.server.fastmcp import FastMCP, Image
+from pydantic import Field
 from starlette.requests import Request
 from starlette.responses import PlainTextResponse
 
@@ -15,7 +17,8 @@ from .jobs import Jobs
 from .models import AssetId, CarouselSpec, ReelSpec
 
 immich = Immich(os.environ["IMMICH_URL"], os.environ["IMMICH_API_KEY"])
-jobs = Jobs(Path(os.environ["WORK_DIR"]))
+work_dir = Path(os.environ["WORK_DIR"])
+jobs = Jobs(work_dir)
 
 mcp = FastMCP(
     "studio",
@@ -79,6 +82,19 @@ async def tag_assets(ids: list[AssetId], tags: list[str]) -> str:
     """Upsert tags (full paths such as trip/ibiza) and assign them to the assets."""
     await immich.tag(ids, tags)
     return "ok"
+
+
+@mcp.tool()
+async def preview_assets(ids: Annotated[list[AssetId], Field(min_length=1, max_length=8)]) -> list:
+    """See assets: one contact sheet JPEG and a legend, in a single call.
+
+    Each asset is a row half: three 256px tiles, labelled #k on the first. Videos show frames at
+    15%, 50% and 85% of their duration (the legend gives the times, so you can pick segment
+    start and end); photos show the photo and two black tiles.
+    """
+    with tempfile.TemporaryDirectory(dir=work_dir, ignore_cleanup_errors=True) as work:
+        legend, jpeg = await pipeline.preview(immich, ids, Path(work))
+    return [legend, Image(data=jpeg, format="jpeg")]
 
 
 @mcp.tool()

@@ -10,6 +10,7 @@ TONEMAP = (
     "zscale=t=linear:npl=100,format=gbrpf32le,zscale=p=bt709,"
     "tonemap=hable:desat=0,zscale=t=bt709:m=bt709:r=tv,format=yuv420p"
 )
+TILE, PER_ROW, FRACTIONS = 256, 2, (0.15, 0.5, 0.85)
 USED = "used/"
 FFMPEG = ["ffmpeg", "-hide_banner", "-nostdin", "-loglevel", "error", "-nostats", "-y"]
 
@@ -180,6 +181,77 @@ def still_argv(src: str, out: str, t: float = 0, hdr: bool = False) -> list[str]
         "-vf", vf,
         "-frames:v", "1", "-q:v", "2", out,
     ]  # fmt: skip
+
+
+@dataclass(frozen=True)
+class Preview:
+    asset_id: str
+    path: str
+    is_video: bool
+    duration: float  # seconds, 0 for photos
+    orientation: str | None
+
+
+def preview_request(asset_id: str, asset_type: str) -> tuple[str, dict]:
+    """Like download_request, but videos use the web playback file: smaller than the original."""
+    if asset_type == "VIDEO":
+        return f"/assets/{asset_id}/video/playback", {}
+    return download_request(asset_id, asset_type)
+
+
+def frame_times(duration: float) -> list[float]:
+    return [round(duration * f, 3) for f in FRACTIONS]
+
+
+def tile_argvs(assets: list[Preview], tiles_dir: str) -> list[list[str]]:
+    """One ffmpeg argv per tile file t01.png, t02.png, ...: three tiles per asset in order.
+
+    Videos get three frames; photos the photo and two black tiles. Each tile is a 256px box
+    with the aspect kept and black padding, and the asset's first tile carries its #k label.
+    """
+    argvs: list[list[str]] = []
+    for k, asset in enumerate(assets, 1):
+        times = frame_times(asset.duration) if asset.is_video else [0.0]
+        for j in range(len(FRACTIONS)):
+            out = f"{tiles_dir}/t{len(argvs) + 1:02d}.png"
+            if j >= len(times):
+                argvs.append([*FFMPEG, "-f", "lavfi", "-i", f"color=c=black:s={TILE}x{TILE}",
+                              "-frames:v", "1", out])  # fmt: skip
+                continue
+            vf = (
+                f"scale={TILE}:{TILE}:force_original_aspect_ratio=decrease,"
+                f"pad={TILE}:{TILE}:(ow-iw)/2:(oh-ih)/2:black,setsar=1"
+            )
+            if j == 0:
+                vf += (
+                    f",drawtext=text='#{k}':font=Inter:fontsize=28:fontcolor=white"
+                    ":box=1:boxcolor=black@0.6:boxborderw=4:x=6:y=6"
+                )
+            argvs.append([*FFMPEG, "-ss", f"{times[j]:.3f}", "-i", asset.path,
+                          "-vf", vf, "-frames:v", "1", out])  # fmt: skip
+    return argvs
+
+
+def sheet_argv(tiles_dir: str, assets: int, out: str) -> list[str]:
+    """Tile t01.png.. into a sheet PER_ROW assets wide, as many rows as needed."""
+    rows = -(-assets // PER_ROW)
+    return [
+        *FFMPEG, "-framerate", "1", "-i", f"{tiles_dir}/t%02d.png",
+        "-vf", f"tile={PER_ROW * len(FRACTIONS)}x{rows}", "-frames:v", "1", "-q:v", "3", out,
+    ]  # fmt: skip
+
+
+def legend(assets: list[Preview]) -> str:
+    lines = []
+    for k, a in enumerate(assets, 1):
+        line = (
+            f"#{k} {a.asset_id} {'video' if a.is_video else 'image'} {a.orientation or 'unknown'}"
+        )
+        if a.is_video:
+            times = "/".join(f"{t:.1f}" for t in frame_times(a.duration))
+            line += f" {a.duration:.1f}s frames at {times}s"
+        lines.append(line)
+    return "\n".join(lines)
 
 
 def typst_source(markup: str, has_background: bool) -> str:

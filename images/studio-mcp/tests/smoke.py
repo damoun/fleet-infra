@@ -59,4 +59,22 @@ sh(plan.typst_argv(str(work), str(src), str(png)))
 size = ffprobe(png, "stream=width,height")["streams"][0]
 assert (size["width"], size["height"]) == (1080, 1350)
 print(sh(["typst", "fonts"]).split())
+
+# Contact sheet: two clips and a photo. Needs drawtext (libfreetype + fontconfig) and Inter.
+sh([*gen, "testsrc2=size=360x640:rate=25:duration=2", "-c:v", "libx264", str(work / "tall.mp4")])
+assets = [
+    plan.Preview("a", str(sdr), True, probes[0].duration, "landscape"),
+    plan.Preview("b", str(work / "tall.mp4"), True, 2.0, "portrait"),
+    plan.Preview("c", str(bg), False, 0, "portrait"),
+]
+tiles = work / "tiles"
+tiles.mkdir()
+for argv in plan.tile_argvs(assets, str(tiles)):
+    sh(argv)
+sheet = work / "sheet.jpg"
+sh(plan.sheet_argv(str(tiles), len(assets), str(sheet)))
+s = ffprobe(sheet, "stream=codec_name,width,height")["streams"][0]
+assert (s["codec_name"], s["width"], s["height"]) == ("mjpeg", 1536, 512), s
+print(plan.legend(assets))
+print("sheet", s)
 print("smoke ok")

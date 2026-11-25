@@ -87,3 +87,28 @@ async def carousel(immich: Immich, spec: CarouselSpec, work: Path) -> list[str]:
             await run(plan.typst_argv(str(slide_dir), str(src), str(out)), 60)
         files.append(out)
     return await _publish(immich, files, spec, sources)
+
+
+async def preview(immich: Immich, ids: list[str], work: Path) -> tuple[str, bytes]:
+    """A contact sheet JPEG of the assets and the legend that maps tiles back to ids."""
+    assets = []
+    for asset_id in ids:
+        info = await immich.asset(asset_id)
+        path = work / asset_id
+        await immich.download(*plan.preview_request(asset_id, info["type"]), path)
+        assets.append(
+            plan.Preview(
+                asset_id,
+                str(path),
+                info["type"] == "VIDEO",
+                (info.get("duration") or 0) / 1000,
+                plan.orientation(info),
+            )
+        )
+    tiles = work / "tiles"
+    tiles.mkdir()
+    for argv in plan.tile_argvs(assets, str(tiles)):
+        await run(argv)
+    sheet = work / "sheet.jpg"
+    await run(plan.sheet_argv(str(tiles), len(assets), str(sheet)))
+    return plan.legend(assets), sheet.read_bytes()

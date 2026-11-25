@@ -150,6 +150,41 @@ def test_typst_source_page_and_background():
     assert 'image("bg.jpg"' in plan.typst_source("= Hi", True)
 
 
+VIDEO_PREVIEW = plan.Preview(ID, "/w/v", True, 2.0, "portrait")
+PHOTO_PREVIEW = plan.Preview(ID, "/w/p", False, 0, "landscape")
+
+
+def test_frame_times_and_playback_request():
+    assert plan.frame_times(2.0) == [0.3, 1.0, 1.7]
+    assert plan.preview_request(ID, "VIDEO") == (f"/assets/{ID}/video/playback", {})
+    assert plan.preview_request(ID, "IMAGE") == plan.download_request(ID, "IMAGE")
+
+
+def test_tile_argvs_three_tiles_per_asset_label_first_and_black_for_photos():
+    argvs = plan.tile_argvs([VIDEO_PREVIEW, PHOTO_PREVIEW], "/t")
+    assert [a[-1] for a in argvs] == [f"/t/t0{n}.png" for n in range(1, 7)]
+    seeks = [a[a.index("-ss") + 1] if "-ss" in a else None for a in argvs]
+    assert seeks == ["0.300", "1.000", "1.700", "0.000", None, None]
+    vf = [a[a.index("-vf") + 1] if "-vf" in a else "" for a in argvs]
+    assert "drawtext=text='#1'" in vf[0] and "drawtext" not in vf[1] + vf[2]
+    assert "drawtext=text='#2'" in vf[3] and vf[1].startswith("scale=256:256")
+    assert "pad=256:256" in vf[0]
+    assert "color=c=black:s=256x256" in argvs[4] and "color=c=black:s=256x256" in argvs[5]
+
+
+def test_sheet_argv_rows_follow_asset_count():
+    for assets, rows in [(1, 1), (2, 1), (3, 2), (8, 4)]:
+        argv = plan.sheet_argv("/t", assets, "o.jpg")
+        assert f"tile=6x{rows}" in argv
+    assert argv[argv.index("-i") + 1] == "/t/t%02d.png" and argv[-1] == "o.jpg"
+
+
+def test_legend_lines():
+    assert plan.legend([VIDEO_PREVIEW, PHOTO_PREVIEW]) == (
+        f"#1 {ID} video portrait 2.0s frames at 0.3/1.0/1.7s\n#2 {ID} image landscape"
+    )
+
+
 def test_asset_ids_are_lowercased():
     assert Segment(asset_id=ID.upper(), start=0, end=1).asset_id == ID
 
