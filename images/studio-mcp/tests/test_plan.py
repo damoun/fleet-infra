@@ -154,13 +154,10 @@ def test_segment_argv_rejects_sub_frame_segments():
 
 
 def test_concat_list_and_argv_copy_video_and_normalize_audio_once():
-    assert plan.concat_list(["/w/seg01.mkv", "/w/seg02.mkv"]) == (
-        "file '/w/seg01.mkv'\nfile '/w/seg02.mkv'\n"
-    )
+    assert plan.concat_list(["seg01.mkv", "seg02.mkv"]) == "file 'seg01.mkv'\nfile 'seg02.mkv'\n"
     argv = plan.concat_argv("/w/list.txt", "/w/reel.mp4")
     i = argv.index("-f")
-    assert argv[i : i + 5] == ["-f", "concat", "-safe", "0", "-i"]
-    assert argv[argv.index("-i") + 1] == "/w/list.txt" and argv[-1] == "/w/reel.mp4"
+    assert argv[i : i + 4] == ["-f", "concat", "-i", "/w/list.txt"] and argv[-1] == "/w/reel.mp4"
     assert argv[argv.index("-c:v") + 1] == "copy"
     assert argv[argv.index("-af") + 1] == "loudnorm=I=-16:TP=-1.5:LRA=11"
     assert "aac" in argv and "+faststart" in argv

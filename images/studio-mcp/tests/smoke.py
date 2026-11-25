@@ -38,7 +38,7 @@ assert [p.has_audio for p in probes] == [True, False], probes
 parts = [work / "seg01.mkv", work / "seg02.mkv"]
 sh(plan.segment_argv(str(sdr), 0.5, 2.5, probes[0], True, str(parts[0])))
 sh(plan.segment_argv(str(hdr), 1, 3, probes[1], True, str(parts[1])))
-(work / "list.txt").write_text(plan.concat_list([str(p) for p in parts]))
+(work / "list.txt").write_text(plan.concat_list([p.name for p in parts]))
 out = work / "reel.mp4"
 sh(plan.concat_argv(str(work / "list.txt"), str(out)))
 v = ffprobe(
@@ -120,7 +120,7 @@ for i, (clip, probe) in enumerate(zip(clips, big)):
     print(f"segment {i} peak RSS {peak} MB")
     parts.append(part)
     assert peak < 2048, peak
-(work / "big.txt").write_text(plan.concat_list([str(p) for p in parts]))
+(work / "big.txt").write_text(plan.concat_list([p.name for p in parts]))
 reel = work / "big.mp4"
 print(f"concat peak RSS {peak_rss_mb(plan.concat_argv(str(work / 'big.txt'), str(reel)))} MB")
 v = ffprobe(reel, "stream=codec_type,codec_name,profile,width,height,r_frame_rate,sample_rate")

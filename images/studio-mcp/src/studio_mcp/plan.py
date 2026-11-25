@@ -165,8 +165,9 @@ def segment_argv(
     ]  # fmt: skip
 
 
-def concat_list(segment_paths: list[str]) -> str:
-    return "".join(f"file '{p}'\n" for p in segment_paths)
+def concat_list(names: list[str]) -> str:
+    """Entries are relative: the demuxer resolves them against the list file's directory."""
+    return "".join(f"file '{n}'\n" for n in names)
 
 
 def concat_argv(list_path: str, out: str) -> list[str]:
@@ -176,7 +177,7 @@ def concat_argv(list_path: str, out: str) -> list[str]:
     after loudnorm then fails to negotiate one.
     """
     return [
-        *FFMPEG, "-f", "concat", "-safe", "0", "-i", list_path,
+        *FFMPEG, "-f", "concat", "-i", list_path,
         "-c:v", "copy", "-af", "loudnorm=I=-16:TP=-1.5:LRA=11",
         "-c:a", "aac", "-b:a", "160k", "-ar", "48000", "-movflags", "+faststart", out,
     ]  # fmt: skip
