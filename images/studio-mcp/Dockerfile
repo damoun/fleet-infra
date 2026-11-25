@@ -21,8 +21,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends ffmpeg fonts-in
 COPY --from=typst /usr/local/bin/typst /usr/local/bin/typst
 COPY --from=build /app/.venv /app/.venv
 COPY src /app/src
-ENV PATH=/app/.venv/bin:$PATH PYTHONPATH=/app/src PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1 \
-    HOME=/tmp
+ENV PATH=/app/.venv/bin:$PATH PYTHONPATH=/app/src PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1
 WORKDIR /app
 USER 1000:1000
 EXPOSE 8000

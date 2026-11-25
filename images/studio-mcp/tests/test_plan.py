@@ -26,12 +26,6 @@ def test_recent_weeks_window_crosses_year():
     assert plan.recent_weeks(date(2027, 1, 6), 0) == []
 
 
-def test_usage_counts_only_used_tags():
-    last, count = plan.usage(["used/2026-W40", "trip/ibiza", "used/2026-W48", "used/2026-W02"])
-    assert (last, count) == ("2026-W48", 3)
-    assert plan.usage(["trip/ibiza"]) == (None, 0)
-
-
 def test_download_request_uses_preview_for_photos_and_original_for_videos():
     assert plan.download_request(ID, "IMAGE") == (f"/assets/{ID}/thumbnail", {"size": "preview"})
     assert plan.download_request(ID, "VIDEO") == (f"/assets/{ID}/original", {})
@@ -77,6 +71,12 @@ def test_compact_asset():
         "last_used": "2026-W40",
         "use_count": 2,
     }
+
+
+def test_compact_asset_without_used_tags():
+    item = {"id": ID, "type": "IMAGE", "fileCreatedAt": "x", "tags": [{"value": "trip"}]}
+    got = plan.compact_asset(item)
+    assert (got["last_used"], got["use_count"], got["duration"]) == (None, 0, None)
 
 
 def test_parse_probe_detects_hdr_and_audio():

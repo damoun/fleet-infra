@@ -54,7 +54,8 @@ async def find_assets(
     limit is clamped to 1..1000. Clips are never retired; use_count is the number of used/ tags.
     """
     by_value = {t["value"]: t["id"] for t in await immich.tags()}
-    if any(t not in by_value for t in tags or []):
+    tag_ids = [by_value.get(t) for t in tags or []]
+    if None in tag_ids:
         return []
     recent = plan.recent_weeks(date.today(), not_used_within_weeks or 0)
     path, body = plan.search_request(
@@ -63,7 +64,7 @@ async def find_assets(
         before,
         place,
         type,
-        [by_value[t] for t in tags or []],
+        tag_ids,
         [by_value[v] for w in recent if (v := f"{plan.USED}{w}") in by_value],
         max(1, min(limit, 1000)),
     )

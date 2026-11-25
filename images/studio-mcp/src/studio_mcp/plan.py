@@ -24,12 +24,6 @@ def recent_weeks(today: date, n: int) -> list[str]:
     return [iso_week(today - timedelta(weeks=i)) for i in range(n)]
 
 
-def usage(tag_values: list[str]) -> tuple[str | None, int]:
-    """(last used week, number of used/ tags) from full tag paths."""
-    weeks = sorted(v.removeprefix(USED) for v in tag_values if v.startswith(USED))
-    return (weeks[-1] if weeks else None), len(weeks)
-
-
 def download_request(asset_id: str, asset_type: str) -> tuple[str, dict]:
     """Photos come as Immich's oriented preview JPEG/WebP (up to 1440px): the original may be
     HEIC, which ffmpeg 5.1 cannot decode, and fullsize falls back to preview or to the
@@ -57,22 +51,18 @@ def search_request(
     limit: int,
 ) -> tuple[str, dict]:
     flt: dict = {}
-    if after or before:
-        flt["takenAt"] = {}
-        if after:
-            flt["takenAt"]["gte"] = _day(after)
-        if before:
-            flt["takenAt"]["lte"] = _day(before, end=True)
+    if after:
+        flt.setdefault("takenAt", {})["gte"] = _day(after)
+    if before:
+        flt.setdefault("takenAt", {})["lte"] = _day(before, end=True)
     if place:
         flt["or"] = [{"city": {"eq": place}}, {"country": {"eq": place}}]
     if kind:
         flt["type"] = {"eq": kind.upper()}
-    if tag_ids or exclude_tag_ids:
-        flt["tagIds"] = {}
-        if tag_ids:
-            flt["tagIds"]["all"] = tag_ids
-        if exclude_tag_ids:
-            flt["tagIds"]["none"] = exclude_tag_ids
+    if tag_ids:
+        flt.setdefault("tagIds", {})["all"] = tag_ids
+    if exclude_tag_ids:
+        flt.setdefault("tagIds", {})["none"] = exclude_tag_ids
     body: dict = {"filter": flt, "size": limit, "withExif": True}
     if query:
         body["query"] = query
@@ -83,7 +73,7 @@ def search_request(
 def compact_asset(item: dict) -> dict:
     exif = item.get("exifInfo") or {}
     values = [t["value"] for t in item.get("tags") or []]
-    last_used, count = usage(values)
+    used = sorted(v.removeprefix(USED) for v in values if v.startswith(USED))
     duration = item.get("duration")
     return {
         "id": item["id"],
@@ -93,8 +83,8 @@ def compact_asset(item: dict) -> dict:
         "duration": duration / 1000 if duration else None,
         "tags": [v for v in values if not v.startswith(USED)],
         "description": exif.get("description") or "",
-        "last_used": last_used,
-        "use_count": count,
+        "last_used": used[-1] if used else None,
+        "use_count": len(used),
     }
 
 
@@ -135,11 +125,11 @@ def reel_argv(
             raise ValueError(f"segment {i} starts after the clip ends ({probe.duration:.1f}s)")
         length = min(end, probe.duration) - start
         inputs += ["-ss", f"{start:.3f}", "-t", f"{length:.3f}", "-i", path]
+        color = TONEMAP if probe.hdr else "format=yuv420p"
         video = (
-            f"[{i}:v:0]setpts=PTS-STARTPTS,fps={FPS},scale={REEL_W}:{REEL_H}:force_original_aspect_ratio=increase,"
-            f"crop={REEL_W}:{REEL_H},setsar=1,"
-            + (TONEMAP if probe.hdr else "format=yuv420p")
-            + f"[v{i}]"
+            f"[{i}:v:0]setpts=PTS-STARTPTS,fps={FPS},"
+            f"scale={REEL_W}:{REEL_H}:force_original_aspect_ratio=increase,"
+            f"crop={REEL_W}:{REEL_H},setsar=1,{color}[v{i}]"
         )
         if keep_audio and probe.has_audio:
             audio = (
@@ -147,7 +137,9 @@ def reel_argv(
                 f"atrim=duration={length:.3f},asetpts=PTS-STARTPTS[a{i}]"
             )
         else:
-            audio = f"anullsrc=r=48000:cl=stereo,atrim=duration={length:.3f},asetpts=PTS-STARTPTS[a{i}]"
+            audio = (
+                f"anullsrc=r=48000:cl=stereo,atrim=duration={length:.3f},asetpts=PTS-STARTPTS[a{i}]"
+            )
         chains += [video, audio]
         joined += f"[v{i}][a{i}]"
     graph = ";".join(

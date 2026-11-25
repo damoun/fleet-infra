@@ -34,7 +34,8 @@ class Immich:
                 async for chunk in r.aiter_bytes():
                     f.write(chunk)
 
-    async def upload(self, path: Path, filename: str) -> str:
+    async def upload(self, path: Path) -> str:
+        filename = path.name
         now = datetime.now(UTC).isoformat()
         mime = mimetypes.guess_type(filename)[0] or "application/octet-stream"
         with path.open("rb") as f:
