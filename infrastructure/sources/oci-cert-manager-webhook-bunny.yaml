@@ -8,8 +8,8 @@ spec:
   interval: 24h
   url: oci://ghcr.io/aardbol/charts/cert-manager-webhook-bunny
   ref:
-    tag: 1.4.2
-    digest: sha256:5229bc4cbec26f7e4b339c751270bc9c00c8d2dd2ab0be9685392ee62aea8066
+    tag: 1.4.3
+    digest: sha256:21698e4b24a5a48249d6030a1e8069898767028d6df1a323f5c1f060752907ad
   verify:
     provider: cosign
     matchOIDCIdentity:

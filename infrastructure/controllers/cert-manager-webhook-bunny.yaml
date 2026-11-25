@@ -39,7 +39,7 @@ spec:
     groupName: acme.damoun.casa
     image:
       repository: ghcr.io/aardbol/cert-manager-webhook-bunny
-      tag: v1.4.1@sha256:be5e446c5ed5a38150a21647752a6f9af4ea41db9dbbc27283df6e10a210cb8a
+      tag: v1.4.2@sha256:b00e847870e6bd63f25a2fd0ad36b68a521b75a9d1c310b695d65856ed216a38
     resources:
       requests:
         cpu: 10m
