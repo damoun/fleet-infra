@@ -209,27 +209,27 @@ def tile_argvs(assets: list[Preview], tiles_dir: str) -> list[list[str]]:
     Videos get three frames; photos the photo and two black tiles. Each tile is a 256px box
     with the aspect kept and black padding, and the asset's first tile carries its #k label.
     """
-    argvs: list[list[str]] = []
+    fit = (
+        f"scale={TILE}:{TILE}:force_original_aspect_ratio=decrease,"
+        f"pad={TILE}:{TILE}:(ow-iw)/2:(oh-ih)/2:black,setsar=1"
+    )
+    black = ["-f", "lavfi", "-i", f"color=c=black:s={TILE}x{TILE}"]
+    inputs: list[list[str]] = []
     for k, asset in enumerate(assets, 1):
+        label = (
+            f",drawtext=text='#{k}':font=Inter:fontsize=28:fontcolor=white"
+            ":box=1:boxcolor=black@0.6:boxborderw=4:x=6:y=6"
+        )
         times = frame_times(asset.duration) if asset.is_video else [0.0]
-        for j in range(len(FRACTIONS)):
-            out = f"{tiles_dir}/t{len(argvs) + 1:02d}.png"
-            if j >= len(times):
-                argvs.append([*FFMPEG, "-f", "lavfi", "-i", f"color=c=black:s={TILE}x{TILE}",
-                              "-frames:v", "1", out])  # fmt: skip
-                continue
-            vf = (
-                f"scale={TILE}:{TILE}:force_original_aspect_ratio=decrease,"
-                f"pad={TILE}:{TILE}:(ow-iw)/2:(oh-ih)/2:black,setsar=1"
-            )
-            if j == 0:
-                vf += (
-                    f",drawtext=text='#{k}':font=Inter:fontsize=28:fontcolor=white"
-                    ":box=1:boxcolor=black@0.6:boxborderw=4:x=6:y=6"
-                )
-            argvs.append([*FFMPEG, "-ss", f"{times[j]:.3f}", "-i", asset.path,
-                          "-vf", vf, "-frames:v", "1", out])  # fmt: skip
-    return argvs
+        frames = [
+            ["-ss", f"{t:.3f}", "-i", asset.path, "-vf", fit + (label if j == 0 else "")]
+            for j, t in enumerate(times)
+        ]
+        inputs += frames + [black] * (len(FRACTIONS) - len(frames))
+    return [
+        [*FFMPEG, *tile, "-frames:v", "1", f"{tiles_dir}/t{n:02d}.png"]
+        for n, tile in enumerate(inputs, 1)
+    ]
 
 
 def sheet_argv(tiles_dir: str, assets: int, out: str) -> list[str]:
