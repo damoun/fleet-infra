@@ -70,6 +70,14 @@ def search_request(
     return "/search/metadata", body
 
 
+def orientation(item: dict) -> str | None:
+    """From the asset-level width and height, which Immich reports after EXIF rotation."""
+    w, h = item.get("width"), item.get("height")
+    if not w or not h:
+        return None
+    return "portrait" if h > w else "landscape" if w > h else "square"
+
+
 def compact_asset(item: dict) -> dict:
     exif = item.get("exifInfo") or {}
     values = [t["value"] for t in item.get("tags") or []]
@@ -81,6 +89,7 @@ def compact_asset(item: dict) -> dict:
         "taken_at": item["fileCreatedAt"],
         "place": ", ".join(p for p in (exif.get("city"), exif.get("country")) if p),
         "duration": duration / 1000 if duration else None,
+        "orientation": orientation(item),
         "tags": [v for v in values if not v.startswith(USED)],
         "description": exif.get("description") or "",
         "last_used": used[-1] if used else None,

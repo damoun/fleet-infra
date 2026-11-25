@@ -51,6 +51,8 @@ def test_compact_asset():
         "type": "VIDEO",
         "fileCreatedAt": "2026-06-01T10:00:00Z",
         "duration": 12500,
+        "width": 1440,
+        "height": 1920,
         "exifInfo": {"city": "Ibiza", "country": "Spain", "description": "beach"},
         "tags": [{"value": "used/2026-W30"}, {"value": "used/2026-W40"}, {"value": "trip"}],
     }
@@ -60,11 +62,20 @@ def test_compact_asset():
         "taken_at": "2026-06-01T10:00:00Z",
         "place": "Ibiza, Spain",
         "duration": 12.5,
+        "orientation": "portrait",
         "tags": ["trip"],
         "description": "beach",
         "last_used": "2026-W40",
         "use_count": 2,
     }
+
+
+def test_orientation_uses_rotated_top_level_size():
+    assert plan.orientation({"width": 1440, "height": 1920}) == "portrait"
+    assert plan.orientation({"width": 1920, "height": 1440}) == "landscape"
+    assert plan.orientation({"width": 5, "height": 5}) == "square"
+    assert plan.orientation({"width": 5, "height": None}) is None
+    assert plan.orientation({}) is None
 
 
 def test_compact_asset_without_used_tags():
