@@ -1,0 +1,35 @@
+---
+# Primary + one replica on different workers: failover without a third copy.
+# Immich needs VectorChord, which this image adds to the CNPG system image.
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: immich-db
+  namespace: immich
+spec:
+  instances: 2
+  imageName: ghcr.io/tensorchord/cloudnative-vectorchord:18.6-1.1.1@sha256:c7672bc011351a587cc292a94aac7eeebb593ed2e120077bd9c9944c9467db93
+  storage:
+    storageClass: local
+    size: 5Gi
+  postgresql:
+    shared_preload_libraries:
+      - vchord.so
+  bootstrap:
+    initdb:
+      database: immich
+      owner: immich
+      # The app user is not a superuser, so it cannot create these itself.
+      postInitApplicationSQL:
+        - CREATE EXTENSION IF NOT EXISTS vchord CASCADE
+        - CREATE EXTENSION IF NOT EXISTS earthdistance CASCADE
+  affinity:
+    enablePodAntiAffinity: true
+    podAntiAffinityType: required
+    topologyKey: kubernetes.io/hostname
+  resources:
+    requests:
+      cpu: 100m
+      memory: 512Mi
+    limits:
+      memory: 1Gi
