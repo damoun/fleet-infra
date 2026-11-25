@@ -173,6 +173,10 @@ def test_unknown_duration_gives_one_frame_two_black_tiles_and_no_fake_times():
     assert plan.legend([unknown]) == f"#1 {ID} video portrait duration unknown"
 
 
+def test_sheet_stays_under_the_vision_embed_size():
+    assert plan.PER_ROW * len(plan.FRACTIONS) * plan.TILE <= 1568
+
+
 def test_unavailable_asset_keeps_three_black_tiles_and_a_legend_line():
     bad = plan.Preview(ID, "", False, 0, None, "HTTPStatusError: 404")
     argvs = plan.asset_tiles(2, bad, "/t")
