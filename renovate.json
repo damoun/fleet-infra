@@ -412,7 +412,8 @@
         "/hermex-push/",
         "/proton-bridge/",
         "@ni-c/imap-mcp",
-        "@modelcontextprotocol/server-filesystem"
+        "@modelcontextprotocol/server-filesystem",
+        "typst/typst"
       ],
       "minimumReleaseAge": "7 days",
       "automerge": false
