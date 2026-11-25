@@ -149,12 +149,12 @@ def segment_argv(
         f"crop={REEL_W}:{REEL_H},setsar=1,{color}[v]"
     )
     if keep_audio and probe.has_audio:
-        audio = (
-            "[0:a:0]aresample=48000,aformat=channel_layouts=stereo,"
-            f"apad=whole_dur={length:.6f},atrim=duration={length:.6f},asetpts=PTS-STARTPTS[a]"
+        source = (
+            f"[0:a:0]aresample=48000,aformat=channel_layouts=stereo,apad=whole_dur={length:.6f}"
         )
     else:
-        audio = f"anullsrc=r=48000:cl=stereo,atrim=duration={length:.6f},asetpts=PTS-STARTPTS[a]"
+        source = "anullsrc=r=48000:cl=stereo"
+    audio = f"{source},atrim=duration={length:.6f},asetpts=PTS-STARTPTS[a]"
     return [
         *FFMPEG, "-ss", f"{start:.3f}", "-t", f"{length:.6f}", "-i", path,
         "-filter_complex", f"{video};{audio}", "-map", "[v]", "-map", "[a]",

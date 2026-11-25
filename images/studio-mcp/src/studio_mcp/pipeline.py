@@ -81,9 +81,10 @@ async def reel(immich: Immich, spec: ReelSpec, work: Path) -> list[str]:
     ]
     for argv in argvs:
         await run(argv)
-    (work / "list.txt").write_text(plan.concat_list(names))
+    listing = work / "list.txt"
+    listing.write_text(plan.concat_list(names))
     out = work / "reel.mp4"
-    await run(plan.concat_argv(str(work / "list.txt"), str(out)))
+    await run(plan.concat_argv(str(listing), str(out)))
     return await _publish(immich, [out], spec, sources)
 
 
