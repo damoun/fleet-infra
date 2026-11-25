@@ -30,8 +30,7 @@ sh([*gen, "testsrc2=size=640x360:rate=24:duration=3", "-vf", "format=yuv420p10le
     "-c:v", "libx264", "-profile:v", "high10", "-colorspace", "bt2020nc",
     "-color_primaries", "bt2020", "-color_trc", "arib-std-b67", str(hdr)])  # fmt: skip
 
-probes = [plan.parse_probe(ffprobe(p, "stream=codec_type,color_transfer:format=duration"))
-          for p in (sdr, hdr)]  # fmt: skip
+probes = [plan.parse_probe(json.loads(sh(plan.probe_argv(str(p))))) for p in (sdr, hdr)]
 assert [p.hdr for p in probes] == [False, True], probes
 assert [p.has_audio for p in probes] == [True, False], probes
 
@@ -50,6 +49,10 @@ bg = work / "bg.jpg"
 sh(plan.still_argv(str(sdr), str(bg), 1))
 size = ffprobe(bg, "stream=width,height")["streams"][0]
 assert (size["width"], size["height"]) == (1080, 1350)
+hdr_still = work / "hdr.jpg"
+sh(plan.still_argv(str(hdr), str(hdr_still), 1, hdr=True))
+size = ffprobe(hdr_still, "stream=width,height,pix_fmt")["streams"][0]
+assert (size["width"], size["height"]) == (1080, 1350), size
 src, png = work / "slide.typ", work / "slide.png"
 src.write_text(plan.typst_source("#align(center + horizon)[= Hello]", True))
 sh(plan.typst_argv(str(work), str(src), str(png)))

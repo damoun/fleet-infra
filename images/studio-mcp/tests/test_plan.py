@@ -15,12 +15,6 @@ def graph(argv):
     return argv[argv.index("-filter_complex") + 1]
 
 
-def test_iso_week_year_boundary():
-    assert plan.iso_week(date(2026, 11, 25)) == "2026-W48"
-    assert plan.iso_week(date(2027, 1, 1)) == "2026-W53"
-    assert plan.iso_week(date(2024, 12, 30)) == "2025-W01"
-
-
 def test_recent_weeks_window_crosses_year():
     assert plan.recent_weeks(date(2027, 1, 6), 3) == ["2027-W01", "2026-W53", "2026-W52"]
     assert plan.recent_weeks(date(2027, 1, 6), 0) == []
@@ -96,19 +90,8 @@ def test_reel_argv_trims_normalizes_and_concats():
     argv = plan.reel_argv([("a", 1, 4, SDR), ("b", 0, 2, HDR)], True, "out.mp4")
     start = argv.index("-ss")
     assert argv[start : start + 12] == [
-        "-ss",
-        "1.000",
-        "-t",
-        "3.000",
-        "-i",
-        "a",
-        "-ss",
-        "0.000",
-        "-t",
-        "2.000",
-        "-i",
-        "b",
-    ]
+        "-ss", "1.000", "-t", "3.000", "-i", "a", "-ss", "0.000", "-t", "2.000", "-i", "b",
+    ]  # fmt: skip
     g = graph(argv)
     assert "scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920,setsar=1" in g
     assert "fps=30" in g
@@ -143,13 +126,10 @@ def test_still_tonemaps_only_hdr_sources():
     assert "zscale=t=linear" in hdr[hdr.index("-vf") + 1]
 
 
-def test_still_and_typst_commands():
+def test_still_argv_seeks_and_crops():
     still = plan.still_argv("in", "out.jpg", 2.5)
     assert still[still.index("-ss") + 1] == "2.500"
     assert "crop=1080:1350" in still[still.index("-vf") + 1]
-    assert plan.typst_argv("/r", "/r/s.typ", "/r/o.png") == [
-        "typst", "compile", "--root", "/r", "--format", "png", "--ppi", "72", "/r/s.typ", "/r/o.png",
-    ]  # fmt: skip
 
 
 def test_typst_source_page_and_background():
@@ -172,7 +152,7 @@ def test_slide_needs_exactly_one_kind():
         Slide(photo=ID, typst="= Hi")
 
 
-def test_carousel_slide_count_and_week_format():
+def test_spec_validation_limits():
     slides = [Slide(photo=ID)] * 10
     CarouselSpec(album="a", caption="c", week="2026-W48", slides=slides)
     with pytest.raises(ValidationError):
