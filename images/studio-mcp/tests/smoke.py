@@ -6,6 +6,7 @@ docker run --rm -v $PWD/tests:/t --entrypoint python studio-mcp:test /t/smoke.py
 import json
 import subprocess
 import tempfile
+import time
 from pathlib import Path
 
 from studio_mcp import plan
@@ -81,4 +82,57 @@ s = ffprobe(sheet, "stream=codec_name,width,height")["streams"][0]
 assert (s["codec_name"], s["width"], s["height"]) == ("mjpeg", 1536, 512), s
 print(plan.legend(assets))
 print("sheet", s)
+
+
+# Memory: a reel of 4K HLG 10-bit clips must stay bounded, one ffmpeg run per segment.
+def peak_rss_mb(argv):
+    """Peak resident memory of one process (VmHWM), polled while it runs."""
+    proc = subprocess.Popen(argv, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
+    peak = 0
+    while proc.poll() is None:
+        try:
+            for line in Path(f"/proc/{proc.pid}/status").read_text().splitlines():
+                if line.startswith("VmHWM:"):
+                    peak = max(peak, int(line.split()[1]) // 1024)
+        except OSError:
+            break
+        time.sleep(0.05)
+    assert proc.wait() == 0, proc.stderr.read().decode()
+    return peak
+
+
+# H.264 High10 rather than HEVC: libx265 at 4K needs more RAM than a small Colima VM has.
+codec = ["-c:v", "libx264", "-profile:v", "high10", "-preset", "ultrafast", "-threads", "1"]
+clips = []
+for i in range(3):
+    clip = work / f"k{i}.mp4"
+    sh([*gen, "testsrc2=size=3840x2160:rate=30:duration=3", "-f", "lavfi", "-i", "sine=duration=3",
+        "-pix_fmt", "yuv420p10le", *codec, "-colorspace", "bt2020nc", "-color_primaries", "bt2020",
+        "-color_trc", "arib-std-b67", "-c:a", "aac", "-shortest", str(clip)])  # fmt: skip
+    clips.append(clip)
+big = [plan.parse_probe(json.loads(sh(plan.probe_argv(str(c))))) for c in clips]
+assert all(p.hdr for p in big)
+
+parts = []
+for i, (clip, probe) in enumerate(zip(clips, big)):
+    part = work / f"big{i}.mkv"
+    peak = peak_rss_mb(plan.segment_argv(str(clip), 0.5, 3, probe, True, str(part)))
+    print(f"segment {i} peak RSS {peak} MB")
+    parts.append(part)
+    assert peak < 2048, peak
+(work / "big.txt").write_text(plan.concat_list([str(p) for p in parts]))
+reel = work / "big.mp4"
+print(f"concat peak RSS {peak_rss_mb(plan.concat_argv(str(work / 'big.txt'), str(reel)))} MB")
+v = ffprobe(reel, "stream=codec_type,codec_name,profile,width,height,r_frame_rate,sample_rate")
+print(json.dumps(v["streams"]))
+video = next(s for s in v["streams"] if s["codec_type"] == "video")
+audio = next(s for s in v["streams"] if s["codec_type"] == "audio")
+assert (video["codec_name"], video["profile"], video["width"], video["height"]) == (
+    "h264", "High", 1080, 1920,
+)  # fmt: skip
+assert video["r_frame_rate"] == "30/1"
+assert (audio["codec_name"], audio["sample_rate"]) == ("aac", "48000")
+total = float(ffprobe(reel, "format=duration")["format"]["duration"])
+assert abs(total - 3 * 2.5) < 0.1, total
+print(f"4K reel ok, duration {total:.2f}s")
 print("smoke ok")
