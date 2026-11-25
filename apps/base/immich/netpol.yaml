@@ -85,12 +85,13 @@ spec:
         - kube-apiserver
   egress:
     # Models download from Hugging Face on first use; the large files are
-    # served from the xet CDN under hf.co.
+    # served from the xet CDN, two labels deep under hf.co,
+    # which a single * does not match.
     - toFQDNs:
         - matchName: huggingface.co
-        - matchPattern: "*.huggingface.co"
+        - matchPattern: "**.huggingface.co"
         - matchName: hf.co
-        - matchPattern: "*.hf.co"
+        - matchPattern: "**.hf.co"
       toPorts:
         - ports:
             - port: "443"
