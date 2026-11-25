@@ -57,9 +57,9 @@ spec:
             requests:
               cpu: 100m
               memory: 256Mi
-            # ffmpeg decodes 4K HEVC and tonemaps in float.
+            # ffmpeg opens one 4K HEVC decoder per reel segment.
             limits:
-              memory: 2Gi
+              memory: 4Gi
           volumeMounts:
             - name: work
               mountPath: /work
