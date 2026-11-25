@@ -47,7 +47,7 @@ ADD --chmod=755 --checksum=sha256:604d29a6869409106b6a1110bdadcc8b72e8654a5a865d
 # plugins lazily, which would leave the hooks unregistered, so the init installs
 # this copy as a user plugin; one copy serves every profile.
 # renovate: datasource=git-refs depName=https://github.com/uzairansaruzi/hermex-push tag=main
-ADD https://github.com/uzairansaruzi/hermex-push.git#2da6f660bb86e9470ea56c85dc554aba45ce7fdf /tmp/hermex-push
+ADD https://github.com/uzairansaruzi/hermex-push.git#2b5ecbf74b129525697553b3dcc6b76dd21141df /tmp/hermex-push
 RUN set -eu; \
     /opt/hermes/.venv/bin/python -c 'import sys, tomllib; from importlib.metadata import version; from packaging.requirements import Requirement; reqs = [Requirement(s) for s in tomllib.load(open(sys.argv[1], "rb"))["project"].get("dependencies", [])]; bad = [str(r) for r in reqs if not r.specifier.contains(version(r.name), prereleases=True)]; sys.exit(f"venv does not satisfy {bad}" if bad else 0)' /tmp/hermex-push/plugin/pyproject.toml; \
     cp -r /tmp/hermex-push/plugin /opt/hermex-push; \
