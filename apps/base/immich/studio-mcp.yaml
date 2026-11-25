@@ -1,0 +1,133 @@
+---
+# Renders reels and carousels from Immich assets (images/studio-mcp). It holds
+# the Immich API key, so Hermes holds no credential. Jobs live in memory, so
+# one replica only.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: studio-mcp
+  namespace: immich
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: studio-mcp
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: studio-mcp
+    spec:
+      automountServiceAccountToken: false
+      enableServiceLinks: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        fsGroupChangePolicy: OnRootMismatch
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: mcp
+          image: ghcr.io/damoun/studio-mcp:main@sha256:5a1938837f2293d38202769f64f0b0e51ec0279d6264cefba5055330d0d2a6e5
+          env:
+            - name: IMMICH_URL
+              value: http://immich.immich.svc.cluster.local:2283/api
+            - name: WORK_DIR
+              value: /work
+          envFrom:
+            - secretRef:
+                name: studio-mcp
+          ports:
+            - name: http
+              containerPort: 8000
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            # ffmpeg decodes 4K HEVC and tonemaps in float.
+            limits:
+              memory: 2Gi
+          volumeMounts:
+            - name: work
+              mountPath: /work
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        # Originals for one job at a time, plus the render.
+        - name: work
+          persistentVolumeClaim:
+            claimName: studio-work
+        - name: tmp
+          emptyDir:
+            sizeLimit: 256Mi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: studio-work
+  namespace: immich
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: local
+  resources:
+    requests:
+      storage: 20Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: studio-mcp
+  namespace: immich
+spec:
+  selector:
+    app.kubernetes.io/name: studio-mcp
+  ports:
+    - name: http
+      port: 8000
+      targetPort: http
+---
+# Only Hermes reaches the server; the server reaches only Immich. That also
+# keeps Typst from fetching @preview packages.
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: studio-mcp
+  namespace: immich
+spec:
+  endpointSelector:
+    matchLabels:
+      app.kubernetes.io/name: studio-mcp
+  ingress:
+    - fromEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: hermes
+            app.kubernetes.io/name: hermes
+      toPorts:
+        - ports:
+            - port: "8000"
+              protocol: TCP
+  egressDeny:
+    - toEntities:
+        - kube-apiserver
+  egress:
+    - toEndpoints:
+        - matchLabels:
+            app.kubernetes.io/name: immich
+      toPorts:
+        - ports:
+            - port: "2283"
+              protocol: TCP

@@ -113,6 +113,13 @@ spec:
         - ports:
             - port: "2283"
               protocol: TCP
+    - fromEndpoints:
+        - matchLabels:
+            app.kubernetes.io/name: studio-mcp
+      toPorts:
+        - ports:
+            - port: "2283"
+              protocol: TCP
   egressDeny:
     - toEntities:
         - kube-apiserver
