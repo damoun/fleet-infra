@@ -10,6 +10,7 @@ TONEMAP = (
     "zscale=t=linear:npl=100,format=gbrpf32le,zscale=p=bt709,"
     "tonemap=hable:desat=0,zscale=t=bt709:m=bt709:r=tv,format=yuv420p"
 )
+TILE, PER_ROW, FRACTIONS = 256, 2, (0.15, 0.5, 0.85)
 USED = "used/"
 FFMPEG = ["ffmpeg", "-hide_banner", "-nostdin", "-loglevel", "error", "-nostats", "-y"]
 
@@ -70,6 +71,18 @@ def search_request(
     return "/search/metadata", body
 
 
+def orientation(item: dict) -> str | None:
+    """From the asset-level width and height, which Immich reports after EXIF rotation."""
+    w, h = item.get("width"), item.get("height")
+    if not w or not h:
+        return None
+    if h > w:
+        return "portrait"
+    if w > h:
+        return "landscape"
+    return "square"
+
+
 def compact_asset(item: dict) -> dict:
     exif = item.get("exifInfo") or {}
     values = [t["value"] for t in item.get("tags") or []]
@@ -81,6 +94,7 @@ def compact_asset(item: dict) -> dict:
         "taken_at": item["fileCreatedAt"],
         "place": ", ".join(p for p in (exif.get("city"), exif.get("country")) if p),
         "duration": duration / 1000 if duration else None,
+        "orientation": orientation(item),
         "tags": [v for v in values if not v.startswith(USED)],
         "description": exif.get("description") or "",
         "last_used": used[-1] if used else None,
@@ -171,6 +185,102 @@ def still_argv(src: str, out: str, t: float = 0, hdr: bool = False) -> list[str]
         "-vf", vf,
         "-frames:v", "1", "-q:v", "2", out,
     ]  # fmt: skip
+
+
+@dataclass(frozen=True)
+class Preview:
+    asset_id: str
+    path: str
+    is_video: bool
+    duration: float  # seconds, 0 for photos
+    orientation: str | None
+    error: str | None = None  # the asset could not be loaded: its tiles stay black
+
+
+def preview_request(asset_id: str, asset_type: str) -> tuple[str, dict]:
+    """Like download_request, but videos use the web playback file: smaller than the original."""
+    if asset_type == "VIDEO":
+        return f"/assets/{asset_id}/video/playback", {}
+    return download_request(asset_id, asset_type)
+
+
+def frame_times(duration: float) -> list[float]:
+    """Three times inside the clip, or one frame at 0 when the duration is unknown."""
+    if duration <= 0:
+        return [0.0]
+    return [round(max(0.0, min(duration * f, duration - 0.25)), 3) for f in FRACTIONS]
+
+
+BLACK = ["-f", "lavfi", "-i", f"color=c=black:s={TILE}x{TILE}"]
+
+
+def black_argv(out: str) -> list[str]:
+    return [*FFMPEG, *BLACK, "-frames:v", "1", out]
+
+
+def asset_tiles(k: int, asset: Preview, tiles_dir: str) -> list[list[str]]:
+    """One ffmpeg argv per tile file of asset #k, three tiles in order.
+
+    Videos get three frames; photos the photo and two black tiles; unavailable assets three
+    black tiles. Each tile is a 256px box with the aspect kept and black padding, and the
+    asset's first tile carries its #k label.
+    """
+    fit = (
+        f"scale={TILE}:{TILE}:force_original_aspect_ratio=decrease,"
+        f"pad={TILE}:{TILE}:(ow-iw)/2:(oh-ih)/2:black,setsar=1"
+    )
+    label = (
+        f",drawtext=text='#{k}':font=Inter:fontsize=28:fontcolor=white"
+        ":box=1:boxcolor=black@0.6:boxborderw=4:x=6:y=6"
+    )
+    if asset.error:
+        times = []
+    elif asset.is_video:
+        times = frame_times(asset.duration)
+    else:
+        times = [0.0]
+    frames = [
+        ["-ss", f"{t:.3f}", "-i", asset.path, "-vf", fit + (label if j == 0 else "")]
+        for j, t in enumerate(times)
+    ]
+    inputs = frames + [BLACK] * (len(FRACTIONS) - len(frames))
+    first = (k - 1) * len(FRACTIONS)
+    return [
+        [*FFMPEG, *tile, "-frames:v", "1", f"{tiles_dir}/t{first + n:02d}.png"]
+        for n, tile in enumerate(inputs, 1)
+    ]
+
+
+def tile_argvs(assets: list[Preview], tiles_dir: str) -> list[list[str]]:
+    """The tile argvs of all assets, t01.png, t02.png, ... in order."""
+    return [argv for k, a in enumerate(assets, 1) for argv in asset_tiles(k, a, tiles_dir)]
+
+
+def sheet_argv(tiles_dir: str, assets: int, out: str) -> list[str]:
+    """Tile t01.png.. into a sheet PER_ROW assets wide, as many rows as needed."""
+    rows = -(-assets // PER_ROW)
+    return [
+        *FFMPEG, "-framerate", "1", "-i", f"{tiles_dir}/t%02d.png",
+        "-vf", f"tile={PER_ROW * len(FRACTIONS)}x{rows}", "-frames:v", "1", "-q:v", "3", out,
+    ]  # fmt: skip
+
+
+def legend(assets: list[Preview]) -> str:
+    lines = []
+    for k, a in enumerate(assets, 1):
+        if a.error:
+            lines.append(f"#{k} {a.asset_id} unavailable: {a.error}")
+            continue
+        line = (
+            f"#{k} {a.asset_id} {'video' if a.is_video else 'image'} {a.orientation or 'unknown'}"
+        )
+        if a.is_video and a.duration <= 0:
+            line += " duration unknown"
+        elif a.is_video:
+            times = "/".join(f"{t:.1f}" for t in frame_times(a.duration))
+            line += f" {a.duration:.1f}s frames at {times}s"
+        lines.append(line)
+    return "\n".join(lines)
 
 
 def typst_source(markup: str, has_background: bool) -> str:

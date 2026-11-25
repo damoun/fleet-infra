@@ -8,6 +8,8 @@ from . import plan
 from .immich import Immich
 from .models import CarouselSpec, ReelSpec
 
+PREVIEW_TIMEOUT, STEP_TIMEOUT = 90, 30
+
 
 async def run(argv: list[str], timeout: int = 600) -> bytes:
     proc = await asyncio.create_subprocess_exec(
@@ -15,10 +17,12 @@ async def run(argv: list[str], timeout: int = 600) -> bytes:
     )
     try:
         out, err = await asyncio.wait_for(proc.communicate(), timeout)
-    except TimeoutError:
+    except BaseException as e:  # includes cancellation: never leave ffmpeg running
         proc.kill()
         await proc.wait()
-        raise RuntimeError(f"{argv[0]} timed out after {timeout}s") from None
+        if isinstance(e, TimeoutError):
+            raise RuntimeError(f"{argv[0]} timed out after {timeout}s") from None
+        raise
     if proc.returncode:
         raise RuntimeError(f"{argv[0]} exited {proc.returncode}: {err.decode()[-800:]}")
     return out
@@ -87,3 +91,48 @@ async def carousel(immich: Immich, spec: CarouselSpec, work: Path) -> list[str]:
             await run(plan.typst_argv(str(slide_dir), str(src), str(out)), 60)
         files.append(out)
     return await _publish(immich, files, spec, sources)
+
+
+async def preview(immich: Immich, ids: list[str], work: Path) -> tuple[str, bytes]:
+    """A contact sheet JPEG of the assets and the legend that maps tiles back to ids."""
+    try:
+        async with asyncio.timeout(PREVIEW_TIMEOUT):
+            return await _preview(immich, ids, work)
+    except TimeoutError:
+        raise RuntimeError(f"preview timed out after {PREVIEW_TIMEOUT}s") from None
+
+
+async def _run_tiles(argvs: list[list[str]]) -> None:
+    for argv in argvs:
+        await run(argv, STEP_TIMEOUT)
+        out = Path(argv[-1])
+        # ffmpeg exits 0 without a frame when -ss lands past the last one; keep the slot.
+        if not out.exists() or not out.stat().st_size:
+            await run(plan.black_argv(argv[-1]), STEP_TIMEOUT)
+
+
+async def _preview(immich: Immich, ids: list[str], work: Path) -> tuple[str, bytes]:
+    tiles = work / "tiles"
+    tiles.mkdir()
+    assets = []
+    for k, asset_id in enumerate(ids, 1):
+        try:
+            info = await immich.asset(asset_id)
+            path = work / asset_id
+            await immich.download(*plan.preview_request(asset_id, info["type"]), path)
+            asset = plan.Preview(
+                asset_id,
+                str(path),
+                info["type"] == "VIDEO",
+                (info.get("duration") or 0) / 1000,
+                plan.orientation(info),
+            )
+            await _run_tiles(plan.asset_tiles(k, asset, str(tiles)))
+        except Exception as e:  # e.g. the preview thumbnail of a fresh upload does not exist yet
+            reason = " ".join(str(e).split())[:100]
+            asset = plan.Preview(asset_id, "", False, 0, None, f"{type(e).__name__}: {reason}")
+            await _run_tiles(plan.asset_tiles(k, asset, str(tiles)))
+        assets.append(asset)
+    sheet = work / "sheet.jpg"
+    await run(plan.sheet_argv(str(tiles), len(assets), str(sheet)), STEP_TIMEOUT)
+    return plan.legend(assets), sheet.read_bytes()

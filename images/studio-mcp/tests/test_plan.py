@@ -51,6 +51,8 @@ def test_compact_asset():
         "type": "VIDEO",
         "fileCreatedAt": "2026-06-01T10:00:00Z",
         "duration": 12500,
+        "width": 1440,
+        "height": 1920,
         "exifInfo": {"city": "Ibiza", "country": "Spain", "description": "beach"},
         "tags": [{"value": "used/2026-W30"}, {"value": "used/2026-W40"}, {"value": "trip"}],
     }
@@ -60,11 +62,20 @@ def test_compact_asset():
         "taken_at": "2026-06-01T10:00:00Z",
         "place": "Ibiza, Spain",
         "duration": 12.5,
+        "orientation": "portrait",
         "tags": ["trip"],
         "description": "beach",
         "last_used": "2026-W40",
         "use_count": 2,
     }
+
+
+def test_orientation_uses_rotated_top_level_size():
+    assert plan.orientation({"width": 1440, "height": 1920}) == "portrait"
+    assert plan.orientation({"width": 1920, "height": 1440}) == "landscape"
+    assert plan.orientation({"width": 5, "height": 5}) == "square"
+    assert plan.orientation({"width": 5, "height": None}) is None
+    assert plan.orientation({}) is None
 
 
 def test_compact_asset_without_used_tags():
@@ -137,6 +148,72 @@ def test_typst_source_page_and_background():
     assert "width: 1080pt, height: 1350pt" in plain and "image(" not in plain
     assert plain.endswith("= Hi\n")
     assert 'image("bg.jpg"' in plan.typst_source("= Hi", True)
+
+
+VIDEO_PREVIEW = plan.Preview(ID, "/w/v", True, 2.0, "portrait")
+PHOTO_PREVIEW = plan.Preview(ID, "/w/p", False, 0, "landscape")
+
+
+def test_frame_times_and_playback_request():
+    assert plan.frame_times(2.0) == [0.3, 1.0, 1.7]
+    assert plan.preview_request(ID, "VIDEO") == (f"/assets/{ID}/video/playback", {})
+    assert plan.preview_request(ID, "IMAGE") == plan.download_request(ID, "IMAGE")
+
+
+def test_frame_times_stay_inside_short_clips():
+    assert plan.frame_times(0.3) == [0.045, 0.05, 0.05]
+    assert plan.frame_times(0.2) == [0.0, 0.0, 0.0]
+
+
+def test_unknown_duration_gives_one_frame_two_black_tiles_and_no_fake_times():
+    unknown = plan.Preview(ID, "/w/v", True, 0, "portrait")
+    assert plan.frame_times(0) == [0.0]
+    argvs = plan.tile_argvs([unknown], "/t")
+    assert len(argvs) == 3 and "-ss" in argvs[0] and "-ss" not in argvs[1] + argvs[2]
+    assert plan.legend([unknown]) == f"#1 {ID} video portrait duration unknown"
+
+
+def test_sheet_stays_under_the_vision_embed_size():
+    assert plan.PER_ROW * len(plan.FRACTIONS) * plan.TILE <= 1568
+
+
+def test_unavailable_asset_keeps_three_black_tiles_and_a_legend_line():
+    bad = plan.Preview(ID, "", False, 0, None, "HTTPStatusError: 404")
+    argvs = plan.asset_tiles(2, bad, "/t")
+    assert [a[-1] for a in argvs] == ["/t/t04.png", "/t/t05.png", "/t/t06.png"]
+    assert all(a == plan.black_argv(a[-1]) for a in argvs)
+    assert plan.legend([PHOTO_PREVIEW, bad]).endswith(f"#2 {ID} unavailable: HTTPStatusError: 404")
+
+
+def test_black_argv_matches_the_black_tiles():
+    assert plan.black_argv("/t/t05.png") == plan.tile_argvs([PHOTO_PREVIEW], "/t")[1][:-1] + [
+        "/t/t05.png"
+    ]
+
+
+def test_tile_argvs_three_tiles_per_asset_label_first_and_black_for_photos():
+    argvs = plan.tile_argvs([VIDEO_PREVIEW, PHOTO_PREVIEW], "/t")
+    assert [a[-1] for a in argvs] == [f"/t/t0{n}.png" for n in range(1, 7)]
+    seeks = [a[a.index("-ss") + 1] if "-ss" in a else None for a in argvs]
+    assert seeks == ["0.300", "1.000", "1.700", "0.000", None, None]
+    vf = [a[a.index("-vf") + 1] if "-vf" in a else "" for a in argvs]
+    assert "drawtext=text='#1'" in vf[0] and "drawtext" not in vf[1] + vf[2]
+    assert "drawtext=text='#2'" in vf[3] and vf[1].startswith("scale=256:256")
+    assert "pad=256:256" in vf[0]
+    assert "color=c=black:s=256x256" in argvs[4] and "color=c=black:s=256x256" in argvs[5]
+
+
+def test_sheet_argv_rows_follow_asset_count():
+    for assets, rows in [(1, 1), (2, 1), (3, 2), (8, 4)]:
+        argv = plan.sheet_argv("/t", assets, "o.jpg")
+        assert f"tile=6x{rows}" in argv
+    assert argv[argv.index("-i") + 1] == "/t/t%02d.png" and argv[-1] == "o.jpg"
+
+
+def test_legend_lines():
+    assert plan.legend([VIDEO_PREVIEW, PHOTO_PREVIEW]) == (
+        f"#1 {ID} video portrait 2.0s frames at 0.3/1.0/1.7s\n#2 {ID} image landscape"
+    )
 
 
 def test_asset_ids_are_lowercased():

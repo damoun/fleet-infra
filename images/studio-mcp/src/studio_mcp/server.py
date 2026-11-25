@@ -1,11 +1,13 @@
 """MCP server: find Immich assets and render Instagram reels and carousels from them."""
 
 import os
+import tempfile
 from datetime import date
 from pathlib import Path
-from typing import Literal
+from typing import Annotated, Literal
 
-from mcp.server.fastmcp import FastMCP
+from mcp.server.fastmcp import FastMCP, Image
+from pydantic import Field
 from starlette.requests import Request
 from starlette.responses import PlainTextResponse
 
@@ -15,12 +17,15 @@ from .jobs import Jobs
 from .models import AssetId, CarouselSpec, ReelSpec
 
 immich = Immich(os.environ["IMMICH_URL"], os.environ["IMMICH_API_KEY"])
-jobs = Jobs(Path(os.environ["WORK_DIR"]))
+work_dir = Path(os.environ["WORK_DIR"])
+jobs = Jobs(work_dir)
 
 mcp = FastMCP(
     "studio",
     instructions=(
         "Find clips and photos in Immich, then render a reel or carousel into an Immich album. "
+        "preview_assets returns a contact sheet image plus a legend with the frame times: view the "
+        "image with a vision tool before choosing segments. "
         "create_* return a job id; poll job_status."
     ),
     host="0.0.0.0",
@@ -52,6 +57,7 @@ async def find_assets(
     tags are full tag paths, all required. Usage is tracked by used/<ISO week> tags:
     not_used_within_weeks=N skips assets used in the current week or the N-1 before it.
     limit is clamped to 1..1000. Clips are never retired; use_count is the number of used/ tags.
+    orientation is portrait, landscape or square (after EXIF rotation), None when unknown.
     """
     by_value = {t["value"]: t["id"] for t in await immich.tags()}
     tag_ids = [by_value.get(t) for t in tags or []]
@@ -79,6 +85,21 @@ async def tag_assets(ids: list[AssetId], tags: list[str]) -> str:
     """Upsert tags (full paths such as trip/ibiza) and assign them to the assets."""
     await immich.tag(ids, tags)
     return "ok"
+
+
+# The return annotation must stay a bare list: a typed list makes FastMCP build an output
+# schema that rejects Image.
+@mcp.tool()
+async def preview_assets(ids: Annotated[list[AssetId], Field(min_length=1, max_length=8)]) -> list:
+    """See assets: one contact sheet JPEG and a legend, in a single call.
+
+    Each asset is a row half: three 256px tiles, labelled #k on the first. Videos show frames at
+    15%, 50% and 85% of their duration (the legend gives the times, so you can pick segment
+    start and end); photos show the photo and two black tiles.
+    """
+    with tempfile.TemporaryDirectory(dir=work_dir, ignore_cleanup_errors=True) as work:
+        legend, jpeg = await pipeline.preview(immich, ids, Path(work))
+    return [legend, Image(data=jpeg, format="jpeg")]
 
 
 @mcp.tool()
