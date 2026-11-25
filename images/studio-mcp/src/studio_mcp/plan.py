@@ -2,6 +2,7 @@
 
 from dataclasses import dataclass
 from datetime import date, timedelta
+from pathlib import Path
 
 REEL_W, REEL_H, FPS = 1080, 1920, 30
 SLIDE_W, SLIDE_H = 1080, 1350
@@ -294,15 +295,17 @@ def legend(assets: list[Preview]) -> str:
     return "\n".join(lines)
 
 
+BRAND = Path(__file__).with_name("brand.typ")
+
+
 def typst_source(markup: str, has_background: bool) -> str:
-    bg = (
-        ', background: image("bg.jpg", width: 100%, height: 100%, fit: "cover")'
-        if has_background
-        else ""
-    )
+    """The brand kit, brand-coloured defaults for free-form markup, and `bg` for the background."""
+    bg = '"bg.jpg"' if has_background else "none"
     return (
-        f"#set page(width: {SLIDE_W}pt, height: {SLIDE_H}pt, margin: 80pt{bg})\n"
-        '#set text(font: "Inter", size: 56pt)\n'
+        '#import "brand.typ": *\n'
+        f"#set page(width: {SLIDE_W}pt, height: {SLIDE_H}pt, margin: 80pt, fill: night)\n"
+        '#set text(font: "Inter", size: 56pt, fill: snow)\n'
+        f"#let bg = {bg}\n"
         f"{markup}\n"
     )
 

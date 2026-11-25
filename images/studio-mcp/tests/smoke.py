@@ -4,6 +4,7 @@ docker run --rm -v $PWD/tests:/t --entrypoint python studio-mcp:test /t/smoke.py
 """
 
 import json
+import shutil
 import os
 import subprocess
 import tempfile
@@ -88,12 +89,22 @@ hdr_still = work / "hdr.jpg"
 sh(plan.still_argv(str(hdr), str(hdr_still), 1, hdr=True))
 size = ffprobe(hdr_still, "stream=width,height,pix_fmt")["streams"][0]
 assert (size["width"], size["height"]) == (1080, 1350), size
-src, png = work / "slide.typ", work / "slide.png"
-src.write_text(plan.typst_source("#align(center + horizon)[= Hello]", True))
-sh(plan.typst_argv(str(work), str(src), str(png)))
-size = ffprobe(png, "stream=width,height")["streams"][0]
-assert (size["width"], size["height"]) == (1080, 1350)
-print(sh(["typst", "fonts"]).split())
+# Typst slides: free-form markup and a brand cover over the background, in a slide dir as the
+# pipeline lays it out (brand.typ and bg.jpg next to the source).
+assert "Lilita One" in sh(["typst", "fonts"]), "brand font missing"
+slide = work / "slide1"
+slide.mkdir()
+shutil.copy(plan.BRAND, slide / "brand.typ")
+shutil.copy(bg, slide / "bg.jpg")
+for name, markup in (
+    ("free", "#align(center + horizon)[= Hello]"),
+    ("cover", '#cover(handle: "@test", of: 3, bg: bg, kick: "Efteling", title: "Hello", sub: "sub")'),
+):
+    src, png = slide / f"{name}.typ", slide / f"{name}.png"
+    src.write_text(plan.typst_source(markup, True))
+    sh(plan.typst_argv(str(slide), str(src), str(png)))
+    size = ffprobe(png, "stream=width,height")["streams"][0]
+    assert (size["width"], size["height"]) == (1080, 1350), (name, size)
 
 # Contact sheet: two clips and a photo. Needs drawtext (libfreetype + fontconfig) and Inter.
 sh([*gen, "testsrc2=size=360x640:rate=25:duration=2", "-c:v", "libx264", str(work / "tall.mp4")])

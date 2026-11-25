@@ -2,6 +2,7 @@
 
 import asyncio
 import json
+import shutil
 from pathlib import Path
 
 from . import plan
@@ -102,6 +103,7 @@ async def carousel(immich: Immich, spec: CarouselSpec, work: Path) -> list[str]:
             if slide.background:
                 bg = slide.background
                 await _still(paths[bg], slide_dir / "bg.jpg", 0, bg in videos)
+            shutil.copy(plan.BRAND, slide_dir / "brand.typ")
             src, out = slide_dir / "slide.typ", slide_dir / f"slide{n}.png"
             src.write_text(plan.typst_source(slide.typst, slide.background is not None))
             await run(plan.typst_argv(str(slide_dir), str(src), str(out)), 60)
