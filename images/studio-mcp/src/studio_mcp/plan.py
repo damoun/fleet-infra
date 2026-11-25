@@ -159,12 +159,17 @@ def reel_argv(
     ]  # fmt: skip
 
 
-def still_argv(src: str, out: str, t: float = 0) -> list[str]:
+def still_argv(src: str, out: str, t: float = 0, hdr: bool = False) -> list[str]:
     """Center-cropped slide-size JPEG from a photo, or from a video at t seconds."""
+    vf = (
+        f"scale={SLIDE_W}:{SLIDE_H}:force_original_aspect_ratio=increase,"
+        f"crop={SLIDE_W}:{SLIDE_H},setsar=1"
+    )
+    if hdr:
+        vf += f",{TONEMAP},format=yuvj420p"
     return [
         "ffmpeg", "-hide_banner", "-nostdin", "-y", "-ss", f"{t:.3f}", "-i", src,
-        "-vf", f"scale={SLIDE_W}:{SLIDE_H}:force_original_aspect_ratio=increase,"
-        f"crop={SLIDE_W}:{SLIDE_H},setsar=1",
+        "-vf", vf,
         "-frames:v", "1", "-q:v", "2", out,
     ]  # fmt: skip
 

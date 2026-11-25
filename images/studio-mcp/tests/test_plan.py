@@ -133,6 +133,14 @@ def test_reel_argv_clamps_end_and_rejects_start_past_end():
         plan.reel_argv([("a", 25, 30, SDR)], True, "o.mp4")
 
 
+def test_still_tonemaps_only_hdr_sources():
+    sdr = plan.still_argv("in", "out.jpg")
+    hdr = plan.still_argv("in", "out.jpg", hdr=True)
+    assert "zscale" not in sdr[sdr.index("-vf") + 1]
+    assert hdr[hdr.index("-vf") + 1].endswith("format=yuvj420p")
+    assert "zscale=t=linear" in hdr[hdr.index("-vf") + 1]
+
+
 def test_still_and_typst_commands():
     still = plan.still_argv("in", "out.jpg", 2.5)
     assert still[still.index("-ss") + 1] == "2.500"
