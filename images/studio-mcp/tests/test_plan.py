@@ -171,13 +171,12 @@ def test_typst_source_imports_brand_and_sets_bg():
     assert plain.startswith('#import "brand.typ": *\n')
     assert "width: 1080pt, height: 1350pt" in plain and "#let bg = none" in plain
     assert plain.endswith("= Hi\n")
-    assert '#let bg = "bg.jpg"' in plan.typst_source("= Hi", True)
+    assert '#let bg = "bg.jpg"' in plan.typst_source("#cover(bg: bg)", True)
 
 
-def test_brand_kit_defines_the_slide_functions():
-    kit = plan.BRAND.read_text()
-    for name in ("cover", "point", "data", "cta"):
-        assert f"#let {name}(" in kit
+def test_typst_source_rejects_an_unused_background():
+    with pytest.raises(ValueError, match="never uses bg"):
+        plan.typst_source("= Hi", True)
 
 
 VIDEO_PREVIEW = plan.Preview(ID, "/w/v", True, 2.0, "portrait")

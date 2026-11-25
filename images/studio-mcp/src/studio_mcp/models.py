@@ -34,7 +34,7 @@ class Slide(BaseModel):
     t: float = Field(0, ge=0, description="Seconds into a video for the still")
     typst: str | None = Field(None, description="Typst markup on a 1080x1350pt page, with the brand kit imported")
     background: AssetId | None = Field(
-        None, description='Typst only: asset exposed to the markup as image("bg.jpg")'
+        None, description="Typst only: asset exposed to the markup as the variable bg"
     )
 
     @model_validator(mode="after")

@@ -300,6 +300,8 @@ BRAND = Path(__file__).with_name("brand.typ")
 
 def typst_source(markup: str, has_background: bool) -> str:
     """The brand kit, brand-coloured defaults for free-form markup, and `bg` for the background."""
+    if has_background and "bg" not in markup:
+        raise ValueError("slide has a background but its markup never uses bg")
     bg = '"bg.jpg"' if has_background else "none"
     return (
         '#import "brand.typ": *\n'
