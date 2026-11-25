@@ -204,7 +204,17 @@ def preview_request(asset_id: str, asset_type: str) -> tuple[str, dict]:
 
 
 def frame_times(duration: float) -> list[float]:
-    return [round(duration * f, 3) for f in FRACTIONS]
+    """Three times inside the clip, or one frame at 0 when the duration is unknown."""
+    if duration <= 0:
+        return [0.0]
+    return [round(max(0.0, min(duration * f, duration - 0.25)), 3) for f in FRACTIONS]
+
+
+BLACK = ["-f", "lavfi", "-i", f"color=c=black:s={TILE}x{TILE}"]
+
+
+def black_argv(out: str) -> list[str]:
+    return [*FFMPEG, *BLACK, "-frames:v", "1", out]
 
 
 def tile_argvs(assets: list[Preview], tiles_dir: str) -> list[list[str]]:
@@ -217,7 +227,6 @@ def tile_argvs(assets: list[Preview], tiles_dir: str) -> list[list[str]]:
         f"scale={TILE}:{TILE}:force_original_aspect_ratio=decrease,"
         f"pad={TILE}:{TILE}:(ow-iw)/2:(oh-ih)/2:black,setsar=1"
     )
-    black = ["-f", "lavfi", "-i", f"color=c=black:s={TILE}x{TILE}"]
     inputs: list[list[str]] = []
     for k, asset in enumerate(assets, 1):
         label = (
@@ -229,7 +238,7 @@ def tile_argvs(assets: list[Preview], tiles_dir: str) -> list[list[str]]:
             ["-ss", f"{t:.3f}", "-i", asset.path, "-vf", fit + (label if j == 0 else "")]
             for j, t in enumerate(times)
         ]
-        inputs += frames + [black] * (len(FRACTIONS) - len(frames))
+        inputs += frames + [BLACK] * (len(FRACTIONS) - len(frames))
     return [
         [*FFMPEG, *tile, "-frames:v", "1", f"{tiles_dir}/t{n:02d}.png"]
         for n, tile in enumerate(inputs, 1)
@@ -251,7 +260,9 @@ def legend(assets: list[Preview]) -> str:
         line = (
             f"#{k} {a.asset_id} {'video' if a.is_video else 'image'} {a.orientation or 'unknown'}"
         )
-        if a.is_video:
+        if a.is_video and a.duration <= 0:
+            line += " duration unknown"
+        elif a.is_video:
             times = "/".join(f"{t:.1f}" for t in frame_times(a.duration))
             line += f" {a.duration:.1f}s frames at {times}s"
         lines.append(line)

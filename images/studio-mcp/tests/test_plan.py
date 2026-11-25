@@ -160,6 +160,25 @@ def test_frame_times_and_playback_request():
     assert plan.preview_request(ID, "IMAGE") == plan.download_request(ID, "IMAGE")
 
 
+def test_frame_times_stay_inside_short_clips():
+    assert plan.frame_times(0.3) == [0.045, 0.05, 0.05]
+    assert plan.frame_times(0.2) == [0.0, 0.0, 0.0]
+
+
+def test_unknown_duration_gives_one_frame_two_black_tiles_and_no_fake_times():
+    unknown = plan.Preview(ID, "/w/v", True, 0, "portrait")
+    assert plan.frame_times(0) == [0.0]
+    argvs = plan.tile_argvs([unknown], "/t")
+    assert len(argvs) == 3 and "-ss" in argvs[0] and "-ss" not in argvs[1] + argvs[2]
+    assert plan.legend([unknown]) == f"#1 {ID} video portrait duration unknown"
+
+
+def test_black_argv_matches_the_black_tiles():
+    assert plan.black_argv("/t/t05.png") == plan.tile_argvs([PHOTO_PREVIEW], "/t")[1][:-1] + [
+        "/t/t05.png"
+    ]
+
+
 def test_tile_argvs_three_tiles_per_asset_label_first_and_black_for_photos():
     argvs = plan.tile_argvs([VIDEO_PREVIEW, PHOTO_PREVIEW], "/t")
     assert [a[-1] for a in argvs] == [f"/t/t0{n}.png" for n in range(1, 7)]

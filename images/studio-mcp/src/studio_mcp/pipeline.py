@@ -109,6 +109,10 @@ async def preview(immich: Immich, ids: list[str], work: Path) -> tuple[str, byte
     tiles.mkdir()
     for argv in plan.tile_argvs(assets, str(tiles)):
         await run(argv)
+        out = Path(argv[-1])
+        # ffmpeg exits 0 without a frame when -ss lands past the last one; keep the slot.
+        if not out.exists() or not out.stat().st_size:
+            await run(plan.black_argv(argv[-1]))
     sheet = work / "sheet.jpg"
     await run(plan.sheet_argv(str(tiles), len(assets), str(sheet)))
     return plan.legend(assets), sheet.read_bytes()
