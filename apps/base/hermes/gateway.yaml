@@ -363,6 +363,15 @@ spec:
         - ports:
             - port: "8765"
               protocol: TCP
+    # Immich's studio MCP, which holds the Immich API key.
+    - toEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: immich
+            app.kubernetes.io/name: studio-mcp
+      toPorts:
+        - ports:
+            - port: "8000"
+              protocol: TCP
     # Read-only VictoriaMetrics and VictoriaLogs MCPs.
     - toEndpoints:
         - matchLabels:

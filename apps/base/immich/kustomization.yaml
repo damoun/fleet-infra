@@ -10,3 +10,5 @@ resources:
   - immich.yaml
   - httproute.yaml
   - netpol.yaml
+  - studio-mcp-secret.yaml
+  - studio-mcp.yaml

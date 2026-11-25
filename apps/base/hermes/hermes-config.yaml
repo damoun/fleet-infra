@@ -184,6 +184,17 @@ mcp_servers:
         - edit_file
         - append_file
         - create_directory
+  # Immich search and tagging, and reel and carousel renders into an album.
+  # This list keeps it that way if the server's list grows.
+  studio:
+    url: http://studio-mcp.immich.svc.cluster.local:8000/mcp
+    tools:
+      include:
+        - find_assets
+        - tag_assets
+        - create_reel
+        - create_carousel
+        - job_status
 streaming:
   enabled: false
 # Search only; web_extract keeps its own backend.
