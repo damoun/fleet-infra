@@ -191,6 +191,7 @@ mcp_servers:
     tools:
       include:
         - find_assets
+        - preview_assets
         - tag_assets
         - create_reel
         - create_carousel
