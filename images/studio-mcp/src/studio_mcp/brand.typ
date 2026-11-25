@@ -16,7 +16,7 @@
       (night.transparentize(100%), 0%), (night.transparentize(100%), 30%),
       (night.transparentize(15%), 70%), (night.transparentize(5%), 100%), angle: 90deg)))
   }
-  if of != none {
+  if n != none and of != none {
     place(top + right, dx: -56pt, dy: 56pt, box(fill: night.transparentize(35%), radius: 40pt,
       inset: (x: 22pt, y: 12pt), text(size: 28pt, weight: "semibold")[#n/#of]))
   }
@@ -27,7 +27,10 @@
   place(bottom + left, dx: 72pt, dy: -130pt, block(width: 936pt, body))
 }
 
-#let headline(size, content) = text(font: display, size: size, fill: snow, content)
+#let headline(size, content, leading: 0.65em) = {
+  set par(leading: leading)
+  text(font: display, size: size, content)
+}
 
 #let kicker(content) = box(fill: gold, radius: 8pt, inset: (x: 18pt, y: 10pt),
   text(size: 28pt, weight: "bold", fill: night, upper(content)))
@@ -36,7 +39,7 @@
 #let cover(handle: "", of: none, bg: none, kick: "", title: "", sub: "") = slide(
   handle: handle, n: 1, of: of, bg: bg, stack(dir: ttb,
     ..if kick != "" { (kicker(kick), 48pt) },
-    { set par(leading: 0.25em); headline(124pt, title) },
+    headline(124pt, title, leading: 0.25em),
     ..if sub != "" { (80pt, text(size: 44pt, weight: "medium")[#sub]) },
     72pt,
     box(fill: gold, radius: 40pt, inset: (x: 26pt, y: 14pt),
@@ -46,7 +49,7 @@
 #let point(handle: "", n: none, of: none, bg: none, num: "", title: "", body: "") = slide(
   handle: handle, n: n, of: of, bg: bg, stack(dir: ttb,
     ..if num != "" { (text(font: display, size: 96pt, fill: gold)[#num], 32pt) },
-    { set par(leading: 0.3em); headline(84pt, title) },
+    headline(84pt, title, leading: 0.3em),
     ..if body != "" { (64pt, { set par(leading: 0.55em); text(size: 40pt)[#body] }) },
   ))
 
@@ -54,7 +57,7 @@
 #let data(handle: "", n: none, of: none, bg: none, title: "", rows: ()) = slide(
   handle: handle, n: n, of: of, bg: bg, stack(dir: ttb, spacing: 14pt,
     headline(76pt, title),
-    v(40pt),
+    40pt,
     ..rows.map(((label, level, note)) => box(width: 100%, fill: night.transparentize(25%),
       radius: 16pt, inset: 22pt, grid(
         columns: (1fr, auto), align: (left + horizon, right + horizon),
@@ -65,7 +68,7 @@
 
 #let cta(handle: "", n: none, of: none, bg: none, title: "", ask: "") = slide(
   n: n, of: of, bg: bg, stack(dir: ttb,
-    { set par(leading: 0.25em); headline(96pt, title) },
+    headline(96pt, title, leading: 0.25em),
     72pt,
     { set par(leading: 0.5em); text(size: 44pt, weight: "medium")[#ask] },
     88pt,
