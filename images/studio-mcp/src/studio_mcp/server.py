@@ -1,5 +1,6 @@
 """MCP server: find Immich assets and render Instagram reels and carousels from them."""
 
+import json
 import os
 import tempfile
 from datetime import date
@@ -49,7 +50,7 @@ async def find_assets(
     type: Literal["video", "image"] | None = None,
     not_used_within_weeks: int | None = None,
     limit: int = 30,
-) -> list[dict]:
+) -> str:
     """Search Immich assets.
 
     query runs a smart (semantic) search; without it the search is metadata only.
@@ -62,7 +63,7 @@ async def find_assets(
     by_value = {t["value"]: t["id"] for t in await immich.tags()}
     tag_ids = [by_value.get(t) for t in tags or []]
     if None in tag_ids:
-        return []
+        return "[]"
     recent = plan.recent_weeks(date.today(), not_used_within_weeks or 0)
     path, body = plan.search_request(
         query,
@@ -77,7 +78,8 @@ async def find_assets(
     items = await immich.search(path, body)
     # Search results may omit tags; the asset endpoint always has them.
     items = [i if "tags" in i else await immich.asset(i["id"]) for i in items]
-    return [plan.compact_asset(i) for i in items]
+    # One compact JSON text block; a list return would be one indented block per asset.
+    return json.dumps([plan.compact_asset(i) for i in items], ensure_ascii=False)
 
 
 @mcp.tool(structured_output=False)
