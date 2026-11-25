@@ -9,11 +9,16 @@ from .immich import Immich
 from .models import CarouselSpec, ReelSpec
 
 
-async def run(argv: list[str], cwd: Path | None = None) -> bytes:
+async def run(argv: list[str], timeout: int = 600) -> bytes:
     proc = await asyncio.create_subprocess_exec(
-        *argv, cwd=cwd, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE
+        *argv, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE
     )
-    out, err = await proc.communicate()
+    try:
+        out, err = await asyncio.wait_for(proc.communicate(), timeout)
+    except TimeoutError:
+        proc.kill()
+        await proc.wait()
+        raise RuntimeError(f"{argv[0]} timed out after {timeout}s") from None
     if proc.returncode:
         raise RuntimeError(f"{argv[0]} exited {proc.returncode}: {err.decode()[-800:]}")
     return out
@@ -42,7 +47,7 @@ async def reel(immich: Immich, spec: ReelSpec, work: Path) -> list[str]:
     sources = [s.asset_id for s in spec.segments]
     paths = await _download(immich, sources, work)
     probes = {
-        i: plan.parse_probe(json.loads(await run(plan.probe_argv(str(p)))))
+        i: plan.parse_probe(json.loads(await run(plan.probe_argv(str(p)), 60)))
         for i, p in paths.items()
     }
     out = work / "reel.mp4"
@@ -66,6 +71,6 @@ async def carousel(immich: Immich, spec: CarouselSpec, work: Path) -> list[str]:
                 await run(plan.still_argv(str(paths[slide.background]), str(slide_dir / "bg.jpg")))
             src, out = slide_dir / "slide.typ", slide_dir / f"slide{n}.png"
             src.write_text(plan.typst_source(slide.typst, slide.background is not None))
-            await run(plan.typst_argv(str(slide_dir), str(src), str(out)))
+            await run(plan.typst_argv(str(slide_dir), str(src), str(out)), 60)
         files.append(out)
     return await _publish(immich, files, spec.album, spec.caption, sources, spec.week)

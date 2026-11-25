@@ -2,7 +2,6 @@
 
 import asyncio
 import logging
-import shutil
 import tempfile
 import uuid
 from collections.abc import Awaitable, Callable
@@ -33,11 +32,12 @@ class Jobs:
         while True:
             job_id, body = await self._queue.get()
             self._jobs[job_id] = {"status": "running"}
-            work = Path(tempfile.mkdtemp(prefix=f"{job_id}-", dir=self._work_dir))
             try:
-                self._jobs[job_id] = {"status": "done", "asset_ids": await body(work)}
+                with tempfile.TemporaryDirectory(
+                    prefix=f"{job_id}-", dir=self._work_dir, ignore_cleanup_errors=True
+                ) as work:
+                    asset_ids = await body(Path(work))
+                self._jobs[job_id] = {"status": "done", "asset_ids": asset_ids}
             except Exception as e:
                 log.exception("job %s failed", job_id)
-                self._jobs[job_id] = {"status": "failed", "error": str(e)}
-            finally:
-                shutil.rmtree(work, ignore_errors=True)
+                self._jobs[job_id] = {"status": "failed", "error": f"{type(e).__name__}: {e}"}
