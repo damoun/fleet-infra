@@ -4,8 +4,8 @@ docker run --rm -v $PWD/tests:/t --entrypoint python studio-mcp:test /t/smoke.py
 """
 
 import json
-import shutil
 import os
+import shutil
 import subprocess
 import tempfile
 from pathlib import Path
@@ -96,12 +96,19 @@ slide = work / "slide1"
 slide.mkdir()
 shutil.copy(plan.BRAND, slide / "brand.typ")
 shutil.copy(bg, slide / "bg.jpg")
-for name, markup in (
-    ("free", "#align(center + horizon)[= Hello]"),
-    ("cover", '#cover(handle: "@test", of: 3, bg: bg, kick: "Efteling", title: "Hello", sub: "sub")'),
+rows = '(("Lundi", "low", "Calme"), ("Samedi", "peak", "Très chargé"))'
+for name, markup, has_bg in (
+    ("free", "#align(center + horizon)[= Hello]", False),
+    ("cover", '#cover(handle: "@t", of: 4, bg: bg, kick: "Efteling", title: "Hi", sub: "s")', True),
+    ("cover-bare", '#cover(title: "Hi")', False),
+    ("point", '#point(handle: "@t", n: 2, of: 4, bg: bg, num: "02", title: "T", body: "B")', True),
+    ("point-bare", '#point(title: "T")', False),
+    ("data", f'#data(handle: "@t", n: 3, of: 4, title: "T", rows: {rows})', False),
+    ("data-empty", "#data(title: \"T\")", False),
+    ("cta", '#cta(handle: "@t", n: 4, of: 4, bg: bg, title: "T", ask: "A")', True),
 ):
     src, png = slide / f"{name}.typ", slide / f"{name}.png"
-    src.write_text(plan.typst_source(markup, True))
+    src.write_text(plan.typst_source(markup, has_bg))
     sh(plan.typst_argv(str(slide), str(src), str(png)))
     size = ffprobe(png, "stream=width,height")["streams"][0]
     assert (size["width"], size["height"]) == (1080, 1350), (name, size)
