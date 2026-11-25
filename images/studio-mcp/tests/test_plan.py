@@ -97,36 +97,56 @@ def test_parse_probe_detects_hdr_and_audio():
     assert plan.parse_probe(data) == plan.Probe(3.5, False, True)
 
 
-def test_reel_argv_trims_normalizes_and_concats():
-    argv = plan.reel_argv([("a", 1, 4, SDR), ("b", 0, 2, HDR)], True, "out.mp4")
+def test_segment_argv_trims_and_normalizes_one_clip():
+    argv = plan.segment_argv("a", 1, 4, SDR, True, "seg01.mkv")
     start = argv.index("-ss")
-    assert argv[start : start + 12] == [
-        "-ss", "1.000", "-t", "3.000", "-i", "a", "-ss", "0.000", "-t", "2.000", "-i", "b",
-    ]  # fmt: skip
+    assert argv[start : start + 6] == ["-ss", "1.000", "-t", "3.000", "-i", "a"]
     g = graph(argv)
     assert "scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920,setsar=1" in g
-    assert "fps=30" in g
-    assert g.count("v:0]setpts=PTS-STARTPTS") == 2 and g.count(",asetpts=PTS-STARTPTS") == 2
-    assert "[1:v:0]" in g and "zscale=t=linear" in g  # HDR clip only
-    assert g.count("zscale=t=linear") == 1
-    assert "[0:a:0]" in g and g.count("loudnorm") == 1
-    assert "anullsrc" in g  # clip b has no audio
-    assert "[v0][a0][v1][a1]concat=n=2:v=1:a=1[v][ac];[ac]loudnorm=I=-16:TP=-1.5:LRA=11" in g
-    assert argv[-1] == "out.mp4"
-    for flag in ("libx264", "high", "yuv420p", "aac", "+faststart"):
-        assert flag in argv
+    assert "fps=30" in g and "[0:v:0]setpts=PTS-STARTPTS" in g and ",asetpts=PTS-STARTPTS[a]" in g
+    assert "zscale" not in g and "[0:a:0]" in g and "loudnorm" not in g
+    assert argv[-1] == "seg01.mkv"
 
 
-def test_reel_argv_silence_when_audio_not_kept():
-    g = graph(plan.reel_argv([("a", 0, 2, SDR)], False, "o.mp4"))
-    assert "anullsrc" in g and "[0:a:0]" not in g
+def test_segment_argv_encodes_identically_for_stream_copy():
+    argv = plan.segment_argv("a", 0, 2, SDR, True, "o.mkv")
+    flags = argv[argv.index("-c:v") :]
+    assert flags[: flags.index("o.mkv")] == [
+        "-c:v", "libx264", "-profile:v", "high", "-pix_fmt", "yuv420p", "-crf", "16",
+        "-preset", "veryfast", "-r", "30",
+        "-colorspace", "bt709", "-color_primaries", "bt709", "-color_trc", "bt709",
+        "-c:a", "pcm_s16le", "-ar", "48000", "-ac", "2",
+    ]  # fmt: skip
 
 
-def test_reel_argv_clamps_end_and_rejects_start_past_end():
-    argv = plan.reel_argv([("a", 15, 99, SDR)], True, "o.mp4")
+def test_segment_argv_tonemaps_only_hdr():
+    assert "zscale=t=linear" in graph(plan.segment_argv("a", 0, 2, HDR, True, "o.mkv"))
+
+
+def test_segment_argv_silence_when_no_audio_or_not_kept():
+    for probe, keep in [(SDR, False), (HDR, True)]:
+        g = graph(plan.segment_argv("a", 0, 2, probe, keep, "o.mkv"))
+        assert "anullsrc=r=48000:cl=stereo,atrim=duration=2.000" in g and "[0:a:0]" not in g
+
+
+def test_segment_argv_clamps_end_and_rejects_start_past_end():
+    argv = plan.segment_argv("a", 15, 99, SDR, True, "o.mkv")
     assert argv[argv.index("-t") + 1] == "5.000"
     with pytest.raises(ValueError):
-        plan.reel_argv([("a", 25, 30, SDR)], True, "o.mp4")
+        plan.segment_argv("a", 25, 30, SDR, True, "o.mkv")
+
+
+def test_concat_list_and_argv_copy_video_and_normalize_audio_once():
+    assert plan.concat_list(["/w/seg01.mkv", "/w/seg02.mkv"]) == (
+        "file '/w/seg01.mkv'\nfile '/w/seg02.mkv'\n"
+    )
+    argv = plan.concat_argv("/w/list.txt", "/w/reel.mp4")
+    i = argv.index("-f")
+    assert argv[i : i + 5] == ["-f", "concat", "-safe", "0", "-i"]
+    assert argv[argv.index("-i") + 1] == "/w/list.txt" and argv[-1] == "/w/reel.mp4"
+    assert argv[argv.index("-c:v") + 1] == "copy"
+    assert argv[argv.index("-af") + 1] == "loudnorm=I=-16:TP=-1.5:LRA=11"
+    assert "aac" in argv and "+faststart" in argv
 
 
 def test_still_tonemaps_only_hdr_sources():

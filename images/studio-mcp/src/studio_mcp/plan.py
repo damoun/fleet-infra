@@ -127,47 +127,53 @@ def parse_probe(data: dict) -> Probe:
     )
 
 
-def reel_argv(
-    segments: list[tuple[str, float, float, Probe]], keep_audio: bool, out: str
+def segment_argv(
+    path: str, start: float, end: float, probe: Probe, keep_audio: bool, out: str
 ) -> list[str]:
-    """One ffmpeg run: trim each (path, start, end, probe), normalize, concat, encode."""
-    inputs: list[str] = []
-    chains: list[str] = []
-    joined = ""
-    for i, (path, start, end, probe) in enumerate(segments):
-        if start >= probe.duration:
-            raise ValueError(f"segment {i} starts after the clip ends ({probe.duration:.1f}s)")
-        length = min(end, probe.duration) - start
-        inputs += ["-ss", f"{start:.3f}", "-t", f"{length:.3f}", "-i", path]
-        color = TONEMAP if probe.hdr else "format=yuv420p"
-        video = (
-            f"[{i}:v:0]setpts=PTS-STARTPTS,fps={FPS},"
-            f"scale={REEL_W}:{REEL_H}:force_original_aspect_ratio=increase,"
-            f"crop={REEL_W}:{REEL_H},setsar=1,{color}[v{i}]"
-        )
-        if keep_audio and probe.has_audio:
-            audio = (
-                f"[{i}:a:0]aresample=48000,aformat=channel_layouts=stereo,"
-                f"atrim=duration={length:.3f},asetpts=PTS-STARTPTS[a{i}]"
-            )
-        else:
-            audio = (
-                f"anullsrc=r=48000:cl=stereo,atrim=duration={length:.3f},asetpts=PTS-STARTPTS[a{i}]"
-            )
-        chains += [video, audio]
-        joined += f"[v{i}][a{i}]"
-    graph = ";".join(
-        [
-            *chains,
-            f"{joined}concat=n={len(segments)}:v=1:a=1[v][ac]",
-            "[ac]loudnorm=I=-16:TP=-1.5:LRA=11,aresample=48000[a]",
-        ]
+    """Trim and normalize one segment into an mkv that stream-copies with its siblings.
+
+    Every segment is a separate run: decoding all sources in one filter graph queues 4K
+    frames for the inputs concat is not reading yet, and memory grows with the segment count.
+    """
+    if start >= probe.duration:
+        raise ValueError(f"{path} starts after the clip ends ({probe.duration:.1f}s)")
+    length = min(end, probe.duration) - start
+    color = TONEMAP if probe.hdr else "format=yuv420p"
+    video = (
+        f"[0:v:0]setpts=PTS-STARTPTS,fps={FPS},"
+        f"scale={REEL_W}:{REEL_H}:force_original_aspect_ratio=increase,"
+        f"crop={REEL_W}:{REEL_H},setsar=1,{color}[v]"
     )
+    if keep_audio and probe.has_audio:
+        audio = (
+            "[0:a:0]aresample=48000,aformat=channel_layouts=stereo,"
+            f"atrim=duration={length:.3f},asetpts=PTS-STARTPTS[a]"
+        )
+    else:
+        audio = f"anullsrc=r=48000:cl=stereo,atrim=duration={length:.3f},asetpts=PTS-STARTPTS[a]"
     return [
-        *FFMPEG, *inputs,
-        "-filter_complex", graph, "-map", "[v]", "-map", "[a]",
-        "-c:v", "libx264", "-profile:v", "high", "-pix_fmt", "yuv420p", "-crf", "18",
-        "-r", str(FPS), "-colorspace", "bt709", "-color_primaries", "bt709", "-color_trc", "bt709",
+        *FFMPEG, "-ss", f"{start:.3f}", "-t", f"{length:.3f}", "-i", path,
+        "-filter_complex", f"{video};{audio}", "-map", "[v]", "-map", "[a]",
+        "-c:v", "libx264", "-profile:v", "high", "-pix_fmt", "yuv420p", "-crf", "16",
+        "-preset", "veryfast", "-r", str(FPS),
+        "-colorspace", "bt709", "-color_primaries", "bt709", "-color_trc", "bt709",
+        "-c:a", "pcm_s16le", "-ar", "48000", "-ac", "2", out,
+    ]  # fmt: skip
+
+
+def concat_list(segment_paths: list[str]) -> str:
+    return "".join(f"file '{p}'\n" for p in segment_paths)
+
+
+def concat_argv(list_path: str, out: str) -> list[str]:
+    """Join the segments without re-encoding video; loudness is normalized once over the reel.
+
+    -ar resamples after loudnorm: PCM in mkv has no channel layout, and an explicit aresample
+    after loudnorm then fails to negotiate one.
+    """
+    return [
+        *FFMPEG, "-f", "concat", "-safe", "0", "-i", list_path,
+        "-c:v", "copy", "-af", "loudnorm=I=-16:TP=-1.5:LRA=11",
         "-c:a", "aac", "-b:a", "160k", "-ar", "48000", "-movflags", "+faststart", out,
     ]  # fmt: skip
 

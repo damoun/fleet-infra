@@ -34,8 +34,12 @@ probes = [plan.parse_probe(json.loads(sh(plan.probe_argv(str(p))))) for p in (sd
 assert [p.hdr for p in probes] == [False, True], probes
 assert [p.has_audio for p in probes] == [True, False], probes
 
+parts = [work / "seg01.mkv", work / "seg02.mkv"]
+sh(plan.segment_argv(str(sdr), 0.5, 2.5, probes[0], True, str(parts[0])))
+sh(plan.segment_argv(str(hdr), 1, 3, probes[1], True, str(parts[1])))
+(work / "list.txt").write_text(plan.concat_list([str(p) for p in parts]))
 out = work / "reel.mp4"
-sh(plan.reel_argv([(str(sdr), 0.5, 2.5, probes[0]), (str(hdr), 1, 3, probes[1])], True, str(out)))
+sh(plan.concat_argv(str(work / "list.txt"), str(out)))
 v = ffprobe(
     out, "stream=codec_type,codec_name,profile,width,height,pix_fmt,r_frame_rate,sample_rate"
 )

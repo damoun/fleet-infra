@@ -66,9 +66,17 @@ async def reel(immich: Immich, spec: ReelSpec, work: Path) -> list[str]:
     sources = list(dict.fromkeys(s.asset_id for s in spec.segments))
     paths, _ = await _download(immich, sources, work)
     probes = {i: await _probe(p) for i, p in paths.items()}
+    parts = []
+    for n, s in enumerate(spec.segments, 1):
+        part = str(work / f"seg{n:02d}.mkv")
+        argv = plan.segment_argv(
+            str(paths[s.asset_id]), s.start, s.end, probes[s.asset_id], spec.keep_audio, part
+        )
+        await run(argv)
+        parts.append(part)
+    (work / "list.txt").write_text(plan.concat_list(parts))
     out = work / "reel.mp4"
-    segments = [(str(paths[s.asset_id]), s.start, s.end, probes[s.asset_id]) for s in spec.segments]
-    await run(plan.reel_argv(segments, spec.keep_audio, str(out)))
+    await run(plan.concat_argv(str(work / "list.txt"), str(out)))
     return await _publish(immich, [out], spec, sources)
 
 
