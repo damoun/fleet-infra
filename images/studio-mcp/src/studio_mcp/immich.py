@@ -26,10 +26,10 @@ class Immich:
     async def asset(self, asset_id: str) -> dict:
         return await self._json("GET", f"/assets/{asset_id}")
 
-    async def download(self, asset_id: str, dest: Path) -> None:
-        async with self.http.stream("GET", f"/assets/{asset_id}/original") as r:
+    async def download(self, path: str, params: dict, dest: Path) -> None:
+        async with self.http.stream("GET", path, params=params) as r:
             if r.is_error:
-                raise RuntimeError(f"Immich download {asset_id}: {r.status_code}")
+                raise RuntimeError(f"Immich GET {path}: {r.status_code}")
             with dest.open("wb") as f:
                 async for chunk in r.aiter_bytes():
                     f.write(chunk)

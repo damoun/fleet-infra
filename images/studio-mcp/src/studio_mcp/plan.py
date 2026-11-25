@@ -29,6 +29,15 @@ def usage(tag_values: list[str]) -> tuple[str | None, int]:
     return (weeks[-1] if weeks else None), len(weeks)
 
 
+def download_request(asset_id: str, asset_type: str) -> tuple[str, dict]:
+    """Photos come as Immich's oriented preview JPEG/WebP (up to 1440px): the original may be
+    HEIC, which ffmpeg 5.1 cannot decode, and fullsize falls back to preview or to the
+    unrotated original. Videos use the original."""
+    if asset_type == "IMAGE":
+        return f"/assets/{asset_id}/thumbnail", {"size": "preview"}
+    return f"/assets/{asset_id}/original", {}
+
+
 def _day(value: str, end: bool = False) -> str:
     """Immich wants date-times; accept plain dates."""
     if len(value) == 10:

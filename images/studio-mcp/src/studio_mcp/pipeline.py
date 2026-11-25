@@ -22,7 +22,8 @@ async def run(argv: list[str], cwd: Path | None = None) -> bytes:
 async def _download(immich: Immich, asset_ids: list[str], work: Path) -> dict[str, Path]:
     paths = {i: work / i for i in dict.fromkeys(asset_ids)}
     for asset_id, path in paths.items():
-        await immich.download(asset_id, path)
+        kind = (await immich.asset(asset_id))["type"]
+        await immich.download(*plan.download_request(asset_id, kind), path)
     return paths
 
 

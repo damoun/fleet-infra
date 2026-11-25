@@ -32,6 +32,11 @@ def test_usage_counts_only_used_tags():
     assert plan.usage(["trip/ibiza"]) == (None, 0)
 
 
+def test_download_request_uses_preview_for_photos_and_original_for_videos():
+    assert plan.download_request(ID, "IMAGE") == (f"/assets/{ID}/thumbnail", {"size": "preview"})
+    assert plan.download_request(ID, "VIDEO") == (f"/assets/{ID}/original", {})
+
+
 def test_search_without_query_is_metadata_with_filters():
     path, body = plan.search_request(
         None, "2026-06-01", "2026-06-30", "Ibiza", "video", ["a"], ["b"], 10
