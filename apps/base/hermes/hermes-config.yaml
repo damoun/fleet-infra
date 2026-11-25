@@ -185,6 +185,7 @@ mcp_servers:
         - append_file
         - create_directory
   # Immich search and tagging, and reel and carousel renders into an album.
+  # This list keeps it that way if the server's list grows.
   studio:
     url: http://studio-mcp.immich.svc.cluster.local:8000/mcp
     tools:
