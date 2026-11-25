@@ -253,20 +253,52 @@ def test_slide_needs_exactly_one_kind():
         Slide(photo=ID, typst="#cover()")
 
 
-def test_typst_slides_must_use_the_brand_kit():
-    with pytest.raises(ValueError, match=r"brand kit .*#point\(handle"):
-        Slide(typst="#align(center)[= Hi]")
-    with pytest.raises(ValueError, match="never uses it"):
-        Slide(typst="#cover(title: \"Hi\")", background=ID)
+OTHER = "00000001-0000-4000-8000-000000000000"
+
+
+@pytest.mark.parametrize("markup", [
+    '#cover(title: "Hi")', '  #point(title: "T")', '#data(title: "T")', '#cta(title: "T")',
+])
+def test_typst_slides_accept_a_leading_brand_call(markup):
+    Slide(typst=markup)
+
+
+@pytest.mark.parametrize("markup", [
+    "#align(center)[= Hi]",
+    '#place(top)[old]\n#cta(title: "x")',
+    '// #cover(title: "x")',
+    '#cover (title: "x")',
+])
+def test_typst_slides_reject_raw_typst(markup):
+    with pytest.raises(ValidationError, match="raw Typst is not accepted"):
+        Slide(typst=markup)
+
+
+def test_background_and_bg_argument_go_together():
+    Slide(typst="#cover(bg: bg)", background=ID)
+    for slide in (
+        dict(typst='#cover(title: "Hi")', background=ID),
+        dict(typst="#cover(bg: none)", background=ID),
+        dict(typst="#cover(bg: bg)"),
+    ):
+        with pytest.raises(ValidationError, match="exactly when"):
+            Slide(**slide)
+
+
+def spec(*slides):
+    return CarouselSpec(album="a", caption="c", week="2026-W48", slides=list(slides))
 
 
 def test_carousel_rejects_a_repeated_image():
-    other = "00000001-0000-4000-8000-000000000000"
-    CarouselSpec(album="a", caption="c", week="2026-W48",
-                 slides=[Slide(photo=ID), Slide(typst="#point(bg: bg)", background=other)])
-    with pytest.raises(ValueError, match=f"repeated: {ID}"):
-        CarouselSpec(album="a", caption="c", week="2026-W48",
-                     slides=[Slide(photo=ID), Slide(typst="#point(bg: bg)", background=ID)])
+    spec(Slide(photo=ID), Slide(typst="#point(bg: bg)", background=OTHER))
+    spec(Slide(photo=ID, t=1), Slide(photo=ID, t=5))
+    for pair in (
+        (Slide(photo=ID), Slide(photo=ID)),
+        (Slide(photo=ID), Slide(typst="#point(bg: bg)", background=ID)),
+        (Slide(photo=ID), Slide(photo=ID.upper())),
+    ):
+        with pytest.raises(ValidationError, match=f"repeated: {ID}"):
+            spec(*pair)
 
 
 def test_spec_validation_limits():
