@@ -173,6 +173,14 @@ def test_unknown_duration_gives_one_frame_two_black_tiles_and_no_fake_times():
     assert plan.legend([unknown]) == f"#1 {ID} video portrait duration unknown"
 
 
+def test_unavailable_asset_keeps_three_black_tiles_and_a_legend_line():
+    bad = plan.Preview(ID, "", False, 0, None, "HTTPStatusError: 404")
+    argvs = plan.asset_tiles(2, bad, "/t")
+    assert [a[-1] for a in argvs] == ["/t/t04.png", "/t/t05.png", "/t/t06.png"]
+    assert all(a == plan.black_argv(a[-1]) for a in argvs)
+    assert plan.legend([PHOTO_PREVIEW, bad]).endswith(f"#2 {ID} unavailable: HTTPStatusError: 404")
+
+
 def test_black_argv_matches_the_black_tiles():
     assert plan.black_argv("/t/t05.png") == plan.tile_argvs([PHOTO_PREVIEW], "/t")[1][:-1] + [
         "/t/t05.png"

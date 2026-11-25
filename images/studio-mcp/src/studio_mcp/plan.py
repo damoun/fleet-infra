@@ -194,6 +194,7 @@ class Preview:
     is_video: bool
     duration: float  # seconds, 0 for photos
     orientation: str | None
+    error: str | None = None  # the asset could not be loaded: its tiles stay black
 
 
 def preview_request(asset_id: str, asset_type: str) -> tuple[str, dict]:
@@ -217,32 +218,42 @@ def black_argv(out: str) -> list[str]:
     return [*FFMPEG, *BLACK, "-frames:v", "1", out]
 
 
-def tile_argvs(assets: list[Preview], tiles_dir: str) -> list[list[str]]:
-    """One ffmpeg argv per tile file t01.png, t02.png, ...: three tiles per asset in order.
+def asset_tiles(k: int, asset: Preview, tiles_dir: str) -> list[list[str]]:
+    """One ffmpeg argv per tile file of asset #k, three tiles in order.
 
-    Videos get three frames; photos the photo and two black tiles. Each tile is a 256px box
-    with the aspect kept and black padding, and the asset's first tile carries its #k label.
+    Videos get three frames; photos the photo and two black tiles; unavailable assets three
+    black tiles. Each tile is a 256px box with the aspect kept and black padding, and the
+    asset's first tile carries its #k label.
     """
     fit = (
         f"scale={TILE}:{TILE}:force_original_aspect_ratio=decrease,"
         f"pad={TILE}:{TILE}:(ow-iw)/2:(oh-ih)/2:black,setsar=1"
     )
-    inputs: list[list[str]] = []
-    for k, asset in enumerate(assets, 1):
-        label = (
-            f",drawtext=text='#{k}':font=Inter:fontsize=28:fontcolor=white"
-            ":box=1:boxcolor=black@0.6:boxborderw=4:x=6:y=6"
-        )
-        times = frame_times(asset.duration) if asset.is_video else [0.0]
-        frames = [
-            ["-ss", f"{t:.3f}", "-i", asset.path, "-vf", fit + (label if j == 0 else "")]
-            for j, t in enumerate(times)
-        ]
-        inputs += frames + [BLACK] * (len(FRACTIONS) - len(frames))
+    label = (
+        f",drawtext=text='#{k}':font=Inter:fontsize=28:fontcolor=white"
+        ":box=1:boxcolor=black@0.6:boxborderw=4:x=6:y=6"
+    )
+    if asset.error:
+        times = []
+    elif asset.is_video:
+        times = frame_times(asset.duration)
+    else:
+        times = [0.0]
+    frames = [
+        ["-ss", f"{t:.3f}", "-i", asset.path, "-vf", fit + (label if j == 0 else "")]
+        for j, t in enumerate(times)
+    ]
+    inputs = frames + [BLACK] * (len(FRACTIONS) - len(frames))
+    first = (k - 1) * len(FRACTIONS)
     return [
-        [*FFMPEG, *tile, "-frames:v", "1", f"{tiles_dir}/t{n:02d}.png"]
+        [*FFMPEG, *tile, "-frames:v", "1", f"{tiles_dir}/t{first + n:02d}.png"]
         for n, tile in enumerate(inputs, 1)
     ]
+
+
+def tile_argvs(assets: list[Preview], tiles_dir: str) -> list[list[str]]:
+    """The tile argvs of all assets, t01.png, t02.png, ... in order."""
+    return [argv for k, a in enumerate(assets, 1) for argv in asset_tiles(k, a, tiles_dir)]
 
 
 def sheet_argv(tiles_dir: str, assets: int, out: str) -> list[str]:
@@ -257,6 +268,9 @@ def sheet_argv(tiles_dir: str, assets: int, out: str) -> list[str]:
 def legend(assets: list[Preview]) -> str:
     lines = []
     for k, a in enumerate(assets, 1):
+        if a.error:
+            lines.append(f"#{k} {a.asset_id} unavailable: {a.error}")
+            continue
         line = (
             f"#{k} {a.asset_id} {'video' if a.is_video else 'image'} {a.orientation or 'unknown'}"
         )

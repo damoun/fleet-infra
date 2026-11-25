@@ -102,29 +102,37 @@ async def preview(immich: Immich, ids: list[str], work: Path) -> tuple[str, byte
         raise RuntimeError(f"preview timed out after {PREVIEW_TIMEOUT}s") from None
 
 
+async def _run_tiles(argvs: list[list[str]]) -> None:
+    for argv in argvs:
+        await run(argv, STEP_TIMEOUT)
+        out = Path(argv[-1])
+        # ffmpeg exits 0 without a frame when -ss lands past the last one; keep the slot.
+        if not out.exists() or not out.stat().st_size:
+            await run(plan.black_argv(argv[-1]), STEP_TIMEOUT)
+
+
 async def _preview(immich: Immich, ids: list[str], work: Path) -> tuple[str, bytes]:
+    tiles = work / "tiles"
+    tiles.mkdir()
     assets = []
-    for asset_id in ids:
-        info = await immich.asset(asset_id)
-        path = work / asset_id
-        await immich.download(*plan.preview_request(asset_id, info["type"]), path)
-        assets.append(
-            plan.Preview(
+    for k, asset_id in enumerate(ids, 1):
+        try:
+            info = await immich.asset(asset_id)
+            path = work / asset_id
+            await immich.download(*plan.preview_request(asset_id, info["type"]), path)
+            asset = plan.Preview(
                 asset_id,
                 str(path),
                 info["type"] == "VIDEO",
                 (info.get("duration") or 0) / 1000,
                 plan.orientation(info),
             )
-        )
-    tiles = work / "tiles"
-    tiles.mkdir()
-    for argv in plan.tile_argvs(assets, str(tiles)):
-        await run(argv, STEP_TIMEOUT)
-        out = Path(argv[-1])
-        # ffmpeg exits 0 without a frame when -ss lands past the last one; keep the slot.
-        if not out.exists() or not out.stat().st_size:
-            await run(plan.black_argv(argv[-1]), STEP_TIMEOUT)
+            await _run_tiles(plan.asset_tiles(k, asset, str(tiles)))
+        except Exception as e:  # e.g. the preview thumbnail of a fresh upload does not exist yet
+            reason = " ".join(str(e).split())[:100]
+            asset = plan.Preview(asset_id, "", False, 0, None, f"{type(e).__name__}: {reason}")
+            await _run_tiles(plan.asset_tiles(k, asset, str(tiles)))
+        assets.append(asset)
     sheet = work / "sheet.jpg"
     await run(plan.sheet_argv(str(tiles), len(assets), str(sheet)), STEP_TIMEOUT)
     return plan.legend(assets), sheet.read_bytes()
