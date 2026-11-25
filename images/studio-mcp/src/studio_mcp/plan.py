@@ -76,7 +76,11 @@ def orientation(item: dict) -> str | None:
     w, h = item.get("width"), item.get("height")
     if not w or not h:
         return None
-    return "portrait" if h > w else "landscape" if w > h else "square"
+    if h > w:
+        return "portrait"
+    if w > h:
+        return "landscape"
+    return "square"
 
 
 def compact_asset(item: dict) -> dict:
