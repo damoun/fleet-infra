@@ -174,11 +174,6 @@ def test_typst_source_imports_brand_and_sets_bg():
     assert '#let bg = "bg.jpg"' in plan.typst_source("#cover(bg: bg)", True)
 
 
-def test_typst_source_rejects_an_unused_background():
-    with pytest.raises(ValueError, match="never uses bg"):
-        plan.typst_source("= Hi", True)
-
-
 VIDEO_PREVIEW = plan.Preview(ID, "/w/v", True, 2.0, "portrait")
 PHOTO_PREVIEW = plan.Preview(ID, "/w/p", False, 0, "landscape")
 
@@ -251,15 +246,31 @@ def test_asset_ids_are_lowercased():
 
 def test_slide_needs_exactly_one_kind():
     Slide(photo=ID)
-    Slide(typst="= Hi", background=ID)
+    Slide(typst="#cover(bg: bg)", background=ID)
     with pytest.raises(ValidationError):
         Slide()
     with pytest.raises(ValidationError):
-        Slide(photo=ID, typst="= Hi")
+        Slide(photo=ID, typst="#cover()")
+
+
+def test_typst_slides_must_use_the_brand_kit():
+    with pytest.raises(ValueError, match=r"brand kit .*#point\(handle"):
+        Slide(typst="#align(center)[= Hi]")
+    with pytest.raises(ValueError, match="never uses it"):
+        Slide(typst="#cover(title: \"Hi\")", background=ID)
+
+
+def test_carousel_rejects_a_repeated_image():
+    other = "00000001-0000-4000-8000-000000000000"
+    CarouselSpec(album="a", caption="c", week="2026-W48",
+                 slides=[Slide(photo=ID), Slide(typst="#point(bg: bg)", background=other)])
+    with pytest.raises(ValueError, match=f"repeated: {ID}"):
+        CarouselSpec(album="a", caption="c", week="2026-W48",
+                     slides=[Slide(photo=ID), Slide(typst="#point(bg: bg)", background=ID)])
 
 
 def test_spec_validation_limits():
-    slides = [Slide(photo=ID)] * 10
+    slides = [Slide(photo=f"{n:08d}-0000-4000-8000-000000000000") for n in range(10)]
     CarouselSpec(album="a", caption="c", week="2026-W48", slides=slides)
     with pytest.raises(ValidationError):
         CarouselSpec(album="a", caption="c", week="2026-W48", slides=slides + [Slide(photo=ID)])
