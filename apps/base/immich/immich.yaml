@@ -78,8 +78,7 @@ spec:
             requests:
               cpu: 200m
               memory: 1Gi
-            # Software transcodes of 4K HEVC run in this process next to the uploads, and an
-            # OOM kill drops every upload in flight.
+            # 4K HEVC software transcodes share this container with the API; an OOM drops uploads.
             limits:
               memory: 6Gi
           volumeMounts:
