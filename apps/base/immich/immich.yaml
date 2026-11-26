@@ -78,8 +78,10 @@ spec:
             requests:
               cpu: 200m
               memory: 1Gi
+            # Software transcodes of 4K HEVC run in this process next to the uploads, and an
+            # OOM kill drops every upload in flight.
             limits:
-              memory: 3Gi
+              memory: 6Gi
           volumeMounts:
             - name: library
               mountPath: /data
