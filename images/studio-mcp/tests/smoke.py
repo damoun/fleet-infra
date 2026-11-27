@@ -115,7 +115,7 @@ for name, markup, has_bg in (
     ("point", '#point(handle: "@t", n: 2, of: 4, bg: bg, num: "02", title: "T", body: "B")', True),
     ("point-bare", '#point(title: "T")', False),
     ("data", f'#data(handle: "@t", n: 3, of: 4, title: "T", rows: {rows})', False),
-    ("data-empty", '#data(title: "T")', False),
+    ("data-empty", "#data(title: \"T\")", False),
     ("cta", '#cta(handle: "@t", n: 4, of: 4, bg: bg, title: "T", ask: "A")', True),
 ):
     src, png = slide / f"{name}.typ", slide / f"{name}.png"
