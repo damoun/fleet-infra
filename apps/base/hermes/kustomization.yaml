@@ -24,10 +24,7 @@ components:
   - ../../components/egress-proxy
 # The Meta token has its own SOPS file; the proxy reads both Secrets as one directory.
 patches:
-  - target:
-      kind: Deployment
-      name: egress-proxy
-    patch: |-
+  - patch: |-
       apiVersion: apps/v1
       kind: Deployment
       metadata:
