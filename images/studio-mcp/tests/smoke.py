@@ -132,11 +132,11 @@ print(plan.legend(assets))
 print("sheet", s)
 
 # inspect_clip: sheet and per-second table, with and without audio, from a mid-clip start.
-for clip, probe, portrait in ((sdr, probes[0], False), (work / "tall.mp4", None, True)):
+for clip, has_audio, portrait in ((sdr, True, False), (work / "tall.mp4", False, True)):
     sheet, vstats, astats = work / "insp.jpg", work / "v.txt", work / "a.txt"
     sh(plan.inspect_video_argv(str(clip), 0.5, 1.5, portrait, str(sheet), str(vstats)))
     audio = None
-    if probe and probe.has_audio:
+    if has_audio:
         sh(plan.inspect_audio_argv(str(clip), 0.5, 1.5, str(astats)))
         audio = plan.parse_metadata(astats.read_text())
     table = plan.inspect_table(0.5, 1.5, plan.parse_metadata(vstats.read_text()), audio)
