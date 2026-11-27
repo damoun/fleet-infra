@@ -306,11 +306,12 @@ def inspect_rate(span: float) -> int:
 
 
 def inspect_video_argv(
-    path: str, start: float, span: float, portrait: bool, sheet: str, stats: str
+    path: str, start: float, span: float, portrait: bool, hdr: bool, sheet: str, stats: str
 ) -> list[str]:
     """One decode: a timestamped frame sheet, and luma stats of every frame into stats.
 
-    Frames are labelled with their time in the clip, not in the inspected range.
+    Frames are labelled with their time in the clip, not in the inspected range. HDR is
+    tonemapped like the reel, so the sheet and the brightness match what gets rendered.
     """
     k = inspect_rate(span)
     cols = 10 if portrait else 5
@@ -322,7 +323,7 @@ def inspect_video_argv(
         ":x=4:y=4:fontsize=18:fontcolor=white:box=1:boxcolor=black@0.6"
     )
     graph = (
-        f"[0:v:0]scale=-2:{INSPECT_HEIGHT},format=yuv420p,split[s][m];"
+        f"[0:v:0]scale=-2:{INSPECT_HEIGHT},{TONEMAP if hdr else 'format=yuv420p'},split[s][m];"
         f"[s]fps=2/{k},{label},tile={cols}x{rows}[sheet];"
         f"[m]signalstats,metadata=print:file={stats}[stats]"
     )
