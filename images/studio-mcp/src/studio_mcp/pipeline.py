@@ -186,7 +186,7 @@ async def _inspect(
     shape = plan.orientation(info)
     await run(
         plan.inspect_video_argv(
-            str(path), start, span, shape != "landscape", str(sheet), str(vstats)
+            str(path), start, span, shape != "landscape", probe.hdr, str(sheet), str(vstats)
         )
     )
     audio = None

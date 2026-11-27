@@ -319,17 +319,17 @@ def test_inspect_rate_keeps_half_seconds_then_caps_frames():
 
 
 def test_inspect_video_argv_labels_clip_time_and_sizes_the_sheet():
-    argv = plan.inspect_video_argv("v", 13.5, 20, True, "s.jpg", "/w/v.txt")
+    argv = plan.inspect_video_argv("v", 13.5, 20, True, False, "s.jpg", "/w/v.txt")
     i = argv.index("-ss")
     assert argv[i : i + 6] == ["-ss", "13.500", "-t", "20.000", "-i", "v"]
     g = graph(argv)
-    assert "trunc(t+13.500)" in g and "fps=2/1," in g
+    assert "trunc(t+13.500)" in g and "fps=2/1," in g and "zscale" not in g
     assert "tile=10x5[sheet]" in g  # 41 frames at 0.5s, 10 portrait frames a row
     assert "metadata=print:file=/w/v.txt" in g
     j = argv.index("[sheet]")
     assert argv[j + 1 : j + 5] == ["-frames:v", "1", "-q:v", "3"]
-    wide = graph(plan.inspect_video_argv("v", 0, 56, False, "s.jpg", "v.txt"))
-    assert "fps=2/2," in wide and "tile=5x12[sheet]" in wide
+    wide = graph(plan.inspect_video_argv("v", 0, 56, False, True, "s.jpg", "v.txt"))
+    assert "zscale=t=linear" in wide and "fps=2/2," in wide and "tile=5x12[sheet]" in wide
 
 
 def test_parse_metadata_and_table_bucket_by_second_in_clip_time():
