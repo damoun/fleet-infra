@@ -192,6 +192,7 @@ mcp_servers:
       include:
         - find_assets
         - preview_assets
+        - inspect_clip
         - tag_assets
         - create_reel
         - create_carousel
