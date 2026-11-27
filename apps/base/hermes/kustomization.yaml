@@ -5,6 +5,7 @@ namespace: hermes
 resources:
   - namespace.yaml
   - egress-proxy-secret.yaml
+  - egress-proxy-meta-secret.yaml
   - egress-proxy-netpol.yaml
   - gateway-ssh-secret.yaml
   - sandbox-host-key-secret.yaml
@@ -21,6 +22,28 @@ resources:
   - alerts.yaml
 components:
   - ../../components/egress-proxy
+# The Meta token has its own SOPS file; the proxy reads both Secrets as one directory.
+patches:
+  - target:
+      kind: Deployment
+      name: egress-proxy
+    patch: |-
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: egress-proxy
+      spec:
+        template:
+          spec:
+            volumes:
+              - name: secrets
+                secret: null
+                projected:
+                  sources:
+                    - secret:
+                        name: egress-proxy
+                    - secret:
+                        name: egress-proxy-meta
 # Hashed names: a config change rolls the pod that reads it at start.
 configMapGenerator:
   - name: hermes-config
