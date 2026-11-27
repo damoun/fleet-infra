@@ -116,10 +116,10 @@ def test_stabilize_passes_share_the_segment_frames():
     chain = detect[detect.index("-vf") + 1]
     assert chain.endswith(",vidstabdetect=result=/w/s.trf") and "zscale" in chain
     assert detect[-3:] == ["-f", "null", "-"]
-    g = graph(plan.segment_argv("a", 1, 4, HDR, True, "o.mkv", "/w/s.trf"))
+    seg = plan.segment_argv("a", 1, 4, HDR, True, "o.mkv", "/w/s.trf")
+    g = graph(seg)
     assert g.startswith(f"[0:v:0]{chain.removesuffix(',vidstabdetect=result=/w/s.trf')}")
     assert ",vidstabtransform=input=/w/s.trf:smoothing=15,unsharp=5:5:0.8:3:3:0.4[v]" in g
-    seg = plan.segment_argv("a", 1, 4, HDR, True, "o.mkv", "/w/s.trf")
     assert (
         detect[detect.index("-ss") : detect.index("-i") + 2]
         == seg[seg.index("-ss") : seg.index("-i") + 2]

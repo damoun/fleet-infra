@@ -148,10 +148,10 @@ for clip, has_audio, portrait, is_hdr in (
     (work / "tall.mp4", False, True, False),
     (hdr, False, False, True),
 ):
-    sheet, vstats, astats, trf = (work / n for n in ("insp.jpg", "v.txt", "a.txt", "c.trf"))
+    sheet, vstats, astats, trf = work / "insp.jpg", work / "v.txt", work / "a.txt", work / "c.trf"
     sh(
         plan.inspect_video_argv(
-            str(clip), 0.5, 1.5, portrait, is_hdr, *map(str, (sheet, vstats, trf))
+            str(clip), 0.5, 1.5, portrait, is_hdr, str(sheet), str(vstats), str(trf)
         )
     )
     video = plan.parse_metadata(vstats.read_text())
