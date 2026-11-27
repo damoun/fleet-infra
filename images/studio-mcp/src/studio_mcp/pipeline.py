@@ -69,17 +69,15 @@ async def reel(immich: Immich, spec: ReelSpec, work: Path) -> list[str]:
     probes = {i: await _probe(p) for i, p in paths.items()}
     names = [f"seg{n:02d}.mkv" for n in range(1, len(spec.segments) + 1)]
     # Build every command first: a bad last segment fails before any encode.
-    argvs = [
-        plan.segment_argv(
-            str(paths[s.asset_id]),
-            s.start,
-            s.end,
-            probes[s.asset_id],
-            spec.keep_audio,
-            str(work / name),
+    argvs = []
+    for s, name in zip(spec.segments, names):
+        src, probe = str(paths[s.asset_id]), probes[s.asset_id]
+        trf = str(work / f"{name}.trf") if s.stabilize else None
+        if trf:
+            argvs.append(plan.stabilize_argv(src, s.start, s.end, probe, trf))
+        argvs.append(
+            plan.segment_argv(src, s.start, s.end, probe, spec.keep_audio, str(work / name), trf)
         )
-        for s, name in zip(spec.segments, names)
-    ]
     for argv in argvs:
         await run(argv)
     listing = work / "list.txt"
@@ -183,17 +181,21 @@ async def _inspect(
         )
     span = end - start
     sheet, vstats, astats = work / "sheet.jpg", work / "video.txt", work / "audio.txt"
+    trf = work / "camera.trf"
     shape = plan.orientation(info)
+    portrait = shape != "landscape"
     await run(
         plan.inspect_video_argv(
-            str(path), start, span, shape != "landscape", probe.hdr, str(sheet), str(vstats)
+            str(path), start, span, portrait, probe.hdr, str(sheet), str(vstats), str(trf)
         )
     )
+    video = plan.parse_metadata(vstats.read_text())
+    plan.add_camera(video, trf.read_text(), plan.inspect_tile(portrait)[0])
     audio = None
     if probe.has_audio:
         await run(plan.inspect_audio_argv(str(path), start, span, str(astats)))
         audio = plan.parse_metadata(astats.read_text())
-    table = plan.inspect_table(start, span, plan.parse_metadata(vstats.read_text()), audio)
+    table = plan.inspect_table(start, span, video, audio)
     step = plan.inspect_rate(span) / 2
     head = (
         f"{asset_id} video {shape or 'unknown'} {probe.duration:.1f}s; "

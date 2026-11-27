@@ -16,7 +16,8 @@ work = Path(tempfile.mkdtemp())
 
 
 def sh(argv):
-    return subprocess.run(argv, check=True, capture_output=True, text=True).stdout
+    # errors: vidstabtransform logs the end-of-file byte of its motion file.
+    return subprocess.run(argv, check=True, capture_output=True, text=True, errors="replace").stdout
 
 
 def ffprobe(path, entries):
@@ -37,12 +38,15 @@ assert [p.hdr for p in probes] == [False, True], probes
 assert [p.has_audio for p in probes] == [True, False], probes
 
 
-def render_reel(name, segments):
+def render_reel(name, segments, stabilize=False):
     """Two stages like the pipeline. segments: (clip, probe, start, end). Returns (mp4, seconds)."""
     names, expected = [], 0
     for n, (clip, probe, start, end) in enumerate(segments, 1):
         names.append(f"{name}{n}.mkv")
-        sh(plan.segment_argv(str(clip), start, end, probe, True, str(work / names[-1])))
+        trf = str(work / f"{name}{n}.trf") if stabilize else None
+        if trf:
+            sh(plan.stabilize_argv(str(clip), start, end, probe, trf))
+        sh(plan.segment_argv(str(clip), start, end, probe, True, str(work / names[-1]), trf))
         expected += round((min(end, probe.duration) - start) * plan.FPS) / plan.FPS
     listing = work / f"{name}.txt"
     listing.write_text(plan.concat_list(names))  # relative names: resolved against the list's dir
@@ -65,6 +69,13 @@ assert (audio["codec_name"], audio["sample_rate"]) == ("aac", "48000")
 total = float(ffprobe(out, "format=duration")["format"]["duration"])
 assert abs(total - expected) <= 1 / plan.FPS, (total, expected)
 print(f"reel {total:.3f}s, expected {expected:.3f}s")
+
+# Stabilized HDR segment: vidstab runs after the tonemap, on 8-bit reel frames.
+out, expected = render_reel("stab", [(hdr, probes[1], 1, 3)], stabilize=True)
+v = ffprobe(out, "stream=codec_type,width,height,pix_fmt:format=duration")
+assert abs(float(v["format"]["duration"]) - expected) <= 1 / plan.FPS, v
+assert (v["streams"][0]["width"], v["streams"][0]["pix_fmt"]) == (1080, "yuv420p"), v
+print(f"stabilized reel {expected:.3f}s")
 
 # A/V sync: a clip whose audio (2.5s) is shorter than its video (3s) must not shift the reel.
 skew = work / "skew.mp4"
@@ -104,7 +115,7 @@ for name, markup, has_bg in (
     ("point", '#point(handle: "@t", n: 2, of: 4, bg: bg, num: "02", title: "T", body: "B")', True),
     ("point-bare", '#point(title: "T")', False),
     ("data", f'#data(handle: "@t", n: 3, of: 4, title: "T", rows: {rows})', False),
-    ("data-empty", "#data(title: \"T\")", False),
+    ("data-empty", '#data(title: "T")', False),
     ("cta", '#cta(handle: "@t", n: 4, of: 4, bg: bg, title: "T", ask: "A")', True),
 ):
     src, png = slide / f"{name}.typ", slide / f"{name}.png"
@@ -137,15 +148,23 @@ for clip, has_audio, portrait, is_hdr in (
     (work / "tall.mp4", False, True, False),
     (hdr, False, False, True),
 ):
-    sheet, vstats, astats = work / "insp.jpg", work / "v.txt", work / "a.txt"
-    sh(plan.inspect_video_argv(str(clip), 0.5, 1.5, portrait, is_hdr, str(sheet), str(vstats)))
+    sheet, vstats, astats, trf = (work / n for n in ("insp.jpg", "v.txt", "a.txt", "c.trf"))
+    sh(
+        plan.inspect_video_argv(
+            str(clip), 0.5, 1.5, portrait, is_hdr, *map(str, (sheet, vstats, trf))
+        )
+    )
+    video = plan.parse_metadata(vstats.read_text())
+    plan.add_camera(video, trf.read_text(), plan.inspect_tile(portrait)[0])
     audio = None
     if has_audio:
         sh(plan.inspect_audio_argv(str(clip), 0.5, 1.5, str(astats)))
         audio = plan.parse_metadata(astats.read_text())
-    table = plan.inspect_table(0.5, 1.5, plan.parse_metadata(vstats.read_text()), audio)
+    table = plan.inspect_table(0.5, 1.5, video, audio)
     print(table)
-    assert [r.split()[0] for r in table.splitlines()[1:]] == ["0.5", "1.5"], table
+    rows = [r.split() for r in table.splitlines()[1:]]
+    assert [r[0] for r in rows] == ["0.5", "1.5"], table
+    assert all(len(r) == 7 and "-" not in r[4:] for r in rows), table
     s = ffprobe(sheet, "stream=width,height")["streams"][0]
     print("inspect sheet", s)
     assert s["height"] == (240 if portrait else 134), s

@@ -19,6 +19,11 @@ class Segment(BaseModel):
     asset_id: AssetId
     start: float = Field(ge=0, description="Seconds into the clip")
     end: float = Field(description="Seconds into the clip, after start")
+    stabilize: bool = Field(
+        False,
+        description="Smooth handheld wobble (vidstab). It zooms in slightly; leave it off for "
+        "ride POVs, where the motion is the content",
+    )
 
     @model_validator(mode="after")
     def _ordered(self) -> Self:
