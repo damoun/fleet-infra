@@ -74,8 +74,11 @@ transforms:
             # The Graph API takes the token as ?access_token=.
             match_query: true
             require: true
-          # Read only: the token's Page could otherwise be written to.
+          # Instagram account nodes only (their IDs start with 17841), read only:
+          # /me, the Page or debug_token would hand the real token back.
           rules:
             - host: graph.facebook.com
               methods:
                 - GET
+              paths:
+                - /v27.0/17841*
