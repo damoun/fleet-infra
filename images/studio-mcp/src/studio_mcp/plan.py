@@ -314,7 +314,9 @@ def inspect_video_argv(
     tonemapped like the reel, so the sheet and the brightness match what gets rendered.
     """
     k = inspect_rate(span)
-    cols = 10 if portrait else 5
+    # Landscape tiles are about 16:9 at the portrait tile width, so both sheets stay about
+    # 1400px wide. Heights are even: zscale rejects odd 4:2:0 sizes.
+    height, cols = (INSPECT_HEIGHT, 10) if portrait else (134, 6)
     frames = math.floor(span * 2 / k) + 1
     rows = math.ceil(frames / cols)
     t = f"t+{start:.3f}"
@@ -323,7 +325,7 @@ def inspect_video_argv(
         ":x=4:y=4:fontsize=18:fontcolor=white:box=1:boxcolor=black@0.6"
     )
     graph = (
-        f"[0:v:0]scale=-2:{INSPECT_HEIGHT},{TONEMAP if hdr else 'format=yuv420p'},split[s][m];"
+        f"[0:v:0]scale=-2:{height},{TONEMAP if hdr else 'format=yuv420p'},split[s][m];"
         f"[s]fps=2/{k},{label},tile={cols}x{rows}[sheet];"
         f"[m]signalstats,metadata=print:file={stats}[stats]"
     )
