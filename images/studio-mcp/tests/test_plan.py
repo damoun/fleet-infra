@@ -326,7 +326,8 @@ def test_inspect_video_argv_labels_clip_time_and_sizes_the_sheet():
     assert "trunc(t+13.500)" in g and "fps=2/1," in g
     assert "tile=10x5[sheet]" in g  # 41 frames at 0.5s, 10 portrait frames a row
     assert "metadata=print:file=/w/v.txt" in g
-    assert argv[argv.index("[sheet]") + 1 :][:4] == ["-frames:v", "1", "-q:v", "3"]
+    j = argv.index("[sheet]")
+    assert argv[j + 1 : j + 5] == ["-frames:v", "1", "-q:v", "3"]
     wide = graph(plan.inspect_video_argv("v", 0, 56, False, "s.jpg", "v.txt"))
     assert "fps=2/2," in wide and "tile=5x12[sheet]" in wide
 
