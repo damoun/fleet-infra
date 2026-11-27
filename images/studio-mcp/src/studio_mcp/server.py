@@ -104,7 +104,9 @@ async def preview_assets(ids: Annotated[list[AssetId], Field(min_length=1, max_l
 
 
 @mcp.tool(structured_output=False)
-async def inspect_clip(id: AssetId, start: float = 0, end: float | None = None) -> list:
+async def inspect_clip(
+    id: AssetId, start: Annotated[float, Field(ge=0)] = 0, end: float | None = None
+) -> list:
     """See one video second by second, to choose segment start and end, or to check a reel.
 
     Returns a text table and a JPEG sheet of frames labelled with their time in the clip: one
@@ -113,8 +115,6 @@ async def inspect_clip(id: AssetId, start: float = 0, end: float | None = None) 
     (silent below -70; screams and music peak near -10), bright is mean luma in percent, motion
     is the mean luma change between frames (near 0 is a still shot, above 5 is fast movement).
     """
-    if start < 0:
-        raise ValueError("start must be 0 or more")
     with tempfile.TemporaryDirectory(dir=work_dir, ignore_cleanup_errors=True) as work:
         table, jpeg = await pipeline.inspect(immich, id, start, end, Path(work))
     return [table, Image(data=jpeg, format="jpeg")]
