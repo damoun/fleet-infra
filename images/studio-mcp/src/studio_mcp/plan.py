@@ -410,20 +410,22 @@ def add_camera(video: list[tuple[float, dict[str, float]]], trf: str, height: in
 
     The camera move of a frame is the median of vidstab's local motion vectors. Shake is its
     distance from the mean move over the surrounding second: a steady pan or a ride POV has
-    camera and little shake, a handheld wobble or a whip has shake.
+    camera and little shake, a handheld wobble or a whip has shake. Frames without vectors
+    (the first one, which has no predecessor, or a frame with no contrast) are left out.
     """
-    moves = []
+    moves: list[tuple[float, float] | None] = []
     for line in trf.splitlines():
         if line.startswith("Frame"):
             vectors = [(int(x), int(y)) for x, y in re.findall(r"\(LM (-?\d+) (-?\d+)", line)]
-            if vectors:
-                moves.append((median(x for x, _ in vectors), median(y for _, y in vectors)))
-            else:
-                moves.append((0.0, 0.0))
+            xs, ys = [x for x, _ in vectors], [y for _, y in vectors]
+            moves.append((median(xs), median(ys)) if vectors else None)
     seconds = video[-1][0] - video[0][0] if video else 0
     half = max(1, round((len(video) - 1) / seconds / 2)) if seconds > 0 else 1  # half a second
-    for i, ((x, y), (_, values)) in enumerate(zip(moves, video)):
-        around = moves[max(0, i - half) : i + half + 1]
+    for i, (move, (_, values)) in enumerate(zip(moves, video)):
+        if move is None:
+            continue
+        x, y = move
+        around = [m for m in moves[max(0, i - half) : i + half + 1] if m]
         mx, my = fmean(m[0] for m in around), fmean(m[1] for m in around)
         values[CAMERA] = math.hypot(x, y) / height * 100
         values[SHAKE] = math.hypot(x - mx, y - my) / height * 100

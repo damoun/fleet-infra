@@ -380,8 +380,13 @@ def test_add_camera_takes_the_median_move_and_its_jitter_around_half_a_second():
         "(LM 3 0 80 16 32 0.5 0.1)])\nFrame 3 (List 0 [])\n"
     )
     plan.add_camera(video, trf, 240)
-    # Frame 2 moves 3px; the mean over frames 1-3 is 1px, so it shakes by 2px.
-    assert (video[1][1][plan.CAMERA], video[1][1][plan.SHAKE]) == pytest.approx((1.25, 2 / 2.4))
-    assert (video[0][1][plan.CAMERA], video[0][1][plan.SHAKE]) == pytest.approx((0, 1.5 / 2.4))
+    # Frames 1 and 3 have no vectors and stay out; frame 2 moves 3px and is its own mean.
+    assert (video[1][1][plan.CAMERA], video[1][1][plan.SHAKE]) == pytest.approx((1.25, 0))
+    assert plan.CAMERA not in video[0][1] and plan.CAMERA not in video[2][1]
+    trf = trf.replace("Frame 3 (List 0 [])", "Frame 3 (List 1 [(LM 0 0 16 16 32 0.5 0.1)])")
+    video = [(t, {plan.YAVG: 16}) for t in (0.0, 0.5, 1.0)]
+    plan.add_camera(video, trf, 240)
+    # Frames 2 and 3 average 1.5px: frame 2 shakes by 1.5px.
+    assert video[1][1][plan.SHAKE] == pytest.approx(1.5 / 2.4)
     table = plan.inspect_table(0, 1, video, None).splitlines()[1]
-    assert table.split()[4:6] == ["0.6", "0.73"]
+    assert table.split()[4:6] == ["1.2", "0.62"]
