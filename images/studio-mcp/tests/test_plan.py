@@ -346,5 +346,5 @@ def test_parse_metadata_and_table_bucket_by_second_in_clip_time():
         "frame:2 pts:9600 pts_time:1.1\nlavfi.r128.M=-120.7\n"
     )
     table = plan.inspect_table(20, 2, video, audio).splitlines()
-    assert table == ["t(s) loud(LUFS) bright(%) motion", "20 -8 40 2.0", "21 silent 0 12.2"]
-    assert plan.inspect_table(0, 1, video, None).splitlines()[1] == "0 no-audio 40 2.0"
+    assert table == ["t(s) loud(LUFS) bright(%) motion", "20 -8 39 2.0", "21 silent 0 12.2"]
+    assert plan.inspect_table(0, 1, video, None).splitlines()[1] == "0 no-audio 39 2.0"

@@ -387,7 +387,8 @@ def inspect_table(
             level = "silent"
         else:
             level = f"{max(loud[s]):.0f}"
-        avg = sum(bright[s]) / len(bright[s]) / 255 * 100
+        # Video luma is limited range: 16 is black and 235 is white.
+        avg = min(100, max(0, (sum(bright[s]) / len(bright[s]) - 16) / 219 * 100))
         rows.append(f"{start + s:g} {level} {avg:.0f} {sum(motion[s]) / len(motion[s]):.1f}")
     return "\n".join(rows)
 
