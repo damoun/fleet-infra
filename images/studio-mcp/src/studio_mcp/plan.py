@@ -314,7 +314,8 @@ def inspect_video_argv(
     """
     k = inspect_rate(span)
     cols = 10 if portrait else 5
-    rows = math.ceil((math.floor(span * 2 / k) + 1) / cols)
+    frames = math.floor(span * 2 / k) + 1
+    rows = math.ceil(frames / cols)
     t = f"t+{start:.3f}"
     label = (
         f"drawtext=font=Inter:text='%{{eif\\:trunc({t})\\:d}}.%{{eif\\:mod(trunc(({t})*10),10)\\:d}}s'"
