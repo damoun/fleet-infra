@@ -111,6 +111,22 @@ def test_segment_argv_trims_and_normalizes_one_clip():
     assert argv[argv.index("-crf") + 1] == "16" and argv[-1] == "seg01.mkv"
 
 
+def test_stabilize_passes_share_the_segment_frames():
+    detect = plan.stabilize_argv("a", 1, 4, HDR, "/w/s.trf")
+    chain = detect[detect.index("-vf") + 1]
+    assert chain.endswith(",vidstabdetect=result=/w/s.trf") and "zscale" in chain
+    assert detect[-3:] == ["-f", "null", "-"]
+    g = graph(plan.segment_argv("a", 1, 4, HDR, True, "o.mkv", "/w/s.trf"))
+    assert g.startswith(f"[0:v:0]{chain.removesuffix(',vidstabdetect=result=/w/s.trf')}")
+    assert ",vidstabtransform=input=/w/s.trf:smoothing=15,unsharp=5:5:0.8:3:3:0.4[v]" in g
+    seg = plan.segment_argv("a", 1, 4, HDR, True, "o.mkv", "/w/s.trf")
+    assert (
+        detect[detect.index("-ss") : detect.index("-i") + 2]
+        == seg[seg.index("-ss") : seg.index("-i") + 2]
+    )
+    assert "vidstab" not in graph(plan.segment_argv("a", 1, 4, HDR, True, "o.mkv"))
+
+
 def test_segment_argv_tonemaps_only_hdr():
     assert "zscale" not in graph(plan.segment_argv("a", 0, 2, SDR, True, "o.mkv"))
     assert "zscale=t=linear" in graph(plan.segment_argv("a", 0, 2, HDR, True, "o.mkv"))
@@ -256,19 +272,28 @@ def test_slide_needs_exactly_one_kind():
 OTHER = "00000001-0000-4000-8000-000000000000"
 
 
-@pytest.mark.parametrize("markup", [
-    '#cover(title: "Hi")', '  #point(title: "T")', '#data(title: "T")', '#cta(title: "T")',
-])
+@pytest.mark.parametrize(
+    "markup",
+    [
+        '#cover(title: "Hi")',
+        '  #point(title: "T")',
+        '#data(title: "T")',
+        '#cta(title: "T")',
+    ],
+)
 def test_typst_slides_accept_a_leading_brand_call(markup):
     Slide(typst=markup)
 
 
-@pytest.mark.parametrize("markup", [
-    "#align(center)[= Hi]",
-    '#place(top)[old]\n#cta(title: "x")',
-    '// #cover(title: "x")',
-    '#cover (title: "x")',
-])
+@pytest.mark.parametrize(
+    "markup",
+    [
+        "#align(center)[= Hi]",
+        '#place(top)[old]\n#cta(title: "x")',
+        '// #cover(title: "x")',
+        '#cover (title: "x")',
+    ],
+)
 def test_typst_slides_reject_raw_typst(markup):
     with pytest.raises(ValidationError, match="raw Typst is not accepted"):
         Slide(typst=markup)
@@ -319,16 +344,16 @@ def test_inspect_rate_keeps_half_seconds_then_caps_frames():
 
 
 def test_inspect_video_argv_labels_clip_time_and_sizes_the_sheet():
-    argv = plan.inspect_video_argv("v", 13.5, 20, True, False, "s.jpg", "/w/v.txt")
+    argv = plan.inspect_video_argv("v", 13.5, 20, True, False, "s.jpg", "/w/v.txt", "/w/c.trf")
     i = argv.index("-ss")
     assert argv[i : i + 6] == ["-ss", "13.500", "-t", "20.000", "-i", "v"]
     g = graph(argv)
     assert "trunc(t+13.500)" in g and "fps=2/1," in g and "zscale" not in g
     assert "tile=10x5[sheet]" in g  # 41 frames at 0.5s, 10 portrait frames a row
-    assert "metadata=print:file=/w/v.txt" in g
+    assert "blurdetect,metadata=print:file=/w/v.txt,vidstabdetect=result=/w/c.trf[stats]" in g
     j = argv.index("[sheet]")
     assert argv[j + 1 : j + 5] == ["-frames:v", "1", "-q:v", "3"]
-    wide = graph(plan.inspect_video_argv("v", 0, 56, False, True, "s.jpg", "v.txt"))
+    wide = graph(plan.inspect_video_argv("v", 0, 56, False, True, "s.jpg", "v.txt", "c.trf"))
     assert "zscale=t=linear" in wide and "fps=2/2," in wide and "scale=-2:134," in wide
     assert "tile=6x10[sheet]" in wide  # 57 frames at 1s
 
@@ -336,16 +361,36 @@ def test_inspect_video_argv_labels_clip_time_and_sizes_the_sheet():
 def test_parse_metadata_and_table_bucket_by_second_in_clip_time():
     video = plan.parse_metadata(
         "frame:0    pts:0       pts_time:0\ntimecode=01:02:03:04\n"
-        "lavfi.signalstats.YAVG=51\nlavfi.signalstats.YDIF=0\n"
+        "lavfi.signalstats.YAVG=51\nlavfi.signalstats.YDIF=0\nlavfi.blur=5\n"
         "frame:1    pts:512     pts_time:0.5\nlavfi.signalstats.YAVG=153\nlavfi.signalstats.YDIF=4\n"
+        "lavfi.blur=nan\n"
         "frame:2    pts:1024    pts_time:1.2\nlavfi.signalstats.YAVG=0\nlavfi.signalstats.YDIF=12.25\n"
     )
-    assert video[1] == (0.5, {plan.YAVG: 153.0, plan.YDIF: 4.0})
+    assert video[1][1][plan.YDIF] == 4.0
     audio = plan.parse_metadata(
         "frame:0 pts:0 pts_time:0\nlavfi.r128.M=-120.691\n"
         "frame:1 pts:4800 pts_time:0.1\nlavfi.r128.M=-8.4\n"
         "frame:2 pts:9600 pts_time:1.1\nlavfi.r128.M=-120.7\n"
     )
     table = plan.inspect_table(20, 2, video, audio).splitlines()
-    assert table == ["t(s) loud(LUFS) bright(%) motion", "20 -8 39 2.0", "21 silent 0 12.2"]
-    assert plan.inspect_table(0, 1, video, None).splitlines()[1] == "0 no-audio 39 2.0"
+    assert table == [
+        "t(s) loud(LUFS) bright(%) motion camera(%) shake(%) blur",
+        "20 -8 39 2.0 - - 5.0",  # nan blur is skipped
+        "21 silent 0 12.2 - - -",
+    ]
+    assert plan.inspect_table(0, 1, video, None).splitlines()[1] == "0 no-audio 39 2.0 - - 5.0"
+
+
+def test_add_camera_takes_the_median_move_and_its_jitter_around_half_a_second():
+    video = [(t, {plan.YAVG: 16}) for t in (0.0, 0.5, 1.0)]
+    trf = (
+        "VID.STAB 1\n#      accuracy = 15\nFrame 1 (List 0 [])\n"
+        "Frame 2 (List 3 [(LM 2 0 16 16 32 0.5 0.1),(LM 4 0 48 16 32 0.5 0.1),"
+        "(LM 3 0 80 16 32 0.5 0.1)])\nFrame 3 (List 0 [])\n"
+    )
+    plan.add_camera(video, trf, 240)
+    # Frame 2 moves 3px; the mean over frames 1-3 is 1px, so it shakes by 2px.
+    assert (video[1][1][plan.CAMERA], video[1][1][plan.SHAKE]) == pytest.approx((1.25, 2 / 2.4))
+    assert (video[0][1][plan.CAMERA], video[0][1][plan.SHAKE]) == pytest.approx((0, 1.5 / 2.4))
+    table = plan.inspect_table(0, 1, video, None).splitlines()[1]
+    assert table.split()[4:6] == ["0.6", "0.73"]

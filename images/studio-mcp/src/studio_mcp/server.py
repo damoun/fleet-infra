@@ -114,6 +114,11 @@ async def inspect_clip(
     narrow the range. Table row per second: loud is the loudest momentary loudness in LUFS
     (silent below -70; screams and music peak near -10), bright is mean luma in percent, motion
     is the mean luma change between frames (near 0 is a still shot, above 5 is fast movement).
+    camera is how far the frame moves per frame, in percent of its height (0 on a tripod, 1-3
+    on a ride POV, above 5 a whip pan). shake is the jitter around that move (under 0.3
+    steady, 0.4-1.3 ride vibration or mild handheld wobble, above 1.5 shaky). blur is
+    blurdetect's score (4-6 sharp, 8 and up blurred by motion or darkness). Motion with a low
+    camera is action in the scene; motion with a high camera is the phone moving.
     """
     with tempfile.TemporaryDirectory(dir=work_dir, ignore_cleanup_errors=True) as work:
         table, jpeg = await pipeline.inspect(immich, id, start, end, Path(work))

@@ -1,9 +1,11 @@
 """Pure builders: ISO-week usage, Immich search requests, ffmpeg and Typst commands."""
 
 import math
+import re
 from dataclasses import dataclass
 from datetime import date, timedelta
 from pathlib import Path
+from statistics import fmean, median
 
 REEL_W, REEL_H, FPS = 1080, 1920, 30
 SLIDE_W, SLIDE_H = 1080, 1350
@@ -129,27 +131,53 @@ def parse_probe(data: dict) -> Probe:
     )
 
 
-def segment_argv(
-    path: str, start: float, end: float, probe: Probe, keep_audio: bool, out: str
-) -> list[str]:
-    """Trim and normalize one segment into an mkv that stream-copies with its siblings.
-
-    Every segment is a separate run: decoding all sources in one filter graph queues 4K
-    frames for the inputs concat is not reading yet, and memory grows with the segment count.
-    """
+def _segment_frames(path: str, start: float, end: float, probe: Probe) -> tuple[float, str]:
+    """The segment length in whole frames, and the filter chain that makes its reel frames."""
     if start >= probe.duration:
         raise ValueError(f"{path} starts after the clip ends ({probe.duration:.1f}s)")
     # Whole frames: 48000/30 = 1600 samples per frame, so audio and video lengths match exactly.
     frames = round((min(end, probe.duration) - start) * FPS)
     if frames < 1:
         raise ValueError(f"{path}: segment is shorter than one frame")
-    length = frames / FPS
     color = TONEMAP if probe.hdr else "format=yuv420p"
-    video = (
-        f"[0:v:0]setpts=PTS-STARTPTS,fps={FPS},"
+    chain = (
+        f"setpts=PTS-STARTPTS,fps={FPS},"
         f"scale={REEL_W}:{REEL_H}:force_original_aspect_ratio=increase,"
-        f"crop={REEL_W}:{REEL_H},setsar=1,{color}[v]"
+        f"crop={REEL_W}:{REEL_H},setsar=1,{color}"
     )
+    return frames / FPS, chain
+
+
+def stabilize_argv(path: str, start: float, end: float, probe: Probe, trf: str) -> list[str]:
+    """vidstab pass 1: the camera path of the segment's reel frames into trf."""
+    length, chain = _segment_frames(path, start, end, probe)
+    return [
+        *FFMPEG, "-ss", f"{start:.3f}", "-t", f"{length:.6f}", "-i", path,
+        "-vf", f"{chain},vidstabdetect=result={trf}", "-f", "null", "-",
+    ]  # fmt: skip
+
+
+def segment_argv(
+    path: str,
+    start: float,
+    end: float,
+    probe: Probe,
+    keep_audio: bool,
+    out: str,
+    trf: str | None = None,
+) -> list[str]:
+    """Trim and normalize one segment into an mkv that stream-copies with its siblings.
+
+    With trf from stabilize_argv, vidstab pass 2 smooths the camera path; it zooms in to hide
+    the moved edges, and the unsharp settings are vidstab's own recommendation.
+
+    Every segment is a separate run: decoding all sources in one filter graph queues 4K
+    frames for the inputs concat is not reading yet, and memory grows with the segment count.
+    """
+    length, chain = _segment_frames(path, start, end, probe)
+    if trf:
+        chain += f",vidstabtransform=input={trf}:smoothing=15,unsharp=5:5:0.8:3:3:0.4"
+    video = f"[0:v:0]{chain}[v]"
     if keep_audio and probe.has_audio:
         source = (
             f"[0:a:0]aresample=48000,aformat=channel_layouts=stereo,apad=whole_dur={length:.6f}"
@@ -298,6 +326,7 @@ def legend(assets: list[Preview]) -> str:
 
 INSPECT_FRAMES, INSPECT_HEIGHT, SILENT = 60, 240, -70.0
 YAVG, YDIF, LOUD = "lavfi.signalstats.YAVG", "lavfi.signalstats.YDIF", "lavfi.r128.M"
+BLUR, CAMERA, SHAKE = "lavfi.blur", "camera", "shake"
 
 
 def inspect_rate(span: float) -> int:
@@ -305,18 +334,33 @@ def inspect_rate(span: float) -> int:
     return max(1, math.ceil(span * 2 / INSPECT_FRAMES))
 
 
+def inspect_tile(portrait: bool) -> tuple[int, int]:
+    """Frame height and sheet columns.
+
+    Landscape tiles are about 16:9 at the portrait tile width, so both sheets stay about
+    1400px wide. Heights are even: zscale rejects odd 4:2:0 sizes.
+    """
+    return (INSPECT_HEIGHT, 10) if portrait else (134, 6)
+
+
 def inspect_video_argv(
-    path: str, start: float, span: float, portrait: bool, hdr: bool, sheet: str, stats: str
+    path: str,
+    start: float,
+    span: float,
+    portrait: bool,
+    hdr: bool,
+    sheet: str,
+    stats: str,
+    trf: str,
 ) -> list[str]:
-    """One decode: a timestamped frame sheet, and luma stats of every frame into stats.
+    """One decode: a timestamped frame sheet, luma and blur stats of every frame into stats,
+    and vidstab's frame-to-frame motion into trf.
 
     Frames are labelled with their time in the clip, not in the inspected range. HDR is
     tonemapped like the reel, so the sheet and the brightness match what gets rendered.
     """
     k = inspect_rate(span)
-    # Landscape tiles are about 16:9 at the portrait tile width, so both sheets stay about
-    # 1400px wide. Heights are even: zscale rejects odd 4:2:0 sizes.
-    height, cols = (INSPECT_HEIGHT, 10) if portrait else (134, 6)
+    height, cols = inspect_tile(portrait)
     frames = math.floor(span * 2 / k) + 1
     rows = math.ceil(frames / cols)
     t = f"t+{start:.3f}"
@@ -327,7 +371,7 @@ def inspect_video_argv(
     graph = (
         f"[0:v:0]scale=-2:{height},{TONEMAP if hdr else 'format=yuv420p'},split[s][m];"
         f"[s]fps=2/{k},{label},tile={cols}x{rows}[sheet];"
-        f"[m]signalstats,metadata=print:file={stats}[stats]"
+        f"[m]signalstats,blurdetect,metadata=print:file={stats},vidstabdetect=result={trf}[stats]"
     )
     return [
         *FFMPEG, "-ss", f"{start:.3f}", "-t", f"{span:.3f}", "-i", path,
@@ -361,25 +405,55 @@ def parse_metadata(text: str) -> list[tuple[float, dict[str, float]]]:
     return frames
 
 
+def add_camera(video: list[tuple[float, dict[str, float]]], trf: str, height: int) -> None:
+    """Add CAMERA and SHAKE, in percent of the frame height, to each frame of video.
+
+    The camera move of a frame is the median of vidstab's local motion vectors. Shake is its
+    distance from the mean move over the surrounding second: a steady pan or a ride POV has
+    camera and little shake, a handheld wobble or a whip has shake.
+    """
+    moves = []
+    for line in trf.splitlines():
+        if line.startswith("Frame"):
+            vectors = [(int(x), int(y)) for x, y in re.findall(r"\(LM (-?\d+) (-?\d+)", line)]
+            if vectors:
+                moves.append((median(x for x, _ in vectors), median(y for _, y in vectors)))
+            else:
+                moves.append((0.0, 0.0))
+    seconds = video[-1][0] - video[0][0] if video else 0
+    half = max(1, round((len(video) - 1) / seconds / 2)) if seconds > 0 else 1  # half a second
+    for i, ((x, y), (_, values)) in enumerate(zip(moves, video)):
+        around = moves[max(0, i - half) : i + half + 1]
+        mx, my = fmean(m[0] for m in around), fmean(m[1] for m in around)
+        values[CAMERA] = math.hypot(x, y) / height * 100
+        values[SHAKE] = math.hypot(x - mx, y - my) / height * 100
+
+
 def inspect_table(
     start: float,
     span: float,
     video: list[tuple[float, dict[str, float]]],
     audio: list[tuple[float, dict[str, float]]] | None,
 ) -> str:
-    """One row per second of the range, in clip time: loudest moment, mean brightness, motion."""
+    """One row per second of the range, in clip time: loudest moment, then means of brightness,
+    scene motion, camera move, shake and blur."""
     seconds = range(math.ceil(span))
 
     def bucket(frames, key):
         out: dict[int, list[float]] = {s: [] for s in seconds}
         for t, values in frames:
-            if key in values and int(t) in out:
+            # blurdetect reports nan on frames without edges, such as black ones.
+            if math.isfinite(values.get(key, math.nan)) and int(t) in out:
                 out[int(t)].append(values[key])
         return out
 
+    def mean(values, digits):
+        return f"{fmean(values):.{digits}f}" if values else "-"
+
     bright, motion = bucket(video, YAVG), bucket(video, YDIF)
+    camera, shake, blur = bucket(video, CAMERA), bucket(video, SHAKE), bucket(video, BLUR)
     loud = bucket(audio, LOUD) if audio is not None else None
-    rows = ["t(s) loud(LUFS) bright(%) motion"]
+    rows = ["t(s) loud(LUFS) bright(%) motion camera(%) shake(%) blur"]
     for s in seconds:
         if not bright[s]:
             continue
@@ -391,7 +465,10 @@ def inspect_table(
             level = f"{max(loud[s]):.0f}"
         # Video luma is limited range: 16 is black and 235 is white.
         avg = min(100, max(0, (sum(bright[s]) / len(bright[s]) - 16) / 219 * 100))
-        rows.append(f"{start + s:g} {level} {avg:.0f} {sum(motion[s]) / len(motion[s]):.1f}")
+        rows.append(
+            f"{start + s:g} {level} {avg:.0f} {mean(motion[s], 1)} "
+            f"{mean(camera[s], 1)} {mean(shake[s], 2)} {mean(blur[s], 1)}"
+        )
     return "\n".join(rows)
 
 
