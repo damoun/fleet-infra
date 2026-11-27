@@ -329,7 +329,8 @@ def test_inspect_video_argv_labels_clip_time_and_sizes_the_sheet():
     j = argv.index("[sheet]")
     assert argv[j + 1 : j + 5] == ["-frames:v", "1", "-q:v", "3"]
     wide = graph(plan.inspect_video_argv("v", 0, 56, False, True, "s.jpg", "v.txt"))
-    assert "zscale=t=linear" in wide and "fps=2/2," in wide and "tile=5x12[sheet]" in wide
+    assert "zscale=t=linear" in wide and "fps=2/2," in wide and "scale=-2:134," in wide
+    assert "tile=6x10[sheet]" in wide  # 57 frames at 1s
 
 
 def test_parse_metadata_and_table_bucket_by_second_in_clip_time():

@@ -148,7 +148,7 @@ for clip, has_audio, portrait, is_hdr in (
     assert [r.split()[0] for r in table.splitlines()[1:]] == ["0.5", "1.5"], table
     s = ffprobe(sheet, "stream=width,height")["streams"][0]
     print("inspect sheet", s)
-    assert s["height"] == plan.INSPECT_HEIGHT, s
+    assert s["height"] == (240 if portrait else 134), s
 
 
 # Memory: one 4K HLG 10-bit clip. The old single-run design measured about 1200 MB on three
