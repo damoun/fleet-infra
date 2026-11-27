@@ -183,8 +183,12 @@ async def _inspect(
         )
     span = end - start
     sheet, vstats, astats = work / "sheet.jpg", work / "video.txt", work / "audio.txt"
-    portrait = plan.orientation(info) != "landscape"
-    await run(plan.inspect_video_argv(str(path), start, span, portrait, str(sheet), str(vstats)))
+    shape = plan.orientation(info)
+    await run(
+        plan.inspect_video_argv(
+            str(path), start, span, shape != "landscape", str(sheet), str(vstats)
+        )
+    )
     audio = None
     if probe.has_audio:
         await run(plan.inspect_audio_argv(str(path), start, span, str(astats)))
@@ -192,7 +196,7 @@ async def _inspect(
     table = plan.inspect_table(start, span, plan.parse_metadata(vstats.read_text()), audio)
     step = plan.inspect_rate(span) / 2
     head = (
-        f"{asset_id} video {plan.orientation(info) or 'unknown'} {probe.duration:.1f}s; "
+        f"{asset_id} video {shape or 'unknown'} {probe.duration:.1f}s; "
         f"sheet: one frame every {step:g}s from {start:.1f}s to {end:.1f}s, labelled in clip time"
     )
     return f"{head}\n{table}", sheet.read_bytes()
