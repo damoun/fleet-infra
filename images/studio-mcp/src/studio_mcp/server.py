@@ -26,7 +26,8 @@ mcp = FastMCP(
     instructions=(
         "Find clips and photos in Immich, then render a reel or carousel into an Immich album. "
         "preview_assets returns a contact sheet image plus a legend with the frame times: view the "
-        "image with a vision tool before choosing segments. "
+        "image with a vision tool to shortlist clips, then inspect_clip each one and pick start "
+        "and end from its frames and table. "
         "create_* return a job id; poll job_status."
     ),
     host="0.0.0.0",
@@ -94,12 +95,29 @@ async def preview_assets(ids: Annotated[list[AssetId], Field(min_length=1, max_l
     """See assets: one contact sheet JPEG and a legend, in a single call.
 
     Each asset is a row half: three 256px tiles, labelled #k on the first. Videos show frames at
-    15%, 50% and 85% of their duration (the legend gives the times, so you can pick segment
-    start and end); photos show the photo and two black tiles.
+    15%, 50% and 85% of their duration (the legend gives the times); photos show the photo
+    and two black tiles. Use inspect_clip to choose segment start and end.
     """
     with tempfile.TemporaryDirectory(dir=work_dir, ignore_cleanup_errors=True) as work:
         legend, jpeg = await pipeline.preview(immich, ids, Path(work))
     return [legend, Image(data=jpeg, format="jpeg")]
+
+
+@mcp.tool(structured_output=False)
+async def inspect_clip(id: AssetId, start: float = 0, end: float | None = None) -> list:
+    """See one video second by second, to choose segment start and end, or to check a reel.
+
+    Returns a text table and a JPEG sheet of frames labelled with their time in the clip: one
+    every 0.5s up to 30s of range, at most 60 frames for longer ranges. start/end (seconds)
+    narrow the range. Table row per second: loud is the loudest momentary loudness in LUFS
+    (silent below -70; screams and music peak near -10), bright is mean luma in percent, motion
+    is the mean luma change between frames (near 0 is a still shot, above 5 is fast movement).
+    """
+    if start < 0:
+        raise ValueError("start must be 0 or more")
+    with tempfile.TemporaryDirectory(dir=work_dir, ignore_cleanup_errors=True) as work:
+        table, jpeg = await pipeline.inspect(immich, id, start, end, Path(work))
+    return [table, Image(data=jpeg, format="jpeg")]
 
 
 @mcp.tool(structured_output=False)

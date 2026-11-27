@@ -131,6 +131,21 @@ assert (s["codec_name"], s["width"], s["height"]) == ("mjpeg", 1536, 512), s
 print(plan.legend(assets))
 print("sheet", s)
 
+# inspect_clip: sheet and per-second table, with and without audio, from a mid-clip start.
+for clip, probe, portrait in ((sdr, probes[0], False), (work / "tall.mp4", None, True)):
+    sheet, vstats, astats = work / "insp.jpg", work / "v.txt", work / "a.txt"
+    sh(plan.inspect_video_argv(str(clip), 0.5, 1.5, portrait, str(sheet), str(vstats)))
+    audio = None
+    if probe and probe.has_audio:
+        sh(plan.inspect_audio_argv(str(clip), 0.5, 1.5, str(astats)))
+        audio = plan.parse_metadata(astats.read_text())
+    table = plan.inspect_table(0.5, 1.5, plan.parse_metadata(vstats.read_text()), audio)
+    print(table)
+    assert [r.split()[0] for r in table.splitlines()[1:]] == ["0.5", "1.5"], table
+    s = ffprobe(sheet, "stream=width,height")["streams"][0]
+    print("inspect sheet", s)
+    assert s["height"] == plan.INSPECT_HEIGHT, s
+
 
 # Memory: one 4K HLG 10-bit clip. The old single-run design measured about 1200 MB on three
 # such clips, and grew with the segment count; each segment is now its own run.

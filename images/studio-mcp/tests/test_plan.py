@@ -312,3 +312,37 @@ def test_spec_validation_limits():
         Segment(asset_id=ID, start=3, end=3)
     with pytest.raises(ValidationError):
         ReelSpec(album="a", caption="c", week="2026-W48", segments=[])
+
+
+def test_inspect_rate_keeps_half_seconds_then_caps_frames():
+    assert [plan.inspect_rate(s) for s in (3, 30, 31, 56, 90, 300)] == [1, 1, 2, 2, 3, 10]
+
+
+def test_inspect_video_argv_labels_clip_time_and_sizes_the_sheet():
+    argv = plan.inspect_video_argv("v", 13.5, 20, True, "s.jpg", "/w/v.txt")
+    i = argv.index("-ss")
+    assert argv[i : i + 6] == ["-ss", "13.500", "-t", "20.000", "-i", "v"]
+    g = graph(argv)
+    assert "trunc(t+13.500)" in g and "fps=2/1," in g
+    assert "tile=10x5[sheet]" in g  # 41 frames at 0.5s, 10 portrait frames a row
+    assert "metadata=print:file=/w/v.txt" in g
+    assert argv[argv.index("[sheet]") + 1 :][:4] == ["-frames:v", "1", "-q:v", "3"]
+    wide = graph(plan.inspect_video_argv("v", 0, 56, False, "s.jpg", "v.txt"))
+    assert "fps=2/2," in wide and "tile=5x12[sheet]" in wide
+
+
+def test_parse_metadata_and_table_bucket_by_second_in_clip_time():
+    video = plan.parse_metadata(
+        "frame:0    pts:0       pts_time:0\nlavfi.signalstats.YAVG=51\nlavfi.signalstats.YDIF=0\n"
+        "frame:1    pts:512     pts_time:0.5\nlavfi.signalstats.YAVG=153\nlavfi.signalstats.YDIF=4\n"
+        "frame:2    pts:1024    pts_time:1.2\nlavfi.signalstats.YAVG=0\nlavfi.signalstats.YDIF=12.25\n"
+    )
+    assert video[1] == (0.5, {plan.YAVG: 153.0, plan.YDIF: 4.0})
+    audio = plan.parse_metadata(
+        "frame:0 pts:0 pts_time:0\nlavfi.r128.M=-120.691\n"
+        "frame:1 pts:4800 pts_time:0.1\nlavfi.r128.M=-8.4\n"
+        "frame:2 pts:9600 pts_time:1.1\nlavfi.r128.M=-120.7\n"
+    )
+    table = plan.inspect_table(20, 2, video, audio).splitlines()
+    assert table == ["t(s) loud(LUFS) bright(%) motion", "20 -8 40 2.0", "21 silent 0 12.2"]
+    assert plan.inspect_table(0, 1, video, None).splitlines()[1] == "0 no-audio 40 2.0"

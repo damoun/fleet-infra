@@ -9,7 +9,7 @@ from . import plan
 from .immich import Immich
 from .models import CarouselSpec, ReelSpec
 
-PREVIEW_TIMEOUT, STEP_TIMEOUT = 90, 30
+PREVIEW_TIMEOUT, STEP_TIMEOUT, INSPECT_TIMEOUT = 90, 30, 240
 
 
 async def run(argv: list[str], timeout: int = 600) -> bytes:
@@ -154,3 +154,45 @@ async def _preview(immich: Immich, ids: list[str], work: Path) -> tuple[str, byt
     sheet = work / "sheet.jpg"
     await run(plan.sheet_argv(str(tiles), len(assets), str(sheet)), STEP_TIMEOUT)
     return plan.legend(assets), sheet.read_bytes()
+
+
+async def inspect(
+    immich: Immich, asset_id: str, start: float, end: float | None, work: Path
+) -> tuple[str, bytes]:
+    """A per-second table and a timestamped frame sheet of one video, or of start..end."""
+    try:
+        async with asyncio.timeout(INSPECT_TIMEOUT):
+            return await _inspect(immich, asset_id, start, end, work)
+    except TimeoutError:
+        raise RuntimeError(f"inspect timed out after {INSPECT_TIMEOUT}s") from None
+
+
+async def _inspect(
+    immich: Immich, asset_id: str, start: float, end: float | None, work: Path
+) -> tuple[str, bytes]:
+    info = await immich.asset(asset_id)
+    if info["type"] != "VIDEO":
+        raise ValueError(f"{asset_id} is not a video; use preview_assets for photos")
+    path = work / asset_id
+    await immich.download(*plan.preview_request(asset_id, "VIDEO"), path)
+    probe = await _probe(path)
+    end = probe.duration if end is None else min(end, probe.duration)
+    if start >= end:
+        raise ValueError(
+            f"start {start}s is not before end {end:.1f}s (clip is {probe.duration:.1f}s)"
+        )
+    span = end - start
+    sheet, vstats, astats = work / "sheet.jpg", work / "video.txt", work / "audio.txt"
+    portrait = plan.orientation(info) != "landscape"
+    await run(plan.inspect_video_argv(str(path), start, span, portrait, str(sheet), str(vstats)))
+    audio = None
+    if probe.has_audio:
+        await run(plan.inspect_audio_argv(str(path), start, span, str(astats)))
+        audio = plan.parse_metadata(astats.read_text())
+    table = plan.inspect_table(start, span, plan.parse_metadata(vstats.read_text()), audio)
+    step = plan.inspect_rate(span) / 2
+    head = (
+        f"{asset_id} video {plan.orientation(info) or 'unknown'} {probe.duration:.1f}s; "
+        f"sheet: one frame every {step:g}s from {start:.1f}s to {end:.1f}s, labelled in clip time"
+    )
+    return f"{head}\n{table}", sheet.read_bytes()

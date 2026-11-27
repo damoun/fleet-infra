@@ -1,5 +1,6 @@
 """Pure builders: ISO-week usage, Immich search requests, ffmpeg and Typst commands."""
 
+import math
 from dataclasses import dataclass
 from datetime import date, timedelta
 from pathlib import Path
@@ -293,6 +294,97 @@ def legend(assets: list[Preview]) -> str:
             line += f" {a.duration:.1f}s frames at {times}s"
         lines.append(line)
     return "\n".join(lines)
+
+
+INSPECT_FRAMES, INSPECT_HEIGHT, SILENT = 60, 240, -70.0
+YAVG, YDIF, LOUD = "lavfi.signalstats.YAVG", "lavfi.signalstats.YDIF", "lavfi.r128.M"
+
+
+def inspect_rate(span: float) -> int:
+    """k for one frame every k/2 seconds: 0.5s up to 30s of clip, then at most INSPECT_FRAMES."""
+    return max(1, math.ceil(span * 2 / INSPECT_FRAMES))
+
+
+def inspect_video_argv(
+    path: str, start: float, span: float, portrait: bool, sheet: str, stats: str
+) -> list[str]:
+    """One decode: a timestamped frame sheet, and luma stats of every frame into stats.
+
+    Frames are labelled with their time in the clip, not in the inspected range.
+    """
+    k = inspect_rate(span)
+    cols = 10 if portrait else 5
+    rows = math.ceil((math.floor(span * 2 / k) + 1) / cols)
+    t = f"t+{start:.3f}"
+    label = (
+        f"drawtext=font=Inter:text='%{{eif\\:trunc({t})\\:d}}.%{{eif\\:mod(trunc(({t})*10),10)\\:d}}s'"
+        ":x=4:y=4:fontsize=18:fontcolor=white:box=1:boxcolor=black@0.6"
+    )
+    graph = (
+        f"[0:v:0]scale=-2:{INSPECT_HEIGHT},format=yuv420p,split[s][m];"
+        f"[s]fps=2/{k},{label},tile={cols}x{rows}[sheet];"
+        f"[m]signalstats,metadata=print:file={stats}[stats]"
+    )
+    return [
+        *FFMPEG, "-ss", f"{start:.3f}", "-t", f"{span:.3f}", "-i", path,
+        "-filter_complex", graph,
+        "-map", "[sheet]", "-frames:v", "1", "-q:v", "3", sheet,
+        "-map", "[stats]", "-f", "null", "-",
+    ]  # fmt: skip
+
+
+def inspect_audio_argv(path: str, start: float, span: float, stats: str) -> list[str]:
+    """Momentary loudness (400 ms window) every 100 ms into stats."""
+    return [
+        *FFMPEG, "-ss", f"{start:.3f}", "-t", f"{span:.3f}", "-i", path, "-vn",
+        "-af", f"ebur128=metadata=1,ametadata=print:key={LOUD}:file={stats}",
+        "-f", "null", "-",
+    ]  # fmt: skip
+
+
+def parse_metadata(text: str) -> list[tuple[float, dict[str, float]]]:
+    """ffmpeg metadata=print output: (pts_time, {key: value}) per frame."""
+    frames: list[tuple[float, dict[str, float]]] = []
+    for line in text.splitlines():
+        if line.startswith("frame:"):
+            frames.append((float(line.rsplit("pts_time:", 1)[1]), {}))
+        elif "=" in line and frames:
+            key, value = line.split("=", 1)
+            frames[-1][1][key] = float(value)
+    return frames
+
+
+def inspect_table(
+    start: float,
+    span: float,
+    video: list[tuple[float, dict[str, float]]],
+    audio: list[tuple[float, dict[str, float]]] | None,
+) -> str:
+    """One row per second of the range, in clip time: loudest moment, mean brightness, motion."""
+    seconds = range(math.ceil(span))
+
+    def bucket(frames, key):
+        out: dict[int, list[float]] = {s: [] for s in seconds}
+        for t, values in frames:
+            if key in values and int(t) in out:
+                out[int(t)].append(values[key])
+        return out
+
+    bright, motion = bucket(video, YAVG), bucket(video, YDIF)
+    loud = bucket(audio, LOUD) if audio is not None else None
+    rows = ["t(s) loud(LUFS) bright(%) motion"]
+    for s in seconds:
+        if not bright[s]:
+            continue
+        if loud is None:
+            level = "no-audio"
+        elif not loud[s] or max(loud[s]) < SILENT:
+            level = "silent"
+        else:
+            level = f"{max(loud[s]):.0f}"
+        avg = sum(bright[s]) / len(bright[s]) / 255 * 100
+        rows.append(f"{start + s:g} {level} {avg:.0f} {sum(motion[s]) / len(motion[s]):.1f}")
+    return "\n".join(rows)
 
 
 BRAND = Path(__file__).with_name("brand.typ")
