@@ -25,7 +25,9 @@ async def run(argv: list[str], timeout: int = 600) -> bytes:
             raise RuntimeError(f"{argv[0]} timed out after {timeout}s") from None
         raise
     if proc.returncode:
-        raise RuntimeError(f"{argv[0]} exited {proc.returncode}: {err.decode()[-800:]}")
+        # errors: vidstabtransform logs the end-of-file byte of its motion file.
+        reason = err.decode(errors="replace")[-800:]
+        raise RuntimeError(f"{argv[0]} exited {proc.returncode}: {reason}")
     return out
 
 
