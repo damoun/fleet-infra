@@ -66,3 +66,16 @@ transforms:
               methods:
                 - GET
                 - POST
+        - source:
+            type: file
+            path: /etc/iron-proxy/secrets/meta
+          replace:
+            proxy_value: proxy-meta
+            # The Graph API takes the token as ?access_token=.
+            match_query: true
+            require: true
+          # Read only: the token's Page could otherwise be written to.
+          rules:
+            - host: graph.facebook.com
+              methods:
+                - GET
