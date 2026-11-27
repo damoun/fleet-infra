@@ -272,28 +272,19 @@ def test_slide_needs_exactly_one_kind():
 OTHER = "00000001-0000-4000-8000-000000000000"
 
 
-@pytest.mark.parametrize(
-    "markup",
-    [
-        '#cover(title: "Hi")',
-        '  #point(title: "T")',
-        '#data(title: "T")',
-        '#cta(title: "T")',
-    ],
-)
+@pytest.mark.parametrize("markup", [
+    '#cover(title: "Hi")', '  #point(title: "T")', '#data(title: "T")', '#cta(title: "T")',
+])
 def test_typst_slides_accept_a_leading_brand_call(markup):
     Slide(typst=markup)
 
 
-@pytest.mark.parametrize(
-    "markup",
-    [
-        "#align(center)[= Hi]",
-        '#place(top)[old]\n#cta(title: "x")',
-        '// #cover(title: "x")',
-        '#cover (title: "x")',
-    ],
-)
+@pytest.mark.parametrize("markup", [
+    "#align(center)[= Hi]",
+    '#place(top)[old]\n#cta(title: "x")',
+    '// #cover(title: "x")',
+    '#cover (title: "x")',
+])
 def test_typst_slides_reject_raw_typst(markup):
     with pytest.raises(ValidationError, match="raw Typst is not accepted"):
         Slide(typst=markup)
