@@ -344,12 +344,15 @@ def inspect_audio_argv(path: str, start: float, span: float, stats: str) -> list
 
 
 def parse_metadata(text: str) -> list[tuple[float, dict[str, float]]]:
-    """ffmpeg metadata=print output: (pts_time, {key: value}) per frame."""
+    """ffmpeg metadata=print output: (pts_time, {key: value}) per frame, lavfi keys only.
+
+    Decoder entries such as timecode=01:02:03:04 are printed too and are not numbers.
+    """
     frames: list[tuple[float, dict[str, float]]] = []
     for line in text.splitlines():
         if line.startswith("frame:"):
             frames.append((float(line.rsplit("pts_time:", 1)[1]), {}))
-        elif "=" in line and frames:
+        elif line.startswith("lavfi.") and frames:
             key, value = line.split("=", 1)
             frames[-1][1][key] = float(value)
     return frames

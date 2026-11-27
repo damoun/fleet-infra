@@ -334,7 +334,8 @@ def test_inspect_video_argv_labels_clip_time_and_sizes_the_sheet():
 
 def test_parse_metadata_and_table_bucket_by_second_in_clip_time():
     video = plan.parse_metadata(
-        "frame:0    pts:0       pts_time:0\nlavfi.signalstats.YAVG=51\nlavfi.signalstats.YDIF=0\n"
+        "frame:0    pts:0       pts_time:0\ntimecode=01:02:03:04\n"
+        "lavfi.signalstats.YAVG=51\nlavfi.signalstats.YDIF=0\n"
         "frame:1    pts:512     pts_time:0.5\nlavfi.signalstats.YAVG=153\nlavfi.signalstats.YDIF=4\n"
         "frame:2    pts:1024    pts_time:1.2\nlavfi.signalstats.YAVG=0\nlavfi.signalstats.YDIF=12.25\n"
     )
